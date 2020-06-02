@@ -29,7 +29,7 @@ function create_sin(N) {
 
 function main() {
     const [N, K, sigmax, sigmin] = init()
-    console.log(N, K, sigmax, sigmin)
+    // console.log(N, K, sigmax, sigmin)
 
     const X = create_sin(N)
     let Z =  initMatrix(data, 2)
