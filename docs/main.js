@@ -36,6 +36,9 @@ function main() {
     var width = 500
     var height = 400
     var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 };
+
+    // remove svg if svg exist before.
+    d3.select("svg").remove();
     var svg = d3.select("body").append("svg").attr("width", width).attr("height", height)
 
     var xScale = d3.scaleLinear()
@@ -85,4 +88,5 @@ function main() {
         .attr("r", 4);
 }
 
-main()
+main() // 起動時の表示
+document.getElementById("reset_btn").onclick = main
