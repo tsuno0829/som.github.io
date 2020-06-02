@@ -72,7 +72,7 @@ function main() {
         .attr("text-anchor", "middle")
         .attr("font-weight", "bold")
         .attr("font-size", "10pt")
-        `.text("Y Label");
+        .text("Y Label");
 
     svg.append("g")
         .selectAll("circle")
