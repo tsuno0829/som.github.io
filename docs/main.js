@@ -62,7 +62,7 @@ function main() {
         .text("X Label");
 
     svg.append("g")
-        `.attr("transform", "translate(" + margin.left + "," + 0 + ")")
+        .attr("transform", "translate(" + margin.left + "," + 0 + ")")
         .call(axisy)
         .append("text")
         .attr("fill", "black")
