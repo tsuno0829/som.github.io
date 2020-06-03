@@ -1,8 +1,12 @@
 function init() {
-    const data = parseInt(document.getElementById("data").value)
-    const node = parseInt(document.getElementById("node").value)
-    const sigmax = parseFloat(document.getElementById("sigmax").value)
-    const sigmin = parseFloat(document.getElementById("sigmin").value)
+    const data = parseInt(document.getElementById("data-slider").value)
+    const node = parseInt(document.getElementById("node-slider").value)
+    const sigmax = parseFloat(document.getElementById("sigmax-slider").value)
+    const sigmin = parseFloat(document.getElementById("sigmin-slider").value)
+    document.getElementById("current-data").innerHTML = data
+    document.getElementById("current-node").innerHTML = node
+    document.getElementById("current-sigmax").innerHTML = sigmax
+    document.getElementById("current-sigmin").innerHTML = sigmin
     return [data, node, sigmax, sigmin]
 }
 
@@ -29,10 +33,9 @@ function create_sin(N) {
 
 function main() {
     const [N, K, sigmax, sigmin] = init()
-    console.log(N, K, sigmax, sigmin)
 
     const X = create_sin(N)
-    let Z =  initMatrix(data, 2)
+    let Z =  initMatrix(N, 2)
     var width = 500
     var height = 400
     var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 };
@@ -90,3 +93,15 @@ function main() {
 
 main() // 起動時の表示
 document.getElementById("reset_btn").onclick = main
+
+window.onload = () => {
+    const current_data = document.getElementById("current-data")
+    const current_node = document.getElementById("current-node")
+    const current_sigmax = document.getElementById("current-sigmax")
+    const current_sigmin = document.getElementById("current-sigmin")
+    const setCurrentValue = (c) => (e) => {c.innerText = e.target.value}
+    document.getElementById("data-slider").addEventListener("input", setCurrentValue(current_data))
+    document.getElementById("node-slider").addEventListener("input", setCurrentValue(current_node))
+    document.getElementById("sigmax-slider").addEventListener("input", setCurrentValue(current_sigmax))
+    document.getElementById("sigmin-slider").addEventListener("input", setCurrentValue(current_sigmin))
+}
