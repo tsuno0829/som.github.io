@@ -10,14 +10,30 @@ function init() {
     return [data, node, sigmax, sigmin]
 }
 
+// Standard Normal variate using Box-Muller transform.
+function randn_bm() {
+    var u = 0, v = 0;
+    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
+    while(v === 0) v = Math.random();
+    return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
+}
+
 function initMatrix(N, dim) {
+    if (dim > 2) throw new Error("Dim must be 1 or 2.")
+
     let arr1 = []
-    for (let i = 0; i < N; i++) {
-        let arr2 = []
-        for (let j = 0; j < dim; j++) {
-            arr2.push(Math.random() * 2 - 1)
+    if (dim == 1) {
+        for (let i = 0; i < N; i++) {
+            arr1.push([randn_bm()*0.01, 0])
         }
-        arr1.push(arr2)
+    } else {
+        for (let i = 0; i < N; i++) {
+            let arr2 = []
+            for (let j = 0; j < dim; j++) {
+                arr2.push(randn_bm()*0.01)
+            }
+            arr1.push(arr2)
+        }
     }
     return arr1
 }
@@ -183,7 +199,7 @@ function main() {
     const [N, K, sigmax, sigmin] = init()
     const X = create_sin(N)
     const Zeta = create_zeta(K, 1)
-    let Z =  initMatrix(N, 2)
+    let Z =  initMatrix(N, 1)
     var width = 500
     var height = 400
     var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 };
