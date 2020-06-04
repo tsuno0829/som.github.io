@@ -79,6 +79,10 @@ function create_zeta(K, Dim) {
     return arr
 }
 
+function argMin(array) {
+    return array.map((x, i) => [x, i]).reduce((r, a) => (a[0] < r[0] ? a : r))[1];
+}
+
 function calc_sqeuclid_dist(x, y) {
     // x: (N, D)
     // y: (K, D)
@@ -100,12 +104,52 @@ function calc_sqeuclid_dist(x, y) {
     return dist_arr
 }
 
-function estimate_f() {
-    return 0
+
+function estimate_f(x, z, zeta, sigma) {
+    let N = z.length
+    let K = zeta.length
+    let h = []
+    let H = []
+    let Y = []
+
+    dist = calc_sqeuclid_dist(z, zeta)
+
+    for (let n = 0; n < N; n++) {
+        let tmp = []
+        let sum = 0
+        for (let k = 0; k < K; k++) {
+            let t = Math.exp(-0.5*(dist[n][k])/(sigma**2))
+            tmp.push(t)
+            sum += t
+        }
+        h.push(tmp)
+        H.push(sum)
+    }
+
+    for (let n = 0; n < N; n++) {
+        let y = 0
+        for (let k = 0; k < K; k++) {
+            for (let d = 0; d < D; d++) {
+                y += x[n, d]
+            }
+            y *= h[n, k]
+        }
+        y /= H[k]
+        Y.push(y)
+    }
+    return Y
 }
 
-function estimate_z() {
-    return 0
+function estimate_z(x, y, z, zeta) {
+    let N = x.length
+
+    let dist = calc_sqeuclid_dist(x, y)
+    for (let n = 0; n < N; n++) {
+        min_zeta_idx = argMin(dist[n])
+        z = zeta(min_zeta_idx)
+    }
+
+    return z
 }
 
 function visualize_latent_space(Z, Zeta, margin, width, height) {
@@ -237,6 +281,7 @@ function main() {
     visualize_observation_space(X, margin, width, height)
 
     // console.log(calc_sqeuclid_dist([[1, 1], [0, 0], [2, 2]], [[-1, 0], [1, 0]]))
+    // console.log(argMin([-1,2,1,3,4,54,67,-1000]))
 }
 
 try {
