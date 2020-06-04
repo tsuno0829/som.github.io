@@ -268,17 +268,25 @@ function visualize_observation_space(X, margin, width, height) {
         .attr("r", 4);
 }
 
-function main() {
+function sleep(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+async function main() {
     const [N, K, sigmax, sigmin] = init()
     const X = create_sin(N)
     const Zeta = create_zeta(K, 1)
     let Z =  initMatrix(N, 1)
     var width = 500
     var height = 400
-    var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 };
+    var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 }
 
-    visualize_latent_space(Z, Zeta, margin, width, height)
-    visualize_observation_space(X, margin, width, height)
+    for (let epoch = 1; epoch <= 3; epoch++) {
+        console.log(epoch)
+        visualize_latent_space(Z, Zeta, margin, width, height)
+        visualize_observation_space(X, margin, width, height)
+        await sleep(1000)
+    }
 
     // console.log(calc_sqeuclid_dist([[1, 1], [0, 0], [2, 2]], [[-1, 0], [1, 0]]))
     // console.log(argMin([-1,2,1,3,4,54,67,-1000]))
