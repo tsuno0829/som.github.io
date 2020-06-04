@@ -79,6 +79,35 @@ function create_zeta(K, Dim) {
     return arr
 }
 
+function calc_sqeuclid_dist(x, y) {
+    // x: (N, D)
+    // y: (K, D)
+    let N = x.length
+    let K = y.length
+    let D = x[0].length
+    let dist_arr = []
+    for (let n = 0; n < N; n++) {
+        let tmp = []
+        for (let k = 0; k < K; k++) {
+            let dist = 0
+            for (let d = 0; d < D; d++) {
+                dist += Math.pow(x[n][d] - y[k][d], 2)
+            }
+            tmp.push(dist)
+        }
+        dist_arr.push(tmp)
+    }
+    return dist_arr
+}
+
+function estimate_f() {
+    return 0
+}
+
+function estimate_z() {
+    return 0
+}
+
 function visualize_latent_space(Z, Zeta, margin, width, height) {
     d3.select("#svg_latent").select("svg").remove();
 
@@ -206,6 +235,8 @@ function main() {
 
     visualize_latent_space(Z, Zeta, margin, width, height)
     visualize_observation_space(X, margin, width, height)
+
+    // console.log(calc_sqeuclid_dist([[1, 1], [0, 0], [2, 2]], [[-1, 0], [1, 0]]))
 }
 
 try {
