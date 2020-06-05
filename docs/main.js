@@ -88,17 +88,17 @@ function gridData(size) {
             points.push([x-~~size/2, y-~~size/2]);
         }
     }
-    // return makePoints(points);
-    return points
+    return makePoints(points);
 }
 
-function sin(N) {
+function sinData(N) {
     let points = []
     for (let i = 0; i < N; i++) {
         let r = Math.random() * 6 - 3
         points.push([r, Math.sin(r)])
     }
-    return points
+    return makePoints(points)
+    // return points
 }
 
 function create_zeta(K, Dim) {
@@ -131,8 +131,7 @@ function calc_sigma(t, tau, sigmax, sigmin) {
 }
 
 function calc_sqeuclid_dist(x, y) {
-    // x: (N, D)
-    // y: (K, D)
+    // x: (N, D), y: (K, D)
     let N = x.length
     let K = y.length
     let D = x[0].length
@@ -193,13 +192,8 @@ function estimate_f(x, z, zeta, sigma) {
 
 function estimate_z(x, y, z, zeta) {
     let N = x.length
-
     let dist = calc_sqeuclid_dist(x, y)
-    // console.log("dkfjsdlkf")
-    // console.log(y)
-    // console.log(dist)
     for (let n = 0; n < N; n++) {
-        // console.log(dist[n])
         min_zeta_idx = argMin(dist[n])
         z[n] = zeta[min_zeta_idx]
     }
@@ -353,7 +347,8 @@ function sleep(milliseconds) {
 
 async function main() {
     const [N, K, sigmax, sigmin, nb_epoch, tau] = init()
-    let X = gridData(N)
+    // let X = gridData(N).map(d => d.coords)
+    let X = sinData(N).map(d => d.coords)
     const Zeta = create_zeta(K, 1)
     let Z =  initMatrix(N, 1)
     let Y = initMatrix(K, 2)
