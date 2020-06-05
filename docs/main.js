@@ -194,6 +194,7 @@ function estimate_z(X, Y, Z, Zeta) {
     for (let n = 0; n < N; n++) {
         min_zeta_idx = argMin(dist[n])
         Z[n].coords = Zeta[min_zeta_idx].coords
+        Z[n].color = Zeta[min_zeta_idx].color
     }
     return Z
 }
