@@ -194,7 +194,7 @@ function estimate_z(X, Y, Z, Zeta) {
     for (let n = 0; n < N; n++) {
         min_zeta_idx = argMin(dist[n])
         Z[n].coords = Zeta[min_zeta_idx].coords
-        Z[n].color = Zeta[min_zeta_idx].color
+        // Z[n].color = Zeta[min_zeta_idx].color
     }
     return Z
 }
@@ -344,10 +344,14 @@ function sleep(milliseconds) {
 
 async function main() {
     const [N, K, sigmax, sigmin, nb_epoch, tau] = init()
-    // let X = gridData(N)
-    let X = sinData(N)
+    let X = gridData(N)
+    // let X = sinData(N)
     const Zeta = create_zeta(K, 1)
     let Z =  initMatrix(X.length, 1)
+    // XとZが指すcolorを統一する
+    for (let n = 0; n < X.length; n++) {
+        Z[n].color = X[n].color
+    }
     let Y = initMatrix(K, 2)
     var width = 300
     var height = 300
