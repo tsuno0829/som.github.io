@@ -53,13 +53,52 @@ function linspace(startValue, stopValue, cardinality, endpoint=false) {
     return arr;
 }
 
-function create_sin(N) {
-    let arr = []
+// A point with color info.
+var Point = function(coords, color) {
+    this.coords = coords;
+    this.color = color || '#039';
+};
+
+  // Adds colors to points depending on 2D location of original.
+function addSpatialColors(points) {
+    var xExtent = d3.extent(points, function(p) {return p.coords[0]});
+    var yExtent = d3.extent(points, function(p) {return p.coords[1]});
+    var xScale = d3.scaleLinear().domain(xExtent).range([0, 255]);
+    var yScale = d3.scaleLinear().domain(yExtent).range([0, 255]);
+    points.forEach(function(p) {
+        var c1 = ~~xScale(p.coords[0]);
+        var c2 = ~~yScale(p.coords[1]);
+        p.color = 'rgb(20,' + c1 + ',' + c2 + ')';
+    });
+}
+
+// Convenience function to wrap 2d arrays as Points, using a default
+// color scheme.
+function makePoints(originals) {
+    var points = originals.map(function(p) {return new Point(p);});
+    addSpatialColors(points);
+    return points;
+}
+
+// Data in shape of 2D grid.
+function gridData(size) {
+    var points = [];
+    for (var x = 0; x < size; x++) {
+        for (var y = 0; y < size; y++) {
+            points.push([x-~~size/2, y-~~size/2]);
+        }
+    }
+    // return makePoints(points);
+    return points
+}
+
+function sin(N) {
+    let points = []
     for (let i = 0; i < N; i++) {
         let r = Math.random() * 6 - 3
-        arr.push([r, Math.sin(r)])
+        points.push([r, Math.sin(r)])
     }
-    return arr
+    return points
 }
 
 function create_zeta(K, Dim) {
@@ -242,8 +281,9 @@ function visualize_observation_space(X, Y, margin, width, height) {
     .range([margin.left, width - margin.right]);
 
     var yScale = d3.scaleLinear()
-    .domain([-2, 2])
-    .range([height - margin.bottom, margin.top]);
+    .domain([d3.min(X, function(d){return d[1]})-1, d3.max(X, function(d){return d[1]})+1])
+    .range([height-margin.bottom, margin.top])
+    // .range(d3.extent(X, function(p) {return p[1]}))
 
     var axisx = d3.axisBottom(xScale).ticks(5);
     var axisy = d3.axisLeft(yScale).ticks(5);
@@ -292,6 +332,19 @@ function visualize_observation_space(X, Y, margin, width, height) {
         .attr("cy", function(d) { return yScale(d[1]); })
         .attr("fill", "red")
         .attr("r", 4);
+
+    // line作成関数
+    var curveFunc = d3.line()
+    .curve(d3.curveLinear) // curveメソッドで線の形を変更
+    .x(function(d) { return xScale(d[0]) })
+    .y(function(d) { return yScale(d[1]) })
+
+    // Path追加
+    svg_f.append('path')
+    .attr('d', curveFunc(Y))
+    .attr('stroke', 'red')
+    .attr("stroke-width", 2)
+    .attr('fill', 'none')
 }
 
 function sleep(milliseconds) {
@@ -300,7 +353,7 @@ function sleep(milliseconds) {
 
 async function main() {
     const [N, K, sigmax, sigmin, nb_epoch, tau] = init()
-    const X = create_sin(N)
+    let X = gridData(N)
     const Zeta = create_zeta(K, 1)
     let Z =  initMatrix(N, 1)
     let Y = initMatrix(K, 2)
@@ -312,16 +365,11 @@ async function main() {
         document.getElementById("current-step").innerHTML = epoch + 1
         sigma = calc_sigma(epoch, tau, sigmax, sigmin)
         Y = estimate_f(X, Z, Zeta, sigma)
-        console.log("out put: Y")
-        console.log(Y)
         Z = estimate_z(X, Y, Z, Zeta)
         visualize_latent_space(Z, Zeta, margin, width, height)
         visualize_observation_space(X, Y, margin, width, height)
         await sleep(100)
     }
-
-    // console.log(calc_sqeuclid_dist([[1, 1], [0, 0], [2, 2]], [[-1, 0], [1, 0]]))
-    // console.log(argMin([-1,2,1,3,4,54,67,-1000]))
 }
 
 try {
