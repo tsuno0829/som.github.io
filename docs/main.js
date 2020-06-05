@@ -258,7 +258,7 @@ function visualize_latent_space(Z, Zeta, margin, width, height) {
         .append("circle")
         .attr("cx", function(d) { return xScale(d.coords[0]); })
         .attr("cy", function(d) { return yScale(d.coords[1]); })
-        .attr("fill", "steelblue")
+        .attr("fill", d => d.color)
         .attr("r", 4);
 }
 
@@ -310,7 +310,7 @@ function visualize_observation_space(X, Y, margin, width, height) {
         .append("circle")
         .attr("cx", function(d) { return xScale(d.coords[0]); })
         .attr("cy", function(d) { return yScale(d.coords[1]); })
-        .attr("fill", "steelblue")
+        .attr("fill", d => d.color)
         .attr("r", 4);
 
     svg_f.append("g")
@@ -343,8 +343,8 @@ function sleep(milliseconds) {
 
 async function main() {
     const [N, K, sigmax, sigmin, nb_epoch, tau] = init()
-    let X = gridData(N)
-    // let X = sinData(N)
+    // let X = gridData(N)
+    let X = sinData(N)
     const Zeta = create_zeta(K, 1)
     let Z =  initMatrix(X.length, 1)
     let Y = initMatrix(K, 2)
