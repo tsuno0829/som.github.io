@@ -3,11 +3,15 @@ function init() {
     const node = parseInt(document.getElementById("node-slider").value)
     const sigmax = parseFloat(document.getElementById("sigmax-slider").value)
     const sigmin = parseFloat(document.getElementById("sigmin-slider").value)
+    const epoch = parseFloat(document.getElementById("epoch-slider").value)
+    const tau = parseFloat(document.getElementById("tau-slider").value)
     document.getElementById("current-data").innerHTML = data
     document.getElementById("current-node").innerHTML = node
     document.getElementById("current-sigmax").innerHTML = sigmax
     document.getElementById("current-sigmin").innerHTML = sigmin
-    return [data, node, sigmax, sigmin]
+    document.getElementById("current-epoch").innerHTML = epoch
+    document.getElementById("current-tau").innerHTML = tau
+    return [data, node, sigmax, sigmin, epoch, tau]
 }
 
 // Standard Normal variate using Box-Muller transform.
@@ -79,6 +83,91 @@ function create_zeta(K, Dim) {
     return arr
 }
 
+function argMin(array) {
+    return array.map((x, i) => [x, i]).reduce((r, a) => (a[0] < r[0] ? a : r))[1];
+}
+
+function calc_sigma(t, tau, sigmax, sigmin) {
+    return Math.max(sigmax-(sigmax-sigmin)*(t/tau), sigmin)
+}
+
+function calc_sqeuclid_dist(x, y) {
+    // x: (N, D)
+    // y: (K, D)
+    let N = x.length
+    let K = y.length
+    let D = x[0].length
+    let dist_arr = []
+    for (let n = 0; n < N; n++) {
+        let tmp = []
+        for (let k = 0; k < K; k++) {
+            let dist = 0
+            for (let d = 0; d < D; d++) {
+                dist += Math.pow(x[n][d] - y[k][d], 2)
+            }
+            tmp.push(dist)
+        }
+        dist_arr.push(tmp)
+    }
+    return dist_arr
+}
+
+
+function estimate_f(x, z, zeta, sigma) {
+    let N = z.length
+    let K = zeta.length
+    let D = x[0].length
+    let h = []
+    let H = []
+    let Y = []
+
+    dist = calc_sqeuclid_dist(z, zeta)
+
+    for (let n = 0; n < N; n++) {
+        let tmp = []
+        for (let k = 0; k < K; k++) {
+            let t = Math.exp(-0.5*(dist[n][k])/(sigma*sigma))
+            tmp.push(t)
+        }
+        h.push(tmp)
+    }
+
+    for (let k = 0; k < K; k++) {
+        let sum = 0
+        for (let n = 0; n < N; n++) {
+            sum += h[n][k]
+        }
+        H.push(sum)
+    }
+
+    for (let k = 0; k < K; k++) {
+        let y = [0, 0]
+        for (let n = 0; n < N; n++) {
+            for (let d = 0; d < D; d++) {
+                y[d] += h[n][k] * x[n][d] / H[k]
+            }
+        }
+        Y.push(y)
+    }
+    return Y
+}
+
+function estimate_z(x, y, z, zeta) {
+    let N = x.length
+
+    let dist = calc_sqeuclid_dist(x, y)
+    // console.log("dkfjsdlkf")
+    // console.log(y)
+    // console.log(dist)
+    for (let n = 0; n < N; n++) {
+        // console.log(dist[n])
+        min_zeta_idx = argMin(dist[n])
+        z[n] = zeta[min_zeta_idx]
+    }
+
+    return z
+}
+
 function visualize_latent_space(Z, Zeta, margin, width, height) {
     d3.select("#svg_latent").select("svg").remove();
 
@@ -143,7 +232,7 @@ function visualize_latent_space(Z, Zeta, margin, width, height) {
         .attr("r", 4);
 }
 
-function visualize_observation_space(X, margin, width, height) {
+function visualize_observation_space(X, Y, margin, width, height) {
     d3.select("#svg_observation").select("svg").remove();
 
     var svg_f = d3.select("#svg_observation").append("svg").attr("width", width).attr("height", height)
@@ -193,19 +282,46 @@ function visualize_observation_space(X, margin, width, height) {
         .attr("cy", function(d) { return yScale(d[1]); })
         .attr("fill", "steelblue")
         .attr("r", 4);
+
+    svg_f.append("g")
+        .selectAll("circle")
+        .data(Y)
+        .enter()
+        .append("circle")
+        .attr("cx", function(d) { return xScale(d[0]); })
+        .attr("cy", function(d) { return yScale(d[1]); })
+        .attr("fill", "red")
+        .attr("r", 4);
 }
 
-function main() {
-    const [N, K, sigmax, sigmin] = init()
+function sleep(milliseconds) {
+    return new Promise(resolve => setTimeout(resolve, milliseconds));
+}
+
+async function main() {
+    const [N, K, sigmax, sigmin, nb_epoch, tau] = init()
     const X = create_sin(N)
     const Zeta = create_zeta(K, 1)
     let Z =  initMatrix(N, 1)
-    var width = 500
-    var height = 400
-    var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 };
+    let Y = initMatrix(K, 2)
+    var width = 300
+    var height = 300
+    var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 }
 
-    visualize_latent_space(Z, Zeta, margin, width, height)
-    visualize_observation_space(X, margin, width, height)
+    for (let epoch = 0; epoch < nb_epoch; epoch++) {
+        document.getElementById("current-step").innerHTML = epoch + 1
+        sigma = calc_sigma(epoch, tau, sigmax, sigmin)
+        Y = estimate_f(X, Z, Zeta, sigma)
+        console.log("out put: Y")
+        console.log(Y)
+        Z = estimate_z(X, Y, Z, Zeta)
+        visualize_latent_space(Z, Zeta, margin, width, height)
+        visualize_observation_space(X, Y, margin, width, height)
+        await sleep(100)
+    }
+
+    // console.log(calc_sqeuclid_dist([[1, 1], [0, 0], [2, 2]], [[-1, 0], [1, 0]]))
+    // console.log(argMin([-1,2,1,3,4,54,67,-1000]))
 }
 
 try {
@@ -221,9 +337,13 @@ window.onload = () => {
     const current_node = document.getElementById("current-node")
     const current_sigmax = document.getElementById("current-sigmax")
     const current_sigmin = document.getElementById("current-sigmin")
+    const current_epoch = document.getElementById("current-epoch")
+    const current_tau = document.getElementById("current-tau")
     const setCurrentValue = (c) => (e) => {c.innerText = e.target.value}
     document.getElementById("data-slider").addEventListener("input", setCurrentValue(current_data))
     document.getElementById("node-slider").addEventListener("input", setCurrentValue(current_node))
     document.getElementById("sigmax-slider").addEventListener("input", setCurrentValue(current_sigmax))
     document.getElementById("sigmin-slider").addEventListener("input", setCurrentValue(current_sigmin))
+    document.getElementById("epoch-slider").addEventListener("input", setCurrentValue(current_epoch))
+    document.getElementById("tau-slider").addEventListener("input", setCurrentValue(current_tau))
 }
