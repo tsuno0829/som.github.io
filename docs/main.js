@@ -22,26 +22,6 @@ function randn_bm() {
     return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
 }
 
-function initMatrix(N, dim) {
-    if (dim > 2) throw new Error("Dim must be 1 or 2.")
-
-    let arr1 = []
-    if (dim == 1) {
-        for (let i = 0; i < N; i++) {
-            arr1.push([randn_bm()*0.01, 0])
-        }
-    } else {
-        for (let i = 0; i < N; i++) {
-            let arr2 = []
-            for (let j = 0; j < dim; j++) {
-                arr2.push(randn_bm()*0.01)
-            }
-            arr1.push(arr2)
-        }
-    }
-    return arr1
-}
-
 function linspace(startValue, stopValue, cardinality, endpoint=false) {
     var arr = [];
     if (endpoint) var step = (stopValue - startValue) / (cardinality - 1);
@@ -59,7 +39,15 @@ var Point = function(coords, color) {
     this.color = color || '#039';
 };
 
-  // Adds colors to points depending on 2D location of original.
+// Convenience function to wrap 2d arrays as Points, using a default
+// color scheme.
+function makePoints(originals) {
+    var points = originals.map(function(p) {return new Point(p);});
+    addSpatialColors(points);
+    return points;
+}
+
+// Adds colors to points depending on 2D location of original.
 function addSpatialColors(points) {
     var xExtent = d3.extent(points, function(p) {return p.coords[0]});
     var yExtent = d3.extent(points, function(p) {return p.coords[1]});
@@ -72,17 +60,29 @@ function addSpatialColors(points) {
     });
 }
 
-// Convenience function to wrap 2d arrays as Points, using a default
-// color scheme.
-function makePoints(originals) {
-    var points = originals.map(function(p) {return new Point(p);});
-    addSpatialColors(points);
-    return points;
+function initMatrix(N, dim) {
+    if (dim > 2) throw new Error("Dim must be 1 or 2.")
+
+    let arr1 = []
+    if (dim == 1) {
+        for (let i = 0; i < N; i++) {
+            arr1.push([randn_bm()*0.01, 0])
+        }
+    } else {
+        for (let i = 0; i < N; i++) {
+            let arr2 = []
+            for (let j = 0; j < dim; j++) {
+                arr2.push(randn_bm()*0.01)
+            }
+            arr1.push(arr2)
+        }
+    }
+    return makePoints(arr1)
 }
 
 // Data in shape of 2D grid.
 function gridData(size) {
-    var points = [];
+    let points = [];
     for (var x = 0; x < size; x++) {
         for (var y = 0; y < size; y++) {
             points.push([x-~~size/2, y-~~size/2]);
@@ -98,7 +98,6 @@ function sinData(N) {
         points.push([r, Math.sin(r)])
     }
     return makePoints(points)
-    // return points
 }
 
 function create_zeta(K, Dim) {
@@ -119,7 +118,7 @@ function create_zeta(K, Dim) {
             }
         }
     }
-    return arr
+    return makePoints(arr)
 }
 
 function argMin(array) {
@@ -134,14 +133,14 @@ function calc_sqeuclid_dist(x, y) {
     // x: (N, D), y: (K, D)
     let N = x.length
     let K = y.length
-    let D = x[0].length
+    let D = x[0].coords.length
     let dist_arr = []
     for (let n = 0; n < N; n++) {
         let tmp = []
         for (let k = 0; k < K; k++) {
             let dist = 0
             for (let d = 0; d < D; d++) {
-                dist += Math.pow(x[n][d] - y[k][d], 2)
+                dist += Math.pow(x[n].coords[d] - y[k].coords[d], 2)
             }
             tmp.push(dist)
         }
@@ -151,13 +150,12 @@ function calc_sqeuclid_dist(x, y) {
 }
 
 
-function estimate_f(x, z, zeta, sigma) {
+function estimate_f(X, Y, z, zeta, sigma) {
     let N = z.length
     let K = zeta.length
-    let D = x[0].length
+    let D = X[0].coords.length
     let h = []
     let H = []
-    let Y = []
 
     dist = calc_sqeuclid_dist(z, zeta)
 
@@ -182,23 +180,22 @@ function estimate_f(x, z, zeta, sigma) {
         let y = [0, 0]
         for (let n = 0; n < N; n++) {
             for (let d = 0; d < D; d++) {
-                y[d] += h[n][k] * x[n][d] / H[k]
+                y[d] += h[n][k] * X[n].coords[d] / H[k]
             }
         }
-        Y.push(y)
+        Y[k].coords = y
     }
     return Y
 }
 
-function estimate_z(x, y, z, zeta) {
-    let N = x.length
-    let dist = calc_sqeuclid_dist(x, y)
+function estimate_z(X, Y, Z, Zeta) {
+    let N = Z.length
+    let dist = calc_sqeuclid_dist(X, Y)
     for (let n = 0; n < N; n++) {
         min_zeta_idx = argMin(dist[n])
-        z[n] = zeta[min_zeta_idx]
+        Z[n].coords = Zeta[min_zeta_idx].coords
     }
-
-    return z
+    return Z
 }
 
 function visualize_latent_space(Z, Zeta, margin, width, height) {
@@ -247,8 +244,8 @@ function visualize_latent_space(Z, Zeta, margin, width, height) {
         .data(Zeta)
         .enter()
         .append("circle")
-        .attr("cx", function(d) { return xScale(d[0]); })
-        .attr("cy", function(d) { return yScale(d[1]); })
+        .attr("cx", function(d) { return xScale(d.coords[0]); })
+        .attr("cy", function(d) { return yScale(d.coords[1]); })
         .attr("fill", "white")
         .attr("stroke", "red")
         .attr("stroke-width", 1)
@@ -256,11 +253,11 @@ function visualize_latent_space(Z, Zeta, margin, width, height) {
 
     svg_f.append("g")
         .selectAll("circle")
-        .data(Z)
+        .data(Z, (d) => {return d.coords})
         .enter()
         .append("circle")
-        .attr("cx", function(d) { return xScale(d[0]); })
-        .attr("cy", function(d) { return yScale(d[1]); })
+        .attr("cx", function(d) { return xScale(d.coords[0]); })
+        .attr("cy", function(d) { return yScale(d.coords[1]); })
         .attr("fill", "steelblue")
         .attr("r", 4);
 }
@@ -271,13 +268,12 @@ function visualize_observation_space(X, Y, margin, width, height) {
     var svg_f = d3.select("#svg_observation").append("svg").attr("width", width).attr("height", height)
 
     var xScale = d3.scaleLinear()
-    .domain([d3.min(X, function(d){return d[0]})-1, d3.max(X, function(d){return d[0]})+1])
+    .domain([d3.min(X, function(d){return d.coords[0]})-1, d3.max(X, function(d){return d.coords[0]})+1])
     .range([margin.left, width - margin.right]);
 
     var yScale = d3.scaleLinear()
-    .domain([d3.min(X, function(d){return d[1]})-1, d3.max(X, function(d){return d[1]})+1])
+    .domain([d3.min(X, function(d){return d.coords[1]})-1, d3.max(X, function(d){return d.coords[1]})+1])
     .range([height-margin.bottom, margin.top])
-    // .range(d3.extent(X, function(p) {return p[1]}))
 
     var axisx = d3.axisBottom(xScale).ticks(5);
     var axisy = d3.axisLeft(yScale).ticks(5);
@@ -312,8 +308,8 @@ function visualize_observation_space(X, Y, margin, width, height) {
         .data(X)
         .enter()
         .append("circle")
-        .attr("cx", function(d) { return xScale(d[0]); })
-        .attr("cy", function(d) { return yScale(d[1]); })
+        .attr("cx", function(d) { return xScale(d.coords[0]); })
+        .attr("cy", function(d) { return yScale(d.coords[1]); })
         .attr("fill", "steelblue")
         .attr("r", 4);
 
@@ -322,16 +318,16 @@ function visualize_observation_space(X, Y, margin, width, height) {
         .data(Y)
         .enter()
         .append("circle")
-        .attr("cx", function(d) { return xScale(d[0]); })
-        .attr("cy", function(d) { return yScale(d[1]); })
+        .attr("cx", function(d) { return xScale(d.coords[0]); })
+        .attr("cy", function(d) { return yScale(d.coords[1]); })
         .attr("fill", "red")
         .attr("r", 4);
 
     // line作成関数
     var curveFunc = d3.line()
     .curve(d3.curveLinear) // curveメソッドで線の形を変更
-    .x(function(d) { return xScale(d[0]) })
-    .y(function(d) { return yScale(d[1]) })
+    .x(function(d) { return xScale(d.coords[0]) })
+    .y(function(d) { return yScale(d.coords[1]) })
 
     // Path追加
     svg_f.append('path')
@@ -347,10 +343,10 @@ function sleep(milliseconds) {
 
 async function main() {
     const [N, K, sigmax, sigmin, nb_epoch, tau] = init()
-    // let X = gridData(N).map(d => d.coords)
-    let X = sinData(N).map(d => d.coords)
+    let X = gridData(N)
+    // let X = sinData(N)
     const Zeta = create_zeta(K, 1)
-    let Z =  initMatrix(N, 1)
+    let Z =  initMatrix(X.length, 1)
     let Y = initMatrix(K, 2)
     var width = 300
     var height = 300
@@ -359,7 +355,7 @@ async function main() {
     for (let epoch = 0; epoch < nb_epoch; epoch++) {
         document.getElementById("current-step").innerHTML = epoch + 1
         sigma = calc_sigma(epoch, tau, sigmax, sigmin)
-        Y = estimate_f(X, Z, Zeta, sigma)
+        Y = estimate_f(X, Y, Z, Zeta, sigma)
         Z = estimate_z(X, Y, Z, Zeta)
         visualize_latent_space(Z, Zeta, margin, width, height)
         visualize_observation_space(X, Y, margin, width, height)
