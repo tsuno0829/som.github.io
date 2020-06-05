@@ -82,7 +82,7 @@ function initMatrix(N, dim) {
 
 // Data in shape of 2D grid.
 function gridData(size) {
-    var points = [];
+    let points = [];
     for (var x = 0; x < size; x++) {
         for (var y = 0; y < size; y++) {
             points.push([x-~~size/2, y-~~size/2]);
@@ -98,7 +98,6 @@ function sinData(N) {
         points.push([r, Math.sin(r)])
     }
     return makePoints(points)
-    // return points
 }
 
 function create_zeta(K, Dim) {
@@ -141,14 +140,12 @@ function calc_sqeuclid_dist(x, y) {
         for (let k = 0; k < K; k++) {
             let dist = 0
             for (let d = 0; d < D; d++) {
-                // console.log(x[n].coords[d], y[k].coords[d])
                 dist += Math.pow(x[n].coords[d] - y[k].coords[d], 2)
             }
             tmp.push(dist)
         }
         dist_arr.push(tmp)
     }
-    // console.log(dist_arr)
     return dist_arr
 }
 
@@ -159,7 +156,6 @@ function estimate_f(X, Y, z, zeta, sigma) {
     let D = X[0].coords.length
     let h = []
     let H = []
-    // let Y = []
 
     dist = calc_sqeuclid_dist(z, zeta)
 
@@ -193,7 +189,7 @@ function estimate_f(X, Y, z, zeta, sigma) {
 }
 
 function estimate_z(X, Y, Z, Zeta) {
-    let N = X.length
+    let N = Z.length
     let dist = calc_sqeuclid_dist(X, Y)
     for (let n = 0; n < N; n++) {
         min_zeta_idx = argMin(dist[n])
@@ -204,9 +200,6 @@ function estimate_z(X, Y, Z, Zeta) {
 
 function visualize_latent_space(Z, Zeta, margin, width, height) {
     d3.select("#svg_latent").select("svg").remove();
-
-    console.log(Z)
-    console.log(Zeta)
 
     var svg_f = d3.select("#svg_latent").append("svg").attr("width", width).attr("height", height)
 
@@ -271,9 +264,6 @@ function visualize_latent_space(Z, Zeta, margin, width, height) {
 
 function visualize_observation_space(X, Y, margin, width, height) {
     d3.select("#svg_observation").select("svg").remove();
-
-    console.log(X)
-    console.log(Y)
 
     var svg_f = d3.select("#svg_observation").append("svg").attr("width", width).attr("height", height)
 
@@ -353,11 +343,10 @@ function sleep(milliseconds) {
 
 async function main() {
     const [N, K, sigmax, sigmin, nb_epoch, tau] = init()
-    // let X = gridData(N).map(d => d.coords)
-    // let X = sinData(N).map(d => d.coords)
-    let X = sinData(N)
+    let X = gridData(N)
+    // let X = sinData(N)
     const Zeta = create_zeta(K, 1)
-    let Z =  initMatrix(N, 1)
+    let Z =  initMatrix(X.length, 1)
     let Y = initMatrix(K, 2)
     var width = 300
     var height = 300
