@@ -86,8 +86,8 @@ function addSpatialColors(points) {
 
 function initMatrix(N, dim) {
     if (dim > 2){
-        console.log(dim)
-        throw new Error("Dim must be 1 or 2. Forbidden")
+        // console.log(dim)
+        throw new Error(dim)
     }
 
     let arr1 = []
@@ -404,6 +404,7 @@ async function main() {
     // let X = gridData(N)
     let X = twoClustersData(N, 2)
     // let X = sinData(N)
+    Dim = X[0].coords.length
     Zdim = ldim
     const Zeta = create_zeta(K, Zdim)
     let Z =  initMatrix(X.length, Zdim)
@@ -411,7 +412,7 @@ async function main() {
     for (let n = 0; n < X.length; n++) {
         Z[n].color = X[n].color
     }
-    let Y = initMatrix(Zeta.length, X[0].coords[1])
+    let Y = initMatrix(Zeta.length, Dim)
     var width = 300
     var height = 300
     var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 }
