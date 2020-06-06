@@ -33,6 +33,16 @@ function linspace(startValue, stopValue, cardinality, endpoint=false) {
     return arr;
 }
 
+const transpose = a => a[0].map((_, c) => a.map(r => r[c]));
+
+function splitArray(array, part) {
+    var tmp = [];
+    for(var i = 0; i < array.length; i += part) {
+        tmp.push(array.slice(i, i + part));
+    }
+    return tmp;
+}
+
 // A point with color info.
 var Point = function(coords, color) {
     this.coords = coords;
@@ -194,7 +204,6 @@ function estimate_z(X, Y, Z, Zeta) {
     for (let n = 0; n < N; n++) {
         min_zeta_idx = argMin(dist[n])
         Z[n].coords = Zeta[min_zeta_idx].coords
-        // Z[n].color = Zeta[min_zeta_idx].color
     }
     return Z
 }
@@ -263,7 +272,7 @@ function visualize_latent_space(Z, Zeta, margin, width, height) {
         .attr("r", 4);
 }
 
-function visualize_observation_space(X, Y, margin, width, height) {
+function visualize_observation_space(X, Y, margin, width, height, IsWireframe) {
     d3.select("#svg_observation").select("svg").remove();
 
     var svg_f = d3.select("#svg_observation").append("svg").attr("width", width).attr("height", height)
@@ -322,20 +331,38 @@ function visualize_observation_space(X, Y, margin, width, height) {
         .attr("cx", function(d) { return xScale(d.coords[0]); })
         .attr("cy", function(d) { return yScale(d.coords[1]); })
         .attr("fill", "red")
-        .attr("r", 4);
+        .attr("r", 3);
 
     // line作成関数
     var curveFunc = d3.line()
     .curve(d3.curveLinear) // curveメソッドで線の形を変更
     .x(function(d) { return xScale(d.coords[0]) })
     .y(function(d) { return yScale(d.coords[1]) })
-
-    // Path追加
-    svg_f.append('path')
-    .attr('d', curveFunc(Y))
-    .attr('stroke', 'red')
-    .attr("stroke-width", 2)
-    .attr('fill', 'none')
+    if (IsWireframe==false) {
+        // Path追加
+        svg_f.append('path')
+        .attr('d', curveFunc(Y))
+        .attr('stroke', 'red')
+        .attr("stroke-width", 2)
+        .attr('fill', 'none')
+    } else {
+        let Y_reshape = splitArray(Y, ~~Math.sqrt(Y.length))
+        for (let i = 0; i < Y_reshape.length; i++) {
+            svg_f.append('path')
+            .attr('d', curveFunc(Y_reshape[i]))
+            .attr('stroke', 'red')
+            .attr("stroke-width", 2)
+            .attr('fill', 'none')
+        }
+        Y_transpose = transpose(Y_reshape)
+        for (let i = 0; i < Y_transpose.length; i++) {
+            svg_f.append('path')
+            .attr('d', curveFunc(Y_transpose[i]))
+            .attr('stroke', 'red')
+            .attr("stroke-width", 2)
+            .attr('fill', 'none')
+        }
+    }
 }
 
 function sleep(milliseconds) {
@@ -346,13 +373,14 @@ async function main() {
     const [N, K, sigmax, sigmin, nb_epoch, tau] = init()
     let X = gridData(N)
     // let X = sinData(N)
-    const Zeta = create_zeta(K, 1)
-    let Z =  initMatrix(X.length, 1)
+    Zdim = 2
+    const Zeta = create_zeta(K, Zdim)
+    let Z =  initMatrix(X.length, Zdim)
     // XとZが指すcolorを統一する
     for (let n = 0; n < X.length; n++) {
         Z[n].color = X[n].color
     }
-    let Y = initMatrix(K, 2)
+    let Y = initMatrix(Zeta.length, X[0].coords[1])
     var width = 300
     var height = 300
     var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 }
@@ -363,7 +391,7 @@ async function main() {
         Y = estimate_f(X, Y, Z, Zeta, sigma)
         Z = estimate_z(X, Y, Z, Zeta)
         visualize_latent_space(Z, Zeta, margin, width, height)
-        visualize_observation_space(X, Y, margin, width, height)
+        visualize_observation_space(X, Y, margin, width, height, Zdim==2)
         await sleep(100)
     }
 }
