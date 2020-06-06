@@ -14,6 +14,18 @@ function init() {
     return [data, node, sigmax, sigmin, epoch, tau]
 }
 
+// Gaussian generator, mean = 0, std = 1.
+var normal = d3.randomNormal();
+
+// Create random Gaussian vector.
+function normalVector(dim) {
+    var p = [];
+    for (var j = 0; j < dim; j++) {
+        p[j] = normal();
+    }
+    return p;
+}
+
 // Standard Normal variate using Box-Muller transform.
 function randn_bm() {
     var u = 0, v = 0;
@@ -108,6 +120,19 @@ function sinData(N) {
         points.push([r, Math.sin(r)])
     }
     return makePoints(points)
+}
+
+// Two clusters of the same size.
+function twoClustersData(n, dim) {
+    dim = dim || 50;
+    var points = [];
+    for (var i = 0; i < n; i++) {
+        points.push(new Point(normalVector(dim), '#039'));
+        var v = normalVector(dim);
+        v[0] += 10;
+        points.push(new Point(v, '#f90'));
+    }
+    return points;
 }
 
 function create_zeta(K, Dim) {
@@ -234,7 +259,7 @@ function visualize_latent_space(Z, Zeta, margin, width, height) {
         .attr("text-anchor", "middle")
         .attr("font-size", "10pt")
         .attr("font-weight", "bold")
-        .text("X Label");
+        .text("X");
 
     svg_f.append("g")
         .attr("transform", "translate(" + margin.left + "," + 0 + ")")
@@ -247,7 +272,7 @@ function visualize_latent_space(Z, Zeta, margin, width, height) {
         .attr("text-anchor", "middle")
         .attr("font-weight", "bold")
         .attr("font-size", "10pt")
-        .text("Y Label");
+        .text("Y");
 
     svg_f.append("g")
         .selectAll("circle")
@@ -298,7 +323,7 @@ function visualize_observation_space(X, Y, margin, width, height, IsWireframe) {
         .attr("text-anchor", "middle")
         .attr("font-size", "10pt")
         .attr("font-weight", "bold")
-        .text("X Label");
+        .text("X");
 
     svg_f.append("g")
         .attr("transform", "translate(" + margin.left + "," + 0 + ")")
@@ -311,7 +336,7 @@ function visualize_observation_space(X, Y, margin, width, height, IsWireframe) {
         .attr("text-anchor", "middle")
         .attr("font-weight", "bold")
         .attr("font-size", "10pt")
-        .text("Y Label");
+        .text("Y");
 
     svg_f.append("g")
         .selectAll("circle")
@@ -371,7 +396,8 @@ function sleep(milliseconds) {
 
 async function main() {
     const [N, K, sigmax, sigmin, nb_epoch, tau] = init()
-    let X = gridData(N)
+    // let X = gridData(N)
+    let X = twoClustersData(N, 2)
     // let X = sinData(N)
     Zdim = 2
     const Zeta = create_zeta(K, Zdim)
