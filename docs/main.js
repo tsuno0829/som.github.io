@@ -85,7 +85,10 @@ function addSpatialColors(points) {
 }
 
 function initMatrix(N, dim) {
-    if (dim > 2) throw new Error("Dim must be 1 or 2. Forbidden" + str(dim))
+    if (dim > 2){
+        console.log(dim)
+        throw new Error("Dim must be 1 or 2. Forbidden")
+    }
 
     let arr1 = []
     if (dim == 1) {
