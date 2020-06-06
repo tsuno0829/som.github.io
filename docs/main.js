@@ -28,6 +28,13 @@ function normalVector(dim) {
     return p;
 }
 
+// Scale the given vector.
+function scale(vector, a) {
+    for (var i = 0; i < vector.length; i++) {
+      vector[i] *= a;
+    }
+}
+
 // Standard Normal variate using Box-Muller transform.
 function randn_bm() {
     var u = 0, v = 0;
@@ -136,6 +143,37 @@ function twoClustersData(n, dim) {
         var v = normalVector(dim);
         v[0] += 10;
         points.push(new Point(v, '#f90'));
+    }
+    return points;
+}
+
+// Three clusters, at different distances from each other, in any dimension.
+function threeClustersData(n, dim) {
+    dim = dim || 50;
+    var points = [];
+    for (var i = 0; i < n; i++) {
+        var p1 = normalVector(dim);
+        points.push(new Point(p1, '#039'));
+        var p2 = normalVector(dim);
+        p2[0] += 10;
+        points.push(new Point(p2, '#f90'));
+        var p3 = normalVector(dim);
+        p3[0] += 50;
+        points.push(new Point(p3, '#6a3'));
+    }
+    return points;
+}
+
+  // One tiny cluster inside of a big cluster.
+function subsetClustersData(n, dim) {
+    dim = dim || 2;
+    var points = [];
+    for (var i = 0; i < n; i++) {
+        var p1 = normalVector(dim);
+        points.push(new Point(p1, '#039'));
+        var p2 = normalVector(dim);
+        scale(p2, 50);
+        points.push(new Point(p2, '#f90'));
     }
     return points;
 }
@@ -402,7 +440,9 @@ function sleep(milliseconds) {
 async function main() {
     const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init()
     // let X = gridData(N)
-    let X = twoClustersData(N, 2)
+    // let X = twoClustersData(N, 2)
+    // let X = threeClustersData(N, 2)
+    let X = subsetClustersData(N, 2)
     // let X = sinData(N)
     Dim = X[0].coords.length
     Zdim = ldim
