@@ -1,4 +1,25 @@
 var somjs = {}
+
+function calc_sqeuclid_dist(x, y) {
+    // x: (N, D), y: (K, D)
+    let N = x.length
+    let K = y.length
+    let D = x[0].coords.length
+    let dist_arr = []
+    for (let n = 0; n < N; n++) {
+        let tmp = []
+        for (let k = 0; k < K; k++) {
+            let dist = 0
+            for (let d = 0; d < D; d++) {
+                dist += Math.pow(x[n].coords[d] - y[k].coords[d], 2)
+            }
+            tmp.push(dist)
+        }
+        dist_arr.push(tmp)
+    }
+    return dist_arr
+}
+
 var SOM = function() {
     this.iter = 0;
 };

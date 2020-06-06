@@ -2,6 +2,18 @@ if(typeof require != "undefined") {
     var somjs = require('./som.js')
 }
 
+var GLOBALS = {
+    playgroundDemo: null, // the object to control running the playground simulation
+    trayDemo: null, // the object to control running the tray simulation
+    running: true,
+    unpausedBefore: false,
+    stepLimit: 20,
+    state: {},
+    showDemo: null,
+    perplexitySlider: null,
+    epsilonSlider: null,
+}
+
 function init() {
     const data = parseInt(document.getElementById("data-slider").value)
     const node = parseInt(document.getElementById("node-slider").value)
@@ -211,29 +223,13 @@ function calc_sigma(t, tau, sigmax, sigmin) {
     return Math.max(sigmax-(sigmax-sigmin)*(t/tau), sigmin)
 }
 
-function calc_sqeuclid_dist(x, y) {
-    // x: (N, D), y: (K, D)
-    let N = x.length
-    let K = y.length
-    let D = x[0].coords.length
-    let dist_arr = []
-    for (let n = 0; n < N; n++) {
-        let tmp = []
-        for (let k = 0; k < K; k++) {
-            let dist = 0
-            for (let d = 0; d < D; d++) {
-                dist += Math.pow(x[n].coords[d] - y[k].coords[d], 2)
-            }
-            tmp.push(dist)
-        }
-        dist_arr.push(tmp)
-    }
-    return dist_arr
-}
-
-
-function visualize_latent_space(Z, Zeta, margin, width, height) {
+function visualize_latent_space(Z, Zeta, width, height, margin) {
+    // console.log(Z)
+    // console.log(Zeta)
     d3.select("#svg_latent").select("svg").remove();
+
+    // console.log(width)
+    // console.log(height)
 
     var svg_f = d3.select("#svg_latent").append("svg").attr("width", width).attr("height", height)
 
@@ -296,7 +292,7 @@ function visualize_latent_space(Z, Zeta, margin, width, height) {
         .attr("r", 4);
 }
 
-function visualize_observation_space(X, Y, margin, width, height, IsWireframe) {
+function visualize_observation_space(X, Y, width, height, margin, IsWireframe) {
     d3.select("#svg_observation").select("svg").remove();
 
     var svg_f = d3.select("#svg_observation").append("svg").attr("width", width).attr("height", height)
@@ -393,37 +389,108 @@ function sleep(milliseconds) {
     return new Promise(resolve => setTimeout(resolve, milliseconds));
 }
 
-async function main() {
+// var playPause = document.getElementById('play-pause');
+function setRunning(r) {
+    GLOBALS.running = r;
+    GLOBALS.playgroundRunning = r;
+    if (GLOBALS.running) {
+        GLOBALS.playgroundDemo.unpause();
+        // playPause.setAttribute("class", "playing")
+    } else {
+        GLOBALS.playgroundDemo.pause();
+        // playPause.setAttribute("class", "paused")
+    }
+}
+
+function demoMaker(X, Y, Z, Zeta, N, K, ldim, sigmax, sigmin, nb_epoch, tau, width, height, margin, stepCb) {
+    var demo = {};
+    var paused = false;
+    var step = 0;
+    var chunk = 1;
+    var frameId;
+
+    var timescale = d3.scaleLinear()
+    .domain([0, 20, 50, 100, 200, 6000])
+    .range([60, 30, 20, 10, 0]);
+
+    var som = new somjs.SOM();
+    // var dists = distanceMatrix(points);
+    // tsne.initDataDist(dists);
+
+    function iterate() {
+        if(paused) return;
+
+        // control speed at which we iterate
+        // if(step >= 200) chunk = 10;
+        for(var k = 0; k < chunk; k++) {
+            // tsne.step();
+            sigma = calc_sigma(step, tau, sigmax, sigmin)
+            Y = som.estimate_f(X, Y, Z, Zeta, sigma)
+            Z = som.estimate_z(X, Y, Z, Zeta)
+            step++;
+        }
+
+        //inform the caller about the current step
+        stepCb(step)
+
+        visualize_latent_space(Z, Zeta, width, height, margin)
+        visualize_observation_space(X, Y, width, height, margin, Zdim==2)
+
+        //control the loop.
+        var timeout = timescale(step)
+            setTimeout(function() {
+            frameId = window.requestAnimationFrame(iterate);
+        }, timeout)
+    }
+
+    demo.pause = function() {
+      if(paused) return; // already paused
+        paused = true;
+        window.cancelAnimationFrame(frameId)
+    }
+    demo.unpause = function() {
+      if(!paused) return; // already unpaused
+        paused = false;
+        iterate();
+    }
+    demo.paused = function() {
+        return paused;
+    }
+    demo.destroy = function() {
+        demo.pause();
+        delete demo;
+    }
+    iterate();
+    return demo;
+}
+
+
+function main() {
+    if (GLOBALS.playgroundDemo != null) GLOBALS.playgroundDemo.destroy();
+    var format = d3.format(",");
     const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init()
-    // let X = gridData(N)
+    let X = gridData(N)
     // let X = twoClustersData(N, 2)
     // let X = threeClustersData(N, 2)
-    let X = subsetClustersData(N, 2)
+    // let X = subsetClustersData(N, 2)
     // let X = sinData(N)
     Dim = X[0].coords.length
     Zdim = ldim
     const Zeta = create_zeta(K, Zdim)
     let Z =  initMatrix(X.length, Zdim)
-    // XとZが指すcolorを統一する
-    for (let n = 0; n < X.length; n++) {
-        Z[n].color = X[n].color
-    }
+    for (let n = 0; n < X.length; n++) Z[n].color = X[n].color   // XとZが指すcolorを統一する
     let Y = initMatrix(Zeta.length, Dim)
     var width = 300
     var height = 300
     var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 }
 
-    var som = new somjs.SOM();
-
-    for (let epoch = 0; epoch < nb_epoch; epoch++) {
-        document.getElementById("current-step").innerHTML = epoch + 1
-        sigma = calc_sigma(epoch, tau, sigmax, sigmin)
-        Y = som.estimate_f(X, Y, Z, Zeta, sigma)
-        Z = som.estimate_z(X, Y, Z, Zeta)
-        visualize_latent_space(Z, Zeta, margin, width, height)
-        visualize_observation_space(X, Y, margin, width, height, Zdim==2)
-        await sleep(100)
-    }
+    GLOBALS.playgroundDemo = demoMaker(X, Y, Z, Zeta, N, K, ldim, sigmax, sigmin, nb_epoch, tau,
+                                        width, height, margin, function(step) {
+        d3.select("#step").text(format(step));
+        if(step >= GLOBALS.stepLimit) {
+            setRunning(false)
+        }
+    })
 }
 
 try {
