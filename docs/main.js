@@ -1,3 +1,7 @@
+if(typeof require != "undefined") {
+    var somjs = require('./som.js')
+}
+
 function init() {
     const data = parseInt(document.getElementById("data-slider").value)
     const node = parseInt(document.getElementById("node-slider").value)
