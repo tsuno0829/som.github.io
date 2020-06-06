@@ -232,54 +232,6 @@ function calc_sqeuclid_dist(x, y) {
 }
 
 
-function estimate_f(X, Y, z, zeta, sigma) {
-    let N = z.length
-    let K = zeta.length
-    let D = X[0].coords.length
-    let h = []
-    let H = []
-
-    dist = calc_sqeuclid_dist(z, zeta)
-
-    for (let n = 0; n < N; n++) {
-        let tmp = []
-        for (let k = 0; k < K; k++) {
-            let t = Math.exp(-0.5*(dist[n][k])/(sigma*sigma))
-            tmp.push(t)
-        }
-        h.push(tmp)
-    }
-
-    for (let k = 0; k < K; k++) {
-        let sum = 0
-        for (let n = 0; n < N; n++) {
-            sum += h[n][k]
-        }
-        H.push(sum)
-    }
-
-    for (let k = 0; k < K; k++) {
-        let y = [0, 0]
-        for (let n = 0; n < N; n++) {
-            for (let d = 0; d < D; d++) {
-                y[d] += h[n][k] * X[n].coords[d] / H[k]
-            }
-        }
-        Y[k].coords = y
-    }
-    return Y
-}
-
-function estimate_z(X, Y, Z, Zeta) {
-    let N = Z.length
-    let dist = calc_sqeuclid_dist(X, Y)
-    for (let n = 0; n < N; n++) {
-        min_zeta_idx = argMin(dist[n])
-        Z[n].coords = Zeta[min_zeta_idx].coords
-    }
-    return Z
-}
-
 function visualize_latent_space(Z, Zeta, margin, width, height) {
     d3.select("#svg_latent").select("svg").remove();
 
@@ -461,11 +413,13 @@ async function main() {
     var height = 300
     var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 }
 
+    var som = new somjs.SOM();
+
     for (let epoch = 0; epoch < nb_epoch; epoch++) {
         document.getElementById("current-step").innerHTML = epoch + 1
         sigma = calc_sigma(epoch, tau, sigmax, sigmin)
-        Y = estimate_f(X, Y, Z, Zeta, sigma)
-        Z = estimate_z(X, Y, Z, Zeta)
+        Y = som.estimate_f(X, Y, Z, Zeta, sigma)
+        Z = som.estimate_z(X, Y, Z, Zeta)
         visualize_latent_space(Z, Zeta, margin, width, height)
         visualize_observation_space(X, Y, margin, width, height, Zdim==2)
         await sleep(100)
