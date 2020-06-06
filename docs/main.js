@@ -1,17 +1,38 @@
 function init() {
     const data = parseInt(document.getElementById("data-slider").value)
     const node = parseInt(document.getElementById("node-slider").value)
+    const ldim = parseInt(document.getElementById("ldim-slider").value)
     const sigmax = parseFloat(document.getElementById("sigmax-slider").value)
     const sigmin = parseFloat(document.getElementById("sigmin-slider").value)
     const epoch = parseFloat(document.getElementById("epoch-slider").value)
     const tau = parseFloat(document.getElementById("tau-slider").value)
     document.getElementById("current-data").innerHTML = data
     document.getElementById("current-node").innerHTML = node
+    document.getElementById("current-ldim").innerHTML = ldim
     document.getElementById("current-sigmax").innerHTML = sigmax
     document.getElementById("current-sigmin").innerHTML = sigmin
     document.getElementById("current-epoch").innerHTML = epoch
     document.getElementById("current-tau").innerHTML = tau
-    return [data, node, sigmax, sigmin, epoch, tau]
+    return [data, node, ldim, sigmax, sigmin, epoch, tau]
+}
+
+// Gaussian generator, mean = 0, std = 1.
+var normal = d3.randomNormal();
+
+// Create random Gaussian vector.
+function normalVector(dim) {
+    var p = [];
+    for (var j = 0; j < dim; j++) {
+        p[j] = normal();
+    }
+    return p;
+}
+
+// Scale the given vector.
+function scale(vector, a) {
+    for (var i = 0; i < vector.length; i++) {
+      vector[i] *= a;
+    }
 }
 
 // Standard Normal variate using Box-Muller transform.
@@ -71,7 +92,10 @@ function addSpatialColors(points) {
 }
 
 function initMatrix(N, dim) {
-    if (dim > 2) throw new Error("Dim must be 1 or 2.")
+    if (dim > 2){
+        // console.log(dim)
+        throw new Error(dim)
+    }
 
     let arr1 = []
     if (dim == 1) {
@@ -108,6 +132,50 @@ function sinData(N) {
         points.push([r, Math.sin(r)])
     }
     return makePoints(points)
+}
+
+// Two clusters of the same size.
+function twoClustersData(n, dim) {
+    dim = dim || 50;
+    var points = [];
+    for (var i = 0; i < n; i++) {
+        points.push(new Point(normalVector(dim), '#039'));
+        var v = normalVector(dim);
+        v[0] += 10;
+        points.push(new Point(v, '#f90'));
+    }
+    return points;
+}
+
+// Three clusters, at different distances from each other, in any dimension.
+function threeClustersData(n, dim) {
+    dim = dim || 50;
+    var points = [];
+    for (var i = 0; i < n; i++) {
+        var p1 = normalVector(dim);
+        points.push(new Point(p1, '#039'));
+        var p2 = normalVector(dim);
+        p2[0] += 10;
+        points.push(new Point(p2, '#f90'));
+        var p3 = normalVector(dim);
+        p3[0] += 50;
+        points.push(new Point(p3, '#6a3'));
+    }
+    return points;
+}
+
+  // One tiny cluster inside of a big cluster.
+function subsetClustersData(n, dim) {
+    dim = dim || 2;
+    var points = [];
+    for (var i = 0; i < n; i++) {
+        var p1 = normalVector(dim);
+        points.push(new Point(p1, '#039'));
+        var p2 = normalVector(dim);
+        scale(p2, 50);
+        points.push(new Point(p2, '#f90'));
+    }
+    return points;
 }
 
 function create_zeta(K, Dim) {
@@ -234,7 +302,7 @@ function visualize_latent_space(Z, Zeta, margin, width, height) {
         .attr("text-anchor", "middle")
         .attr("font-size", "10pt")
         .attr("font-weight", "bold")
-        .text("X Label");
+        .text("X");
 
     svg_f.append("g")
         .attr("transform", "translate(" + margin.left + "," + 0 + ")")
@@ -247,7 +315,7 @@ function visualize_latent_space(Z, Zeta, margin, width, height) {
         .attr("text-anchor", "middle")
         .attr("font-weight", "bold")
         .attr("font-size", "10pt")
-        .text("Y Label");
+        .text("Y");
 
     svg_f.append("g")
         .selectAll("circle")
@@ -298,7 +366,7 @@ function visualize_observation_space(X, Y, margin, width, height, IsWireframe) {
         .attr("text-anchor", "middle")
         .attr("font-size", "10pt")
         .attr("font-weight", "bold")
-        .text("X Label");
+        .text("X");
 
     svg_f.append("g")
         .attr("transform", "translate(" + margin.left + "," + 0 + ")")
@@ -311,7 +379,7 @@ function visualize_observation_space(X, Y, margin, width, height, IsWireframe) {
         .attr("text-anchor", "middle")
         .attr("font-weight", "bold")
         .attr("font-size", "10pt")
-        .text("Y Label");
+        .text("Y");
 
     svg_f.append("g")
         .selectAll("circle")
@@ -370,17 +438,21 @@ function sleep(milliseconds) {
 }
 
 async function main() {
-    const [N, K, sigmax, sigmin, nb_epoch, tau] = init()
-    let X = gridData(N)
+    const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init()
+    // let X = gridData(N)
+    // let X = twoClustersData(N, 2)
+    // let X = threeClustersData(N, 2)
+    let X = subsetClustersData(N, 2)
     // let X = sinData(N)
-    Zdim = 2
+    Dim = X[0].coords.length
+    Zdim = ldim
     const Zeta = create_zeta(K, Zdim)
     let Z =  initMatrix(X.length, Zdim)
     // XとZが指すcolorを統一する
     for (let n = 0; n < X.length; n++) {
         Z[n].color = X[n].color
     }
-    let Y = initMatrix(Zeta.length, X[0].coords[1])
+    let Y = initMatrix(Zeta.length, Dim)
     var width = 300
     var height = 300
     var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 }
@@ -407,6 +479,7 @@ document.getElementById("reset_btn").onclick = main
 window.onload = () => {
     const current_data = document.getElementById("current-data")
     const current_node = document.getElementById("current-node")
+    const current_ldim = document.getElementById("current-ldim")
     const current_sigmax = document.getElementById("current-sigmax")
     const current_sigmin = document.getElementById("current-sigmin")
     const current_epoch = document.getElementById("current-epoch")
@@ -414,6 +487,7 @@ window.onload = () => {
     const setCurrentValue = (c) => (e) => {c.innerText = e.target.value}
     document.getElementById("data-slider").addEventListener("input", setCurrentValue(current_data))
     document.getElementById("node-slider").addEventListener("input", setCurrentValue(current_node))
+    document.getElementById("ldim-slider").addEventListener("input", setCurrentValue(current_ldim))
     document.getElementById("sigmax-slider").addEventListener("input", setCurrentValue(current_sigmax))
     document.getElementById("sigmin-slider").addEventListener("input", setCurrentValue(current_sigmin))
     document.getElementById("epoch-slider").addEventListener("input", setCurrentValue(current_epoch))
