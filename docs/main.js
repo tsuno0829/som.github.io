@@ -33,6 +33,8 @@ function linspace(startValue, stopValue, cardinality, endpoint=false) {
     return arr;
 }
 
+const transpose = a => a[0].map((_, c) => a.map(r => r[c]));
+
 function splitArray(array, part) {
     var tmp = [];
     for(var i = 0; i < array.length; i += part) {
@@ -345,12 +347,21 @@ function visualize_observation_space(X, Y, margin, width, height, IsWireframe) {
         .attr('fill', 'none')
     } else {
         let Y_reshape = splitArray(Y, ~~Math.sqrt(Y.length))
-        // console.log(Y_reshape)
-        svg_f.append('path')
-        .attr('d', curveFunc(Y_reshape))
-        .attr('stroke', 'red')
-        .attr("stroke-width", 2)
-        .attr('fill', 'none')
+        for (let i = 0; i < Y_reshape.length; i++) {
+            svg_f.append('path')
+            .attr('d', curveFunc(Y_reshape[i]))
+            .attr('stroke', 'red')
+            .attr("stroke-width", 2)
+            .attr('fill', 'none')
+        }
+        Y_transpose = transpose(Y_reshape)
+        for (let i = 0; i < Y_transpose.length; i++) {
+            svg_f.append('path')
+            .attr('d', curveFunc(Y_transpose[i]))
+            .attr('stroke', 'red')
+            .attr("stroke-width", 2)
+            .attr('fill', 'none')
+        }
     }
 }
 
