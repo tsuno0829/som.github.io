@@ -435,6 +435,7 @@ document.getElementById("reset_btn").onclick = main
 window.onload = () => {
     const current_data = document.getElementById("current-data")
     const current_node = document.getElementById("current-node")
+    const current_ldim = document.getElementById("current-ldim")
     const current_sigmax = document.getElementById("current-sigmax")
     const current_sigmin = document.getElementById("current-sigmin")
     const current_epoch = document.getElementById("current-epoch")
@@ -442,6 +443,7 @@ window.onload = () => {
     const setCurrentValue = (c) => (e) => {c.innerText = e.target.value}
     document.getElementById("data-slider").addEventListener("input", setCurrentValue(current_data))
     document.getElementById("node-slider").addEventListener("input", setCurrentValue(current_node))
+    document.getElementById("ldim-slider").addEventListener("input", setCurrentValue(current_ldim))
     document.getElementById("sigmax-slider").addEventListener("input", setCurrentValue(current_sigmax))
     document.getElementById("sigmin-slider").addEventListener("input", setCurrentValue(current_sigmin))
     document.getElementById("epoch-slider").addEventListener("input", setCurrentValue(current_epoch))
