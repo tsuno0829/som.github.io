@@ -1,17 +1,19 @@
 function init() {
     const data = parseInt(document.getElementById("data-slider").value)
     const node = parseInt(document.getElementById("node-slider").value)
+    const ldim = parseInt(document.getElementById("ldim-slider").value)
     const sigmax = parseFloat(document.getElementById("sigmax-slider").value)
     const sigmin = parseFloat(document.getElementById("sigmin-slider").value)
     const epoch = parseFloat(document.getElementById("epoch-slider").value)
     const tau = parseFloat(document.getElementById("tau-slider").value)
     document.getElementById("current-data").innerHTML = data
     document.getElementById("current-node").innerHTML = node
+    document.getElementById("current-ldim").innerHTML = ldim
     document.getElementById("current-sigmax").innerHTML = sigmax
     document.getElementById("current-sigmin").innerHTML = sigmin
     document.getElementById("current-epoch").innerHTML = epoch
     document.getElementById("current-tau").innerHTML = tau
-    return [data, node, sigmax, sigmin, epoch, tau]
+    return [data, node, ldim, sigmax, sigmin, epoch, tau]
 }
 
 // Gaussian generator, mean = 0, std = 1.
@@ -83,7 +85,7 @@ function addSpatialColors(points) {
 }
 
 function initMatrix(N, dim) {
-    if (dim > 2) throw new Error("Dim must be 1 or 2.")
+    if (dim > 2) throw new Error("Dim must be 1 or 2. Forbidden" + str(dim))
 
     let arr1 = []
     if (dim == 1) {
@@ -395,11 +397,11 @@ function sleep(milliseconds) {
 }
 
 async function main() {
-    const [N, K, sigmax, sigmin, nb_epoch, tau] = init()
+    const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init()
     // let X = gridData(N)
     let X = twoClustersData(N, 2)
     // let X = sinData(N)
-    Zdim = 2
+    Zdim = ldim
     const Zeta = create_zeta(K, Zdim)
     let Z =  initMatrix(X.length, Zdim)
     // XとZが指すcolorを統一する
