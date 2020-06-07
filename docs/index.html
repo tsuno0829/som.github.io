@@ -1,6 +1,7 @@
 <html>
   <head>
     <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src="som.js"></script>
   </head>
   <body>
     <div>
@@ -12,7 +13,7 @@
     <table>
       <tr>
         <td>number of points <span id="current-data"></span></td>
-        <td><input id="data-slider" type="range" value="10" min="10" max="490" step="10"></td>
+        <td><input id="data-slider" type="range" value="50" min="10" max="490" step="10"></td>
       </tr>
       <tr>
         <td>resolution of nodes <span id="current-node"></span></td>
@@ -42,7 +43,7 @@
 
     <table>
       <tr>
-        <th>step <span id="current-step"></span></th>
+        <th>step <span id="step"></span></th>
       </tr>
       <tr>
         <td><div id="svg_latent"></div></td>
