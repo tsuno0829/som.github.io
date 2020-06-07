@@ -7,7 +7,7 @@ var GLOBALS = {
     trayDemo: null, // the object to control running the tray simulation
     running: true,
     unpausedBefore: false,
-    stepLimit: 20,
+    stepLimit: 100,
     state: {},
     showDemo: null,
     perplexitySlider: null,
@@ -279,7 +279,7 @@ function visualize_latent_space(Z, Zeta, width, height, margin) {
         .attr("fill", "white")
         .attr("stroke", "red")
         .attr("stroke-width", 1)
-        .attr("r", 4);
+        .attr("r", 2);
 
     svg_f.append("g")
         .selectAll("circle")
@@ -289,7 +289,7 @@ function visualize_latent_space(Z, Zeta, width, height, margin) {
         .attr("cx", function(d) { return xScale(d.coords[0]); })
         .attr("cy", function(d) { return yScale(d.coords[1]); })
         .attr("fill", d => d.color)
-        .attr("r", 4);
+        .attr("r", 3);
 }
 
 function visualize_observation_space(X, Y, width, height, margin, IsWireframe) {
@@ -341,7 +341,7 @@ function visualize_observation_space(X, Y, width, height, margin, IsWireframe) {
         .attr("cx", function(d) { return xScale(d.coords[0]); })
         .attr("cy", function(d) { return yScale(d.coords[1]); })
         .attr("fill", d => d.color)
-        .attr("r", 4);
+        .attr("r", 3);
 
     svg_f.append("g")
         .selectAll("circle")
@@ -351,7 +351,7 @@ function visualize_observation_space(X, Y, width, height, margin, IsWireframe) {
         .attr("cx", function(d) { return xScale(d.coords[0]); })
         .attr("cy", function(d) { return yScale(d.coords[1]); })
         .attr("fill", "red")
-        .attr("r", 3);
+        .attr("r", 2);
 
     // line作成関数
     var curveFunc = d3.line()
@@ -469,11 +469,11 @@ function main() {
     if (GLOBALS.playgroundDemo != null) GLOBALS.playgroundDemo.destroy();
     var format = d3.format(",");
     const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init()
-    let X = gridData(N)
+    // let X = gridData(N)
     // let X = twoClustersData(N, 2)
     // let X = threeClustersData(N, 2)
     // let X = subsetClustersData(N, 2)
-    // let X = sinData(N)
+    let X = sinData(N)
     Dim = X[0].coords.length
     Zdim = ldim
     const Zeta = create_zeta(K, Zdim)
