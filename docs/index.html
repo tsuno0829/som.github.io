@@ -1,6 +1,7 @@
 <html>
   <head>
     <script src="https://d3js.org/d3.v5.min.js"></script>
+    <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
     <script src="som.js"></script>
   </head>
   <body>
@@ -37,23 +38,30 @@
       </tr>
       <tr>
         <td>tau <span id="current-tau"></span></td>
-        <td><input id="tau-slider" type="range" value="50" min="1" max="100" step="1"></td>
+        <td><input id="tau-slider" type="range" value="20" min="1" max="100" step="1"></td>
       </tr>
     </table>
 
-    <table>
+    step <span id="step"></span>
+    <div id="svg_latent"></div>
+    <div id="svg_observation" width=300></div>
+    <pre>  latent space</p>
+    <pre>  observation space</p>
+
+    <!-- <table>
       <tr>
         <th>step <span id="step"></span></th>
       </tr>
       <tr>
         <td><div id="svg_latent"></div></td>
         <td><div id="svg_observation"></div></td>
+        <td><div id="myDiv" width=400 height=400></div></td>
       </tr>
       <tr>
         <th><pre>  latent space</p></th>
         <th><pre>  observation space</p></th>
       </tr>
-    </table>
+    </table> -->
 
     <script type="text/javascript" src="main.js"></script>
   </body>
