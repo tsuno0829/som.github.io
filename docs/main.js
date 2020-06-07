@@ -468,6 +468,7 @@ const plot_f_withPlotly = (X, Y, width, height, margin, IsWireframe) =>
             // line: {
             //     color: X.map(d => d.color),
             //     width: 0.5},
+            showlegend: true,
             opacity: 0.8},
         type: 'scatter3d'
     };
@@ -493,8 +494,8 @@ const plot_f_withPlotly = (X, Y, width, height, margin, IsWireframe) =>
             }
             data.push(trace)
         }
-        console.log(Y)
-        console.log(Y_reshape)
+        // console.log(Y)
+        // console.log(Y_reshape)
         Y_transpose = transpose(Y_reshape)
         for (let i = 0; i < Y_reshape.length; i++) {
             var trace = {
@@ -602,6 +603,8 @@ function demoMaker(X, Y, Z, Zeta, N, K, ldim, sigmax, sigmin, nb_epoch, tau, wid
     }
 
     demo.pause = function() {
+        console.log("paused")
+        console.log(paused)
       if(paused) return; // already paused
         paused = true;
         window.cancelAnimationFrame(frameId)
@@ -624,6 +627,7 @@ function demoMaker(X, Y, Z, Zeta, N, K, ldim, sigmax, sigmin, nb_epoch, tau, wid
 
 
 function main() {
+    console.log(GLOBALS.stepLimit)
     if (GLOBALS.playgroundDemo != null) GLOBALS.playgroundDemo.destroy();
     var format = d3.format(",");
     const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init()
@@ -670,12 +674,22 @@ window.onload = () => {
     const current_sigmin = document.getElementById("current-sigmin")
     const current_epoch = document.getElementById("current-epoch")
     const current_tau = document.getElementById("current-tau")
-    const setCurrentValue = (c) => (e) => {c.innerText = e.target.value}
+    const setCurrentValue = (c) => (e) => {
+        c.innerText = e.target.value;
+        setRunning(false);
+        // main();
+    }
+    const setCurrentEpoch = (c) => (e) => {
+        c.innerText = e.target.value;
+        GLOBALS.stepLimit = e.target.value;
+        setRunning(false);
+        // main();
+    }
     document.getElementById("data-slider").addEventListener("input", setCurrentValue(current_data))
     document.getElementById("node-slider").addEventListener("input", setCurrentValue(current_node))
     document.getElementById("ldim-slider").addEventListener("input", setCurrentValue(current_ldim))
     document.getElementById("sigmax-slider").addEventListener("input", setCurrentValue(current_sigmax))
     document.getElementById("sigmin-slider").addEventListener("input", setCurrentValue(current_sigmin))
-    document.getElementById("epoch-slider").addEventListener("input", setCurrentValue(current_epoch))
+    document.getElementById("epoch-slider").addEventListener("input", setCurrentEpoch(current_epoch))
     document.getElementById("tau-slider").addEventListener("input", setCurrentValue(current_tau))
 }
