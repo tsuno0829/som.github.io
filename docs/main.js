@@ -473,17 +473,17 @@ const plot_f_withPlotly = (X, Y, width, height, margin, IsWireframe) =>
         type: 'scatter3d'
     };
 
-    var trace2 = {
-        x: Y.map(x => x.coords[0]),
-        y: Y.map(x => x.coords[1]),
-        z: Y.map(x => x.coords[2]),
-        mode: 'markers',
-        marker: {
-            size: 3,
-            color: "red",
-            opacity: 0.8},
-        type: 'scatter3d'
-    };
+    // var trace2 = {
+    //     x: Y.map(x => x.coords[0]),
+    //     y: Y.map(x => x.coords[1]),
+    //     z: Y.map(x => x.coords[2]),
+    //     mode: 'markers',
+    //     marker: {
+    //         size: 3,
+    //         color: "red",
+    //         opacity: 0.8},
+    //     type: 'scatter3d'
+    // };
 
     // wireframe(surface3d)は今後実装予定
     // var z = []
@@ -517,8 +517,43 @@ const plot_f_withPlotly = (X, Y, width, height, margin, IsWireframe) =>
     //     showscale: false
     // };
 
-    var data = [trace1, trace2];
-    // var data = [trace1]
+    var data = [trace1];
+
+    let Y_reshape = splitArray(Y, ~~Math.sqrt(Y.length))
+    for (let i = 0; i < Y_reshape.length; i++) {
+        var trace = {
+            type: 'scatter3d',
+            mode: 'lines',
+            x: Y_reshape[i].map(y => y.coords[0]),
+            y: Y_reshape[i].map(y => y.coords[1]),
+            z: Y_reshape[i].map(y => y.coords[2]),
+            opacity: 1,
+            line: {
+                width: 3,
+                color: "red",
+                reversescale: false
+            }
+        }
+        data.push(trace)
+    }
+    Y_transpose = transpose(Y_reshape)
+    for (let i = 0; i < Y_reshape.length; i++) {
+        var trace = {
+            type: 'scatter3d',
+            mode: 'lines',
+            x: Y_transpose[i].map(y => y.coords[0]),
+            y: Y_transpose[i].map(y => y.coords[1]),
+            z: Y_transpose[i].map(y => y.coords[2]),
+            opacity: 1,
+            line: {
+                width: 3,
+                color: "red",
+                reversescale: false
+            }
+        }
+        data.push(trace)
+    }
+
     var layout = {
         width: width,
         height: height,
@@ -619,8 +654,8 @@ function main() {
     // let X = threeClustersData(N, 2)
     // let X = subsetClustersData(N, 2)
     // let X = sinData(N)
-    // let X = linkData(N)
-    let X = unlinkData(N)
+    let X = linkData(N)
+    // let X = unlinkData(N)
     // let X = trefoilData(N)
     Dim = X[0].coords.length
     Zdim = ldim
