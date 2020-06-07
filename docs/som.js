@@ -52,7 +52,9 @@ SOM.prototype = {
         }
 
         for (let k = 0; k < K; k++) {
-            let y = [0, 0]
+            let y
+            if (D < 3) y = [0, 0]
+            else y = [0, 0, 0]
             for (let n = 0; n < N; n++) {
                 for (let d = 0; d < D; d++) {
                     y[d] += h[n][k] * X[n].coords[d] / H[k]

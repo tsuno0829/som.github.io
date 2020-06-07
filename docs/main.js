@@ -7,7 +7,7 @@ var GLOBALS = {
     trayDemo: null, // the object to control running the tray simulation
     running: true,
     unpausedBefore: false,
-    stepLimit: 100,
+    stepLimit: 50,
     state: {},
     showDemo: null,
     perplexitySlider: null,
@@ -107,27 +107,38 @@ function addSpatialColors(points) {
     });
 }
 
-function initMatrix(N, dim) {
-    if (dim > 2){
-        // console.log(dim)
-        throw new Error(dim)
-    }
+// Return a color for the given angle.
+function angleColor(t) {
+    var hue = ~~(300 * t / (2 * Math.PI));
+    return 'hsl(' + hue + ',50%,50%)';
+}
 
-    let arr1 = []
+function initMatrix(n, dim) {
+    // if (dim > 3){
+    //     throw new Error(dim)
+    // }
+
+    let points = []
     if (dim == 1) {
-        for (let i = 0; i < N; i++) {
-            arr1.push([randn_bm()*0.01, 0])
+        for (let i = 0; i < n; i++) {
+            points.push([randn_bm()*0.01, 0])
         }
     } else {
-        for (let i = 0; i < N; i++) {
+        for (let i = 0; i < n; i++) {
             let arr2 = []
             for (let j = 0; j < dim; j++) {
                 arr2.push(randn_bm()*0.01)
             }
-            arr1.push(arr2)
+            points.push(arr2)
+            // console.log(arr2)
+            // points.push(new Point(arr2, '#f89'))
+            // console.log(new Point(arr2, '#f89'))
         }
     }
-    return makePoints(arr1)
+    // console.log("aaa")
+    // console.log(points)
+    return points.map(function(p) {return new Point(p);});
+    // return points
 }
 
 // Data in shape of 2D grid.
@@ -190,6 +201,65 @@ function subsetClustersData(n, dim) {
         var p2 = normalVector(dim);
         scale(p2, 50);
         points.push(new Point(p2, '#f90'));
+    }
+    return points;
+}
+
+// Points in two unlinked rings.
+function unlinkData(n) {
+    var points = [];
+    function rotate(x, y, z) {
+        var u = x;
+        var cos = Math.cos(.4);
+        var sin = Math.sin(.4);
+        var v = cos * y + sin * z;
+        var w = -sin * y + cos * z;
+        return [u, v, w];
+    }
+    for (var i = 0; i < n; i++) {
+        var t = 2 * Math.PI * i / n;
+        var sin = Math.sin(t);
+        var cos = Math.cos(t);
+        // Ring 1.
+        points.push(new Point(rotate(cos, sin, 0), '#f90'));
+        // Ring 2.
+        points.push(new Point(rotate(3 + cos, 0, sin), '#039'));
+    }
+    return points;
+}
+
+// Points in linked rings.
+function linkData(n) {
+    var points = [];
+    function rotate(x, y, z) {
+        var u = x;
+        var cos = Math.cos(.4);
+        var sin = Math.sin(.4);
+        var v = cos * y + sin * z;
+        var w = -sin * y + cos * z;
+        return [u, v, w];
+    }
+    for (var i = 0; i < n; i++) {
+        var t = 2 * Math.PI * i / n;
+        var sin = Math.sin(t);
+        var cos = Math.cos(t);
+        // Ring 1.
+        points.push(new Point(rotate(cos, sin, 0), '#f90'));
+        // Ring 2.
+        points.push(new Point(rotate(1 + cos, 0, sin), '#039'));
+    }
+    return points;
+}
+
+// Points in a trefoil knot.
+function trefoilData(n) {
+    var points = [];
+    for (var i = 0; i < n; i++) {
+        var t = 2 * Math.PI * i / n;
+        var x = Math.sin(t) + 2 * Math.sin(2 * t);
+        var y = Math.cos(t) - 2 * Math.cos(2 * t);
+        var z = -Math.sin(3 * t);
+        points.push(new Point([x, y, z], angleColor(t)));
     }
     return points;
 }
@@ -434,7 +504,7 @@ function demoMaker(X, Y, Z, Zeta, N, K, ldim, sigmax, sigmin, nb_epoch, tau, wid
         stepCb(step)
 
         visualize_latent_space(Z, Zeta, width, height, margin)
-        visualize_observation_space(X, Y, width, height, margin, Zdim==2)
+        // visualize_observation_space(X, Y, width, height, margin, Zdim==2)
 
         //control the loop.
         var timeout = timescale(step)
@@ -473,7 +543,10 @@ function main() {
     // let X = twoClustersData(N, 2)
     // let X = threeClustersData(N, 2)
     // let X = subsetClustersData(N, 2)
-    let X = sinData(N)
+    // let X = sinData(N)
+    // let X = linkData(N)
+    // let X = unlinkData(N)
+    let X = trefoilData(N)
     Dim = X[0].coords.length
     Zdim = ldim
     const Zeta = create_zeta(K, Zdim)
