@@ -456,7 +456,6 @@ function visualize_observation_space(X, Y, width, height, margin, IsWireframe) {
 }
 
 const plot_f_withPlotly = (X, Y, width, height, margin, IsWireframe) =>
-    // Plotly.d3.csv('https://raw.githubusercontent.com/plotly/datasets/master/3d-scatter.csv', function(err, rows){
     {
     var trace1 = {
         x: X.map(x => x.coords[0]),
@@ -473,82 +472,60 @@ const plot_f_withPlotly = (X, Y, width, height, margin, IsWireframe) =>
         type: 'scatter3d'
     };
 
-    // var trace2 = {
-    //     x: Y.map(x => x.coords[0]),
-    //     y: Y.map(x => x.coords[1]),
-    //     z: Y.map(x => x.coords[2]),
-    //     mode: 'markers',
-    //     marker: {
-    //         size: 3,
-    //         color: "red",
-    //         opacity: 0.8},
-    //     type: 'scatter3d'
-    // };
-
-    // wireframe(surface3d)は今後実装予定
-    // var z = []
-    // let c = 0
-    // const k = ~~Math.sqrt(Y.length)
-    // console.log(k)
-    // for (let i = 0; i < k; i++) {
-    //     let tmp = []
-    //     for (let j = 0; j < k; j++) {
-    //         tmp.push(Y[c++].coords[2])
-    //     }
-    //     z.push(tmp)
-    // }
-    // let Y_reshape = splitArray(Y.map(x=>x.coords), ~~Math.sqrt(Y.length))
-    // let Y_transpose = transpose(Y_reshape)
-    // console.log(Y_reshape)
-    // console.log(Y_reshape[0])
-    // console.log(Y_reshpae[1])
-
-    // var trace2 = {
-    //     type: 'surface',
-    //     x: x,
-    //     y: Y_transpose[0].map(x => x.coords[1]),
-    //     z: z,
-    //     hidesurface: false,
-    //     contours: {
-    //         x: { show: true },
-    //         y: { show: true },
-    //         z: { show: true }
-    //     },
-    //     showscale: false
-    // };
-
     var data = [trace1];
 
-    let Y_reshape = splitArray(Y, ~~Math.sqrt(Y.length))
-    for (let i = 0; i < Y_reshape.length; i++) {
-        var trace = {
-            type: 'scatter3d',
-            mode: 'lines',
-            x: Y_reshape[i].map(y => y.coords[0]),
-            y: Y_reshape[i].map(y => y.coords[1]),
-            z: Y_reshape[i].map(y => y.coords[2]),
-            opacity: 1,
-            line: {
-                width: 3,
-                color: "red",
-                reversescale: false
+    if (IsWireframe) {
+        let Y_reshape = splitArray(Y, ~~Math.sqrt(Y.length))
+        for (let i = 0; i < Y_reshape.length; i++) {
+            var trace = {
+                type: 'scatter3d',
+                mode: 'lines',
+                x: Y_reshape[i].map(y => y.coords[0]),
+                y: Y_reshape[i].map(y => y.coords[1]),
+                z: Y_reshape[i].map(y => y.coords[2]),
+                opacity: 1,
+                line: {
+                    width: 2,
+                    color: "red",
+                    reversescale: false,
+                    showlegend: false
+                }
             }
+            data.push(trace)
         }
-        data.push(trace)
-    }
-    Y_transpose = transpose(Y_reshape)
-    for (let i = 0; i < Y_reshape.length; i++) {
+        console.log(Y)
+        console.log(Y_reshape)
+        Y_transpose = transpose(Y_reshape)
+        for (let i = 0; i < Y_reshape.length; i++) {
+            var trace = {
+                type: 'scatter3d',
+                mode: 'lines',
+                x: Y_transpose[i].map(y => y.coords[0]),
+                y: Y_transpose[i].map(y => y.coords[1]),
+                z: Y_transpose[i].map(y => y.coords[2]),
+                opacity: 1,
+                line: {
+                    width: 2,
+                    color: "red",
+                    reversescale: false,
+                    showlegend: false
+                }
+            }
+            data.push(trace)
+        }
+    } else {
         var trace = {
             type: 'scatter3d',
             mode: 'lines',
-            x: Y_transpose[i].map(y => y.coords[0]),
-            y: Y_transpose[i].map(y => y.coords[1]),
-            z: Y_transpose[i].map(y => y.coords[2]),
+            x: Y.map(y => y.coords[0]),
+            y: Y.map(y => y.coords[1]),
+            z: Y.map(y => y.coords[2]),
             opacity: 1,
             line: {
-                width: 3,
+                width: 2,
                 color: "red",
-                reversescale: false
+                reversescale: false,
+                showlegend: false
             }
         }
         data.push(trace)
@@ -557,6 +534,7 @@ const plot_f_withPlotly = (X, Y, width, height, margin, IsWireframe) =>
     var layout = {
         width: width,
         height: height,
+        showlegend: false,
         margin: {
         l: 0,
         r: 0,
@@ -654,9 +632,9 @@ function main() {
     // let X = threeClustersData(N, 2)
     // let X = subsetClustersData(N, 2)
     // let X = sinData(N)
-    let X = linkData(N)
+    // let X = linkData(N)
     // let X = unlinkData(N)
-    // let X = trefoilData(N)
+    let X = trefoilData(N)
     Dim = X[0].coords.length
     Zdim = ldim
     const Zeta = create_zeta(K, Zdim)
