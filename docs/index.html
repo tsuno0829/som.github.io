@@ -43,25 +43,36 @@
     </table>
 
     step <span id="step"></span>
-    <div id="svg_latent"></div>
-    <div id="svg_observation" width=300></div>
-    <pre>  latent space</p>
-    <pre>  observation space</p>
 
-    <!-- <table>
-      <tr>
-        <th>step <span id="step"></span></th>
-      </tr>
-      <tr>
-        <td><div id="svg_latent"></div></td>
-        <td><div id="svg_observation"></div></td>
-        <td><div id="myDiv" width=400 height=400></div></td>
-      </tr>
-      <tr>
-        <th><pre>  latent space</p></th>
-        <th><pre>  observation space</p></th>
-      </tr>
-    </table> -->
+    <style>
+      .a {
+        display: inline-block;
+        width: 400px;
+        height: 400px;
+        vertical-align:top;
+        letter-spacing: -1em; /* 文字間を詰める */
+        white-space: nowrap; /* 自動で折り返ししない */
+      }
+      #svg_latent.a {
+        padding-top: 40px;
+        letter-spacing: normal; /* 文字間を元に戻す */
+        white-space: normal; /* 自動で折り返し(元に戻す) */
+
+      }
+      #svg_observation.a {
+        letter-spacing: normal; /* 文字間を元に戻す */
+        white-space: normal; /* 自動で折り返し(元に戻す) */
+      }
+
+    </style>
+
+
+    <div id="figure">
+      <div class=a id="svg_latent"></div>
+      <div class=a id="svg_observation"></div>
+    </div>
+    <pre class=a>  latent space</p>
+    <pre class=a>  observation space</p>
 
     <script type="text/javascript" src="main.js"></script>
   </body>
