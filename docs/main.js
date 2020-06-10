@@ -645,8 +645,8 @@ function main() {
     let Z =  initMatrix(X.length, Zdim)
     for (let n = 0; n < X.length; n++) Z[n].color = X[n].color   // XとZが指すcolorを統一する
     let Y = initMatrix(Zeta.length, Dim)
-    var width = 300
-    var height = 300
+    var width = 350
+    var height = 350
     var margin = { "top": 30, "bottom": 60, "right": 30, "left": 60 }
 
     GLOBALS.playgroundDemo = demoMaker(X, Y, Z, Zeta, N, K, ldim, sigmax, sigmin, nb_epoch, tau,
