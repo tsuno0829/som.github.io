@@ -636,9 +636,9 @@ function main() {
     // let X = threeClustersData(N, 2)
     // let X = subsetClustersData(N, 2)
     // let X = sinData(N)
-    // let X = linkData(N)
+    let X = linkData(N)
     // let X = unlinkData(N)
-    let X = trefoilData(N)
+    // let X = trefoilData(N)
     Dim = X[0].coords.length
     Zdim = ldim
     const Zeta = create_zeta(K, Zdim)

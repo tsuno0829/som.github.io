@@ -11,40 +11,52 @@
 
     <input id="reset_btn" type="button" value="reset"></button>
 
-    <table>
-      <tr>
-        <td>number of points <span id="current-data"></span></td>
-        <td><input id="data-slider" type="range" value="50" min="10" max="490" step="10"></td>
-      </tr>
-      <tr>
-        <td>resolution of nodes <span id="current-node"></span></td>
-        <td><input id="node-slider" type="range" value="20" min="2" max="200" step="1"></td>
-      </tr>
-      <tr>
-        <td>latent dim <span id="current-ldim"></span></td>
-        <td><input id="ldim-slider" type="range" value="2" min="1" max="2" step="1"></td>
-      </tr>
-      <tr>
-        <td>sigma max <span id="current-sigmax"></span></td>
-        <td><input id="sigmax-slider" type="range" value="2.2" min="0.1" max="4" step="0.1"></td>
-      </tr>
-      <tr>
-        <td>sigma min <span id="current-sigmin"></span></td>
-        <td><input id="sigmin-slider" type="range" value="0.1" min="0.1" max="4" step="0.1"></td>
-      </tr>
-      <tr>
-        <td>epoch <span id="current-epoch"></span></td>
-        <td><input id="epoch-slider" type="range" value="20" min="1" max="100" step="1"></td>
-      </tr>
-      <tr>
-        <td>tau <span id="current-tau"></span></td>
-        <td><input id="tau-slider" type="range" value="20" min="1" max="100" step="1"></td>
-      </tr>
-    </table>
+    <div id="data-menu">
+      <table class="menu">
+        <tr>
+          <td>number of points <span id="current-data"></span></td>
+          <td><input id="data-slider" type="range" value="50" min="10" max="490" step="10"></td>
+        </tr>
+        <tr>
+          <td>resolution of nodes <span id="current-node"></span></td>
+          <td><input id="node-slider" type="range" value="20" min="2" max="200" step="1"></td>
+        </tr>
+        <tr>
+          <td>latent dim <span id="current-ldim"></span></td>
+          <td><input id="ldim-slider" type="range" value="2" min="1" max="2" step="1"></td>
+        </tr>
+        <tr>
+          <td>sigma max <span id="current-sigmax"></span></td>
+          <td><input id="sigmax-slider" type="range" value="2.2" min="0.1" max="4" step="0.1"></td>
+        </tr>
+        <tr>
+          <td>sigma min <span id="current-sigmin"></span></td>
+          <td><input id="sigmin-slider" type="range" value="0.2" min="0.1" max="4" step="0.1"></td>
+        </tr>
+        <tr>
+          <td>epoch <span id="current-epoch"></span></td>
+          <td><input id="epoch-slider" type="range" value="20" min="1" max="100" step="1"></td>
+        </tr>
+        <tr>
+          <td>tau <span id="current-tau"></span></td>
+          <td><input id="tau-slider" type="range" value="20" min="1" max="100" step="1"></td>
+        </tr>
+      </table>
+      <div class="menu">
+        aaa
+      </div>
+    </div>
 
     step <span id="step"></span>
 
     <style>
+      .menu {
+        display: inline-block;
+        width: 400px;
+        height: 200px;
+        vertical-align: top;
+        padding: 5px;
+      }
       .a {
         display: inline-block;
         width: 400px;
@@ -52,12 +64,13 @@
         vertical-align:top;
         letter-spacing: -1em; /* 文字間を詰める */
         white-space: nowrap; /* 自動で折り返ししない */
+        user-select: none; /*選択されるとかっこ悪いので選択できないようにする*/
       }
       #svg_latent.a {
-        padding-top: 40px;
+        padding-top: 20px;
         letter-spacing: normal; /* 文字間を元に戻す */
         white-space: normal; /* 自動で折り返し(元に戻す) */
-
+        user-select: none;
       }
       #svg_observation.a {
         letter-spacing: normal; /* 文字間を元に戻す */
