@@ -714,9 +714,9 @@ var demos = [
     options: [
       {
         name: "Number of Points",
-        min: 2,
-        max: 200,
-        start: 100,
+        min: 10,
+        max: 1000,
+        start: 500,
       },
     ],
     generator: kuraData,

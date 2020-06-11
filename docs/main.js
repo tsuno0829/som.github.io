@@ -12,6 +12,7 @@ var GLOBALS = {
   showDemo: null,
   perplexitySlider: null,
   epsilonSlider: null,
+  selected_id: 0,
 };
 
 // function showDemo(index, initializeFromState) {
@@ -45,10 +46,15 @@ var dataMenus = menuDiv
   .data(demos)
   .enter()
   .append("div")
-  .classed("demo-data", true);
-// .on("click", function (d, i) {
-//   showDemo(i);
-// });
+  .classed("demo-data", true)
+  .on("click", function (d, i) {
+    GLOBALS.selected_id = i;
+    var demo = demos[i];
+    var params = [demo.options[0].start];
+    if (demo.options[1]) params.push(demo.options[1].start);
+    var points = demo.generator.apply(null, params);
+    main(points);
+  });
 
 dataMenus
   .append("canvas")
@@ -59,8 +65,6 @@ dataMenus
     var params = [demo.options[0].start];
     if (demo.options[1]) params.push(demo.options[1].start);
     var points = demo.generator.apply(null, params);
-    console.log("ueeeei");
-    console.log(points);
     var canvas = d3.select(this).node();
     visualize(points, canvas, null, null);
   });
@@ -232,9 +236,15 @@ function demoMaker(
   return demo;
 }
 
-function main() {
+function main(X) {
   console.log(GLOBALS.stepLimit);
   if (GLOBALS.playgroundDemo != null) GLOBALS.playgroundDemo.destroy();
+  d3.select("#figure").select("#svg_observation").remove();
+  d3.select("#figure")
+    .append("div")
+    .attr("id", "svg_observation")
+    .classed("a", true);
+
   var format = d3.format(",");
   const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init();
   // let X = gridData(N)
@@ -245,7 +255,7 @@ function main() {
   // let X = linkData(N)
   // let X = unlinkData(N)
   // let X = trefoilData(N);
-  let X = longClusterData(N);
+  // let X = longClusterData(N);
   Dim = X[0].coords.length;
   Zdim = ldim;
   const Zeta = create_zeta(K, Zdim);
@@ -280,14 +290,24 @@ function main() {
   );
 }
 
-try {
-  main(); // 起動時の表示
-  console.log(demos);
-} catch (error) {
-  console.log("ERROR");
-}
+// try {
+//   var demo = demos[0];
+//   var params = [demo.options[0].start];
+//   if (demo.options[1]) params.push(demo.options[1].start);
+//   var points = demo.generator.apply(null, params);
+//   main(points); // 起動時の表示
+//   console.log(demos);
+// } catch (error) {
+//   console.log("ERROR");
+// }
 
-document.getElementById("reset_btn").onclick = main;
+document.getElementById("reset_btn").onclick = () => {
+  var demo = demos[GLOBALS.selected_id];
+  var params = [demo.options[0].start];
+  if (demo.options[1]) params.push(demo.options[1].start);
+  var points = demo.generator.apply(null, params);
+  main(points);
+};
 
 window.onload = () => {
   const current_data = document.getElementById("current-data");
