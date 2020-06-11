@@ -50,6 +50,12 @@ var dataMenus = menuDiv
   .on("click", function (d, i) {
     GLOBALS.selected_id = i;
     var demo = demos[i];
+    console.log(demo.options[0].start);
+    data_slider = document.getElementById("data-slider");
+    data_slider.min = demo.options[0].min;
+    data_slider.max = demo.options[0].max;
+    data_slider.defaultValue = demo.options[0].start;
+    // data_slider.innerHTML = demo.options[0].start;
     var params = [demo.options[0].start];
     if (demo.options[1]) params.push(demo.options[1].start);
     var points = demo.generator.apply(null, params);
@@ -73,7 +79,7 @@ dataMenus.append("span").text(function (d) {
   return d.name;
 });
 
-function init() {
+function init(rtn = false) {
   const data = parseInt(document.getElementById("data-slider").value);
   const node = parseInt(document.getElementById("node-slider").value);
   const ldim = parseInt(document.getElementById("ldim-slider").value);
@@ -88,7 +94,7 @@ function init() {
   document.getElementById("current-sigmin").innerHTML = sigmin;
   document.getElementById("current-epoch").innerHTML = epoch;
   document.getElementById("current-tau").innerHTML = tau;
-  return [data, node, ldim, sigmax, sigmin, epoch, tau];
+  if (rtn) return [data, node, ldim, sigmax, sigmin, epoch, tau];
 }
 
 // Standard Normal variate using Box-Muller transform.
@@ -99,8 +105,6 @@ function randn_bm() {
   while (v === 0) v = Math.random();
   return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
 }
-
-const transpose = (a) => a[0].map((_, c) => a.map((r) => r[c]));
 
 function splitArray(array, part) {
   var tmp = [];
@@ -203,8 +207,11 @@ function demoMaker(
     stepCb(step);
 
     visualize_latent_space(Z, Zeta, width, height, margin);
+    // Dim=1,2,3のときだけ観測空間を表示
     if (Dim == 3) plot_f_withPlotly(X, Y, width, height, margin, Zdim == 2);
-    else visualize_observation_space(X, Y, width, height, margin, Zdim == 2);
+    else if (Dim == 1 || Dim == 2)
+      visualize_observation_space(X, Y, width, height, margin, Zdim == 2);
+    else console.log(X);
 
     //control the loop.
     var timeout = timescale(step);
@@ -237,7 +244,7 @@ function demoMaker(
 }
 
 function main(X) {
-  console.log(GLOBALS.stepLimit);
+  // console.log(GLOBALS.stepLimit);
   if (GLOBALS.playgroundDemo != null) GLOBALS.playgroundDemo.destroy();
   d3.select("#figure").select("#svg_observation").remove();
   d3.select("#figure")
@@ -246,7 +253,7 @@ function main(X) {
     .classed("a", true);
 
   var format = d3.format(",");
-  const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init();
+  const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init((rtn = true));
   Dim = X[0].coords.length;
   Zdim = ldim;
   const Zeta = create_zeta(K, Zdim);
@@ -311,13 +318,21 @@ window.onload = () => {
   const setCurrentValue = (c) => (e) => {
     c.innerText = e.target.value;
     setRunning(false);
-    // main();
+    var demo = demos[GLOBALS.selected_id];
+    var params = [parseInt(document.getElementById("data-slider").value)];
+    if (demo.options[1]) params.push(demo.options[1].start);
+    var points = demo.generator.apply(null, params);
+    main(points);
   };
   const setCurrentEpoch = (c) => (e) => {
     c.innerText = e.target.value;
     GLOBALS.stepLimit = e.target.value;
     setRunning(false);
-    // main();
+    var demo = demos[GLOBALS.selected_id];
+    var params = [parseInt(document.getElementById("data-slider").value)];
+    if (demo.options[1]) params.push(demo.options[1].start);
+    var points = demo.generator.apply(null, params);
+    main(points);
   };
   document
     .getElementById("data-slider")
