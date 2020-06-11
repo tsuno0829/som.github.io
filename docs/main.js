@@ -247,15 +247,6 @@ function main(X) {
 
   var format = d3.format(",");
   const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init();
-  // let X = gridData(N)
-  // let X = twoClustersData(N, 2)
-  // let X = threeClustersData(N, 2)
-  // let X = subsetClustersData(N, 2)
-  // let X = sinData(N)
-  // let X = linkData(N)
-  // let X = unlinkData(N)
-  // let X = trefoilData(N);
-  // let X = longClusterData(N);
   Dim = X[0].coords.length;
   Zdim = ldim;
   const Zeta = create_zeta(K, Zdim);
