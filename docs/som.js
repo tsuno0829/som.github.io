@@ -1,5 +1,16 @@
 var somjs = {}
 
+function linspace(startValue, stopValue, cardinality, endpoint=false) {
+    var arr = [];
+    if (endpoint) var step = (stopValue - startValue) / (cardinality - 1);
+    else var step = (stopValue - startValue - 1) / (cardinality - 1);
+
+    for (var i = 0; i < cardinality; i++) {
+      arr.push(startValue + (step * i));
+    }
+    return arr;
+}
+
 function create_zeta(K, Dim) {
     // create grid with [-1, 1]^Dim
     if (Dim > 2) throw new Error("Dim must be 1 or 2.")
