@@ -55,6 +55,7 @@ var dataMenus = menuDiv
     data_slider.min = demo.options[0].min;
     data_slider.max = demo.options[0].max;
     data_slider.defaultValue = demo.options[0].start;
+    data_slider.value = demo.options[0].start;
     // data_slider.innerHTML = demo.options[0].start;
     var params = [demo.options[0].start];
     if (demo.options[1]) params.push(demo.options[1].start);
