@@ -1,5 +1,34 @@
 var somjs = {}
 
+function create_zeta(K, Dim) {
+    // create grid with [-1, 1]^Dim
+    if (Dim > 2) throw new Error("Dim must be 1 or 2.")
+
+    let arr = []
+    let grid = linspace(-1, 1, K, endpoint=true)
+
+    if (Dim == 1) {
+        for (let k = 0; k < K; k++) {
+            arr.push([grid[k], 0])
+        }
+    } else {
+        for (let k = 0; k < K; k++) {
+            for (let l = 0; l < K; l++) {
+                arr.push([grid[k], grid[l]])
+            }
+        }
+    }
+    return makePoints(arr)
+}
+
+function argMin(array) {
+    return array.map((x, i) => [x, i]).reduce((r, a) => (a[0] < r[0] ? a : r))[1];
+}
+
+function calc_sigma(t, tau, sigmax, sigmin) {
+    return Math.max(sigmax-(sigmax-sigmin)*(t/tau), sigmin)
+}
+
 function calc_sqeuclid_dist(x, y) {
     // x: (N, D), y: (K, D)
     let N = x.length
