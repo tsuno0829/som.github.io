@@ -14,6 +14,61 @@ var GLOBALS = {
   epsilonSlider: null,
 };
 
+// function showDemo(index, initializeFromState) {
+//   GLOBALS.state.demo = index;
+//   demo = demos[index];
+//   // Show description of demo data.
+//   //document.querySelector('#data-description span').textContent = demo.description;
+//   d3.select("#data-description span").text(demo.description);
+//   // Create UI for the demo data options.
+//   var dataOptionsArea = document.getElementById("data-options");
+//   dataOptionsArea.innerHTML = "";
+//   optionControls = demo.options.map(function (option, i) {
+//     var value = initializeFromState
+//       ? GLOBALS.state.demoParams[i]
+//       : option.start;
+//     return makeSlider(
+//       dataOptionsArea,
+//       option.name,
+//       option.min,
+//       option.max,
+//       value
+//     );
+//   });
+// }
+
+// Create menu of possible demos.
+var menuDiv = d3.select("#data-menu");
+
+var dataMenus = menuDiv
+  .selectAll(".demo-data")
+  .data(demos)
+  .enter()
+  .append("div")
+  .classed("demo-data", true);
+// .on("click", function (d, i) {
+//   showDemo(i);
+// });
+
+dataMenus
+  .append("canvas")
+  .attr("width", 150)
+  .attr("height", 150)
+  .each(function (d, i) {
+    var demo = demos[i];
+    var params = [demo.options[0].start];
+    if (demo.options[1]) params.push(demo.options[1].start);
+    var points = demo.generator.apply(null, params);
+    console.log("ueeeei");
+    console.log(points);
+    var canvas = d3.select(this).node();
+    visualize(points, canvas, null, null);
+  });
+
+dataMenus.append("span").text(function (d) {
+  return d.name;
+});
+
 function init() {
   const data = parseInt(document.getElementById("data-slider").value);
   const node = parseInt(document.getElementById("node-slider").value);
@@ -30,18 +85,6 @@ function init() {
   document.getElementById("current-epoch").innerHTML = epoch;
   document.getElementById("current-tau").innerHTML = tau;
   return [data, node, ldim, sigmax, sigmin, epoch, tau];
-}
-
-// Gaussian generator, mean = 0, std = 1.
-var normal = d3.randomNormal();
-
-// Create random Gaussian vector.
-function normalVector(dim) {
-  var p = [];
-  for (var j = 0; j < dim; j++) {
-    p[j] = normal();
-  }
-  return p;
 }
 
 // Standard Normal variate using Box-Muller transform.
@@ -201,7 +244,8 @@ function main() {
   // let X = sinData(N)
   // let X = linkData(N)
   // let X = unlinkData(N)
-  let X = trefoilData(N);
+  // let X = trefoilData(N);
+  let X = longClusterData(N);
   Dim = X[0].coords.length;
   Zdim = ldim;
   const Zeta = create_zeta(K, Zdim);

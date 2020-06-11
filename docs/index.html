@@ -1,4 +1,12 @@
 <html>
+<!--
+  ____       _  __        ___                        _     _               __  __
+ / ___|  ___| |/ _|      / _ \ _ __ __ _  __ _ _ __ (_)___(_)_ __   __ _  |  \/  | __ _ _ __
+ \___ \ / _ \ | |_ _____| | | | '__/ _` |/ _` | '_ \| |_  / | '_ \ / _` | | |\/| |/ _` | '_ \
+  ___) |  __/ |  _|_____| |_| | | | (_| | (_| | | | | |/ /| | | | | (_| | | |  | | (_| | |_) |
+ |____/ \___|_|_|        \___/|_|  \__, |\__,_|_| |_|_/___|_|_| |_|\__, | |_|  |_|\__,_| .__/
+                                   |___/                           |___/               |_|
+-->
   <head>
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
@@ -44,22 +52,22 @@
           <td><input id="tau-slider" type="range" value="20" min="1" max="100" step="1"></td>
         </tr>
       </table>
-      <div id="data-menu" class="menu">
-        aaa
-      </div>
+      <div id="data-menu" class="menu"></div>
     </div>
 
-    step <span id="step"></span>
+    <div class="no-select">
+      step <span id="step"></span>
+    </div>
 
     <style>
       /* Data Menu */
-      /* #data-menu {
+      #data-menu {
         width: 40%;
         float: left;
         margin-bottom: 24px;
         overflow: hidden;
-        margin-left: 5%; */
-      /* }
+        margin-left: 5%;
+      }
       #data-menu .demo-data {
         cursor: pointer;
         position: relative;
@@ -116,36 +124,46 @@
     }
     #data-menu .demo-data.selected canvas {
       opacity: 1;
-    } */
+    }
 
-      .menu {
-        display: inline-block;
-        width: 400px;
-        height: 200px;
-        vertical-align: top;
-        padding: 5px;
+    .menu {
+      display: inline-block;
+      width: 400px;
+      vertical-align: top;
+      padding: 5px;
+    }
+    @media(min-width: 480px) {
+        .menu {
+          display: inline-block;
+          width: 400px;
+          vertical-align: top;
+          padding: 5px;
+        }
       }
-      .a {
-        display: inline-block;
-        width: 400px;
-        height: 400px;
-        vertical-align:top;
-        letter-spacing: -1em; /* 文字間を詰める */
-        white-space: nowrap; /* 自動で折り返ししない */
-        user-select: none; /*選択されるとかっこ悪いので選択できないようにする*/
-      }
-      #svg_latent.a {
-        padding-top: 20px;
-        letter-spacing: normal; /* 文字間を元に戻す */
-        white-space: normal; /* 自動で折り返し(元に戻す) */
-        user-select: none;
-      }
-      #svg_observation.a {
-        letter-spacing: normal; /* 文字間を元に戻す */
-        white-space: normal; /* 自動で折り返し(元に戻す) */
-      }
+    .a {
+      display: inline-block;
+      width: 400px;
+      height: 400px;
+      vertical-align:top;
+      letter-spacing: -1em; /* 文字間を詰める */
+      white-space: nowrap; /* 自動で折り返ししない */
+      user-select: none; /*選択されるとかっこ悪いので選択できないようにする*/
+    }
+    #svg_latent.a {
+      padding-top: 20px;
+      letter-spacing: normal; /* 文字間を元に戻す */
+      white-space: normal; /* 自動で折り返し(元に戻す) */
+      user-select: none;
+    }
+    #svg_observation.a {
+      letter-spacing: normal; /* 文字間を元に戻す */
+      white-space: normal; /* 自動で折り返し(元に戻す) */
+    }
+    .no-select {
+      user-select: none;
+    }
 
-    </style>
+  </style>
 
 
     <div id="figure">

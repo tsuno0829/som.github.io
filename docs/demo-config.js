@@ -1,8 +1,30 @@
+// Gaussian generator, mean = 0, std = 1.
+var normal = d3.randomNormal();
+
+// Create random Gaussian vector.
+function normalVector(dim) {
+  var p = [];
+  for (var j = 0; j < dim; j++) {
+    p[j] = normal();
+  }
+  return p;
+}
+
 // Scale the given vector.
 function scale(vector, a) {
   for (var i = 0; i < vector.length; i++) {
     vector[i] *= a;
   }
+}
+
+// Add two vectors.
+function add(a, b) {
+  var n = a.length;
+  var c = [];
+  for (var i = 0; i < n; i++) {
+    c[i] = a[i] + b[i];
+  }
+  return c;
 }
 
 // A point with color info.
@@ -334,7 +356,7 @@ function sinData(N) {
   let points = [];
   for (let i = 0; i < N; i++) {
     let r = Math.random() * 6 - 3;
-    points.push([r, Math.sin(r)] + Math.random());
+    points.push([r, Math.sin(r) + Math.random() * 0.2]);
   }
   return makePoints(points);
 }
@@ -344,7 +366,7 @@ function kuraData(N) {
   for (let i = 0; i < N; i++) {
     let z1 = Math.random() * 2 - 1;
     let z2 = Math.random() * 2 - 1;
-    let z3 = z1 * z1 - z2 * z2 + Math.random();
+    let z3 = z1 * z1 - z2 * z2;
     points.push([z1, z2, z3]);
   }
   return makePoints(points);
@@ -681,21 +703,23 @@ var demos = [
         name: "Number of Points",
         min: 2,
         max: 200,
-        start: 20,
+        start: 100,
       },
     ],
+    generator: sinData,
   },
   {
-    name: "kura curve",
-    description: "kura curve",
+    name: "kura data",
+    description: "kura data",
     options: [
       {
         name: "Number of Points",
         min: 2,
         max: 200,
-        start: 50,
+        start: 100,
       },
     ],
+    generator: kuraData,
   },
 ];
 
