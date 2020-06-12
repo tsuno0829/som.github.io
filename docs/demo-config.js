@@ -400,7 +400,7 @@ var demos = [
       },
       {
         name: "Dimensions",
-        min: 1,
+        min: 2,
         max: 100,
         start: 2,
       },
@@ -422,7 +422,7 @@ var demos = [
       },
       {
         name: "Dimensions",
-        min: 1,
+        min: 2,
         max: 100,
         start: 2,
       },
@@ -443,7 +443,7 @@ var demos = [
       },
       {
         name: "Dimensions",
-        min: 1,
+        min: 2,
         max: 100,
         start: 2,
       },
@@ -485,7 +485,7 @@ var demos = [
       },
       {
         name: "Dimensions",
-        min: 1,
+        min: 2,
         max: 100,
         start: 2,
       },
@@ -537,7 +537,7 @@ var demos = [
       },
       {
         name: "Dimensions",
-        min: 1,
+        min: 2,
         max: 100,
         start: 2,
       },
@@ -558,7 +558,7 @@ var demos = [
       },
       {
         name: "Dimensions",
-        min: 1,
+        min: 2,
         max: 100,
         start: 2,
       },
@@ -635,7 +635,7 @@ var demos = [
       },
       {
         name: "Dimension",
-        min: 1,
+        min: 2,
         max: 1000,
         start: 3,
       },
@@ -654,7 +654,7 @@ var demos = [
       },
       {
         name: "Dimension",
-        min: 1,
+        min: 2,
         max: 1000,
         start: 100,
       },
@@ -688,7 +688,7 @@ var demos = [
       },
       {
         name: "Dimensions",
-        min: 1,
+        min: 2,
         max: 10,
         start: 3,
       },
