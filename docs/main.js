@@ -50,7 +50,7 @@ var dataMenus = menuDiv
   .on("click", function (d, i) {
     GLOBALS.selected_id = i;
     var demo = demos[i];
-    console.log(demo.options[0].start);
+    // console.log(demo.options[0].start);
     data_slider = document.getElementById("data-slider");
     data_slider.min = demo.options[0].min;
     data_slider.max = demo.options[0].max;
@@ -59,6 +59,41 @@ var dataMenus = menuDiv
     // data_slider.innerHTML = demo.options[0].start;
     var params = [demo.options[0].start];
     if (demo.options[1]) params.push(demo.options[1].start);
+    var data_Dim = d3
+      .select("#data-option")
+      .select(".menu")
+      .select("#Dimensions");
+    data_Dim.selectAll("td").remove();
+    if (demo.options[1]) {
+      params.push(demo.options[1].start);
+      data_Dim.append("td").append("span").attr("id", "current-dataDim");
+      data_Dim
+        .append("td")
+        .append("input")
+        .attr("id", "dataDim-slider")
+        .attr("type", "range")
+        .attr("min", demo.options[1].min)
+        .attr("max", demo.options[1].max)
+        .attr("defaultValue", demo.options[1].start)
+        .attr("value", demo.options[1].start)
+        .on("input", () => {
+          d3.select("#current-dataDim").node().innerHTML =
+            "dimension of points " + d3.select("#dataDim-slider").node().value;
+          // console.log(d3.select("#dataDim-slider").node().value);
+          setRunning(false);
+          var demo = demos[GLOBALS.selected_id];
+          var params = [parseInt(document.getElementById("data-slider").value)];
+          if (demo.options[1])
+            params.push(d3.select("#dataDim-slider").node().value);
+          // console.log(d3.select("#dataDim-slider").node().value);
+          var points = demo.generator.apply(null, params);
+          main(points);
+        });
+      d3.select("#current-dataDim").node().innerHTML =
+        "dimension of points " + demo.options[1].start;
+      data_Dim.select("#dataDim-slider").node().innerHTML =
+        demo.options[1].start;
+    }
     var points = demo.generator.apply(null, params);
     main(points);
   });
@@ -212,7 +247,7 @@ function demoMaker(
     if (Dim == 3) plot_f_withPlotly(X, Y, width, height, margin, Zdim == 2);
     else if (Dim == 1 || Dim == 2)
       visualize_observation_space(X, Y, width, height, margin, Zdim == 2);
-    else console.log(X);
+    // else console.log(X);
 
     //control the loop.
     var timeout = timescale(step);
@@ -222,8 +257,8 @@ function demoMaker(
   }
 
   demo.pause = function () {
-    console.log("paused");
-    console.log(paused);
+    // console.log("paused");
+    // console.log(paused);
     if (paused) return; // already paused
     paused = true;
     window.cancelAnimationFrame(frameId);
@@ -245,13 +280,32 @@ function demoMaker(
 }
 
 function main(X) {
-  // console.log(GLOBALS.stepLimit);
   if (GLOBALS.playgroundDemo != null) GLOBALS.playgroundDemo.destroy();
   d3.select("#figure").select("#svg_observation").remove();
   d3.select("#figure")
     .append("div")
     .attr("id", "svg_observation")
     .classed("a", true);
+
+  // const setCurrentValue = (c) => (e) => {
+  //   c.innerText = e.target.value;
+  //   setRunning(false);
+  //   var demo = demos[GLOBALS.selected_id];
+  //   var params = [parseInt(document.getElementById("data-slider").value)];
+  //   if (demo.options[1]) params.push(demo.options[1].start);
+  //   var points = demo.generator.apply(null, params);
+  //   main(points);
+  // };
+  // var demo = demos[GLOBALS.selected_id];
+  // console.log(demo.options[1]);
+  // if (demo.options[1]) {
+  //   console.log("options[1]");
+  //   const current_dataDim = document.getElementById("current-dataDim");
+  //   console.log(current_dataDim);
+  //   document
+  //     .getElementById("dataDim-slider")
+  //     .addEventListener("input", setCurrentValue(current_dataDim));
+  // }
 
   var format = d3.format(",");
   const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init((rtn = true));
@@ -300,13 +354,13 @@ function main(X) {
 //   console.log("ERROR");
 // }
 
-document.getElementById("reset_btn").onclick = () => {
-  var demo = demos[GLOBALS.selected_id];
-  var params = [demo.options[0].start];
-  if (demo.options[1]) params.push(demo.options[1].start);
-  var points = demo.generator.apply(null, params);
-  main(points);
-};
+// document.getElementById("reset_btn").onclick = () => {
+//   var demo = demos[GLOBALS.selected_id];
+//   var params = [demo.options[0].start];
+//   if (demo.options[1]) params.push(demo.options[1].start);
+//   var points = demo.generator.apply(null, params);
+//   main(points);
+// };
 
 window.onload = () => {
   const current_data = document.getElementById("current-data");
@@ -321,7 +375,8 @@ window.onload = () => {
     setRunning(false);
     var demo = demos[GLOBALS.selected_id];
     var params = [parseInt(document.getElementById("data-slider").value)];
-    if (demo.options[1]) params.push(demo.options[1].start);
+    if (demo.options[1]) params.push(d3.select("#dataDim-slider").node().value);
+    // console.log(d3.select("#dataDim-slider").node().value);
     var points = demo.generator.apply(null, params);
     main(points);
   };
