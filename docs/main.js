@@ -1,5 +1,6 @@
 if (typeof require != "undefined") {
   var somjs = require("./som.js");
+  var ukrjs = require("./ukr.js");
 }
 
 var GLOBALS = {
@@ -223,6 +224,7 @@ function demoMaker(
     .range([60, 30, 20, 10, 0]);
 
   var som = new somjs.SOM();
+  var ukr = new ukrjs.UKR();
   // var dists = distanceMatrix(points);
   // tsne.initDataDist(dists);
 
@@ -232,10 +234,14 @@ function demoMaker(
     // control speed at which we iterate
     // if(step >= 200) chunk = 10;
     for (var k = 0; k < chunk; k++) {
-      // tsne.step();
-      sigma = calc_sigma(step, tau, sigmax, sigmin);
-      Y = som.estimate_f(X, Y, Z, Zeta, sigma);
-      Z = som.estimate_z(X, Y, Z, Zeta);
+      // SOM
+      // sigma = calc_sigma(step, tau, sigmax, sigmin);
+      // Y = som.estimate_f(X, Y, Z, Zeta, sigma);
+      // Z = som.estimate_z(X, Y, Z, Zeta);
+      // UKR
+      Y = ukr.estimate_f(X, Y, Z);
+      Z = ukr.estimate_z(X, Y, Z, 10);
+      // console.log(Z);
       step++;
     }
 
@@ -314,7 +320,9 @@ function main(X) {
   const Zeta = create_zeta(K, Zdim);
   let Z = initMatrix(X.length, Zdim);
   for (let n = 0; n < X.length; n++) Z[n].color = X[n].color; // XとZが指すcolorを統一する
-  let Y = initMatrix(Zeta.length, Dim);
+  console.log(Z);
+  // let Y = initMatrix(Zeta.length, Dim);
+  let Y = initMatrix(Z.length, Dim);
   var width = 350;
   var height = 350;
   var margin = { top: 30, bottom: 60, right: 30, left: 60 };
