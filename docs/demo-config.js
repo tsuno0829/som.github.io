@@ -372,6 +372,32 @@ function kuraData(N) {
   return makePoints(points);
 }
 
+function gaussianMixtureCircle(N, num_cluster = 8, scale = 1, std = 0.3) {
+  // ランダムな整数を生成する
+  var min = 1;
+  var max = num_cluster;
+  var rand_indices = [];
+  for (let i = 0; i < N; i++)
+    rand_indices.push(Math.floor(Math.random() * (max + 1 - min)) + min);
+  const base_angle = (Math.PI * 2) / num_cluster;
+  var angle = [];
+  var mean = [];
+  for (let i = 0; i < N; i++) {
+    angle.push(rand_indices[i] * base_angle - Math.PI / 2);
+    mean.push([Math.cos(angle[i]) * scale, Math.sin(angle[i]) * scale]);
+  }
+  var points = [];
+  for (let i = 0; i < N; i++) {
+    var point = [];
+    var color = angleColor(rand_indices[i]);
+    for (let d = 0; d < 2; d++) {
+      point.push(d3.randomNormal(mean[i][d], std * std)());
+    }
+    points.push(new Point(point, color));
+  }
+  return points;
+}
+
 var demos = [
   {
     name: "Grid",
@@ -521,6 +547,32 @@ var demos = [
       },
     ],
     generator: randomCircleData,
+  },
+  {
+    name: "andomCircleClusterData",
+    description: "andomCircleClusterData",
+    options: [
+      {
+        name: "Number of Points",
+        min: 2,
+        max: 20,
+        start: 10,
+      },
+    ],
+    generator: randomCircleClusterData,
+  },
+  {
+    name: "gaussian mixture circle",
+    description: "gaussian mixture circle",
+    options: [
+      {
+        name: "Number of Points",
+        min: 20,
+        max: 500,
+        start: 100,
+      },
+    ],
+    generator: gaussianMixtureCircle,
   },
   {
     name: "Gaussian Cloud",
