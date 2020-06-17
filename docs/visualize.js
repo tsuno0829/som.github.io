@@ -282,6 +282,8 @@ function visualize_observation_space(X, Y, width, height, margin, IsWireframe) {
     .y(function (d) {
       return yScale(d.coords[1]);
     });
+
+  // wireframeを正方と仮定しているのでSOMはOKだが，UKRだとデータ数が正方にならずエラーがでるときがあるので注意
   if (IsWireframe == false) {
     // Path追加
     svg_f
