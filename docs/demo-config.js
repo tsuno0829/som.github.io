@@ -804,7 +804,7 @@ var demos = [
         name: "Dimension",
         min: 2,
         max: 1000,
-        start: 3,
+        start: 100,
       },
     ],
     generator: randomWalk,
