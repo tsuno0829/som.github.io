@@ -8,11 +8,12 @@ var GLOBALS = {
   trayDemo: null, // the object to control running the tray simulation
   running: true,
   unpausedBefore: false,
-  stepLimit: 20,
+  stepLimit: 500,
   state: {},
   showDemo: null,
   perplexitySlider: null,
   epsilonSlider: null,
+  selected_model: "SOM",
   selected_id: 0,
 };
 
@@ -78,6 +79,7 @@ var dataMenus = menuDiv
         .attr("defaultValue", demo.options[1].start)
         .attr("value", demo.options[1].start)
         .on("input", () => {
+          // パラメータが変更されたときに，現在の計算を中止して新規パラメータで再計算する
           d3.select("#current-dataDim").node().innerHTML =
             "dimension of points " + d3.select("#dataDim-slider").node().value;
           // console.log(d3.select("#dataDim-slider").node().value);
@@ -152,10 +154,6 @@ function splitArray(array, part) {
 }
 
 function initMatrix(n, dim) {
-  // if (dim > 3){
-  //     throw new Error(dim)
-  // }
-
   let points = [];
   if (dim == 1) {
     for (let i = 0; i < n; i++) {
@@ -223,10 +221,9 @@ function demoMaker(
     .domain([0, 20, 50, 100, 200, 6000])
     .range([60, 30, 20, 10, 0]);
 
-  var som = new somjs.SOM();
-  var ukr = new ukrjs.UKR();
-  // var dists = distanceMatrix(points);
-  // tsne.initDataDist(dists);
+  var som, ukr;
+  if (GLOBALS.selected_model == "SOM") som = new somjs.SOM();
+  else ukr = new ukrjs.UKR();
 
   function iterate() {
     if (paused) return;
@@ -235,25 +232,42 @@ function demoMaker(
     // if(step >= 200) chunk = 10;
     for (var k = 0; k < chunk; k++) {
       // SOM
-      // sigma = calc_sigma(step, tau, sigmax, sigmin);
-      // Y = som.estimate_f(X, Y, Z, Zeta, sigma);
-      // Z = som.estimate_z(X, Y, Z, Zeta);
-      // UKR
-      Y = ukr.estimate_f(X, Y, Z);
-      Z = ukr.estimate_z(X, Y, Z, 10);
-      // console.log(Z);
+      if (GLOBALS.selected_model == "SOM") {
+        sigma = calc_sigma(step, tau, sigmax, sigmin);
+        Y = som.estimate_f(X, Y, Z, Zeta, sigma);
+        Z = som.estimate_z(X, Y, Z, Zeta);
+      } else {
+        // UKR
+        const eta = 1;
+        Y = ukr.estimate_f(X, Y, Z);
+        Z = ukr.estimate_z(X, Y, Z, eta);
+      }
       step++;
     }
 
     //inform the caller about the current step
     stepCb(step);
 
-    visualize_latent_space(Z, Zeta, width, height, margin);
-    // Dim=1,2,3のときだけ観測空間を表示
-    if (Dim == 3) plot_f_withPlotly(X, Y, width, height, margin, Zdim == 2);
-    else if (Dim == 1 || Dim == 2)
-      visualize_observation_space(X, Y, width, height, margin, Zdim == 2);
-    // else console.log(X);
+    // // SOM
+    if (GLOBALS.selected_model == "SOM") {
+      visualize_latent_space(Z, Zeta, width, height, margin);
+      // Dim=1,2,3のときだけ観測空間を表示
+      if (Dim == 3) plot_f_withPlotly(X, Y, width, height, margin, Zdim == 2);
+      else if (Dim == 1 || Dim == 2)
+        visualize_observation_space(X, Y, width, height, margin, Zdim == 2);
+    } else {
+      // UKR
+      visualize_latent_space(Z, Zeta, width, height, margin);
+      const mapping_resolution = 10;
+      var newY = ukr.generate_new_mapping(X, Z, mapping_resolution);
+      // console.log(newY);
+      // throw new Error("the end");
+      // Dim=1,2,3のときだけ観測空間を表示
+      if (Dim == 3)
+        plot_f_withPlotly(X, newY, width, height, margin, Zdim == 2);
+      else if (Dim == 1 || Dim == 2)
+        visualize_observation_space(X, newY, width, height, margin, Zdim == 2);
+    }
 
     //control the loop.
     var timeout = timescale(step);
@@ -317,12 +331,18 @@ function main(X) {
   const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init((rtn = true));
   Dim = X[0].coords.length;
   Zdim = ldim;
-  const Zeta = create_zeta(K, Zdim);
+
   let Z = initMatrix(X.length, Zdim);
   for (let n = 0; n < X.length; n++) Z[n].color = X[n].color; // XとZが指すcolorを統一する
-  console.log(Z);
-  // let Y = initMatrix(Zeta.length, Dim);
-  let Y = initMatrix(Z.length, Dim);
+
+  var Y, Zeta;
+  if (GLOBALS.selected_model == "SOM") {
+    Zeta = create_zeta(K, Zdim);
+    Y = initMatrix(Zeta.length, Dim);
+  } else {
+    Y = initMatrix(X.length, Dim);
+  }
+
   var width = 350;
   var height = 350;
   var margin = { top: 30, bottom: 60, right: 30, left: 60 };
@@ -419,4 +439,28 @@ window.onload = () => {
   document
     .getElementById("tau-slider")
     .addEventListener("input", setCurrentValue(current_tau));
+
+  //radio button's setting
+  function model_select() {
+    var models = document.getElementsByClassName("model");
+    for (let i = 0; i < models.length; i++) {
+      if (models[i].id == this.id) models[i].checked = true;
+      else models[i].checked = false;
+    }
+    GLOBALS.selected_model = this.id;
+    console.log(GLOBALS.selected_model);
+    // 特にdemoが動いてない時は，何もしない（後で変えるかも）
+    if (GLOBALS.playgroundDemo != null) {
+      setRunning(false);
+      var demo = demos[GLOBALS.selected_id];
+      var params = [parseInt(document.getElementById("data-slider").value)];
+      if (demo.options[1])
+        params.push(d3.select("#dataDim-slider").node().value);
+      // console.log(d3.select("#dataDim-slider").node());
+      var points = demo.generator.apply(null, params);
+      main(points);
+    }
+  }
+  document.getElementById("SOM").addEventListener("change", model_select);
+  document.getElementById("UKR").addEventListener("change", model_select);
 };
