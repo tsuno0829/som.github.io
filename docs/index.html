@@ -11,6 +11,7 @@
     <script src="https://d3js.org/d3.v5.min.js"></script>
     <script src='https://cdn.plot.ly/plotly-latest.min.js'></script>
     <script src="som.js"></script>
+    <script src="ukr.js"></script>
     <script src="demo-config.js"></script>
     <script src="visualize.js"></script>
   </head>
@@ -20,6 +21,11 @@
     </div>
 
     <input id="reset_btn" type="button" value="reset"></button>
+
+    <form id="model_selection">
+      <input id="SOM" class=model type="radio" checked> Self-Organizing Map
+      <input id="UKR" class=model type="radio"> Unsupervised Kernel Regression
+    </form>
 
     <div id="data-option">
       <table class="menu">
@@ -46,11 +52,11 @@
         </tr>
         <tr>
           <td>epoch <span id="current-epoch"></span></td>
-          <td><input id="epoch-slider" type="range" value="20" min="1" max="100" step="1"></td>
+          <td><input id="epoch-slider" type="range" value="500" min="1" max="500" step="1"></td>
         </tr>
         <tr>
           <td>tau <span id="current-tau"></span></td>
-          <td><input id="tau-slider" type="range" value="20" min="1" max="100" step="1"></td>
+          <td><input id="tau-slider" type="range" value="500" min="1" max="500" step="1"></td>
         </tr>
       </table>
       <div id="data-menu" class="menu"></div>

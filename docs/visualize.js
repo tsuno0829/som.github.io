@@ -85,14 +85,38 @@ function visualize_latent_space(Z, Zeta, width, height, margin) {
     .attr("width", width)
     .attr("height", height);
 
+  // var xScale = d3
+  //   .scaleLinear()
+  //   .domain([-1.1, 1.1])
+  //   .range([margin.left, width - margin.right]);
+
+  // var yScale = d3
+  //   .scaleLinear()
+  //   .domain([-1.1, 1.1])
+  //   .range([height - margin.bottom, margin.top]);
+
   var xScale = d3
     .scaleLinear()
-    .domain([-1.1, 1.1])
+    .domain([
+      d3.min(Z, function (d) {
+        return d.coords[0];
+      }),
+      d3.max(Z, function (d) {
+        return d.coords[0];
+      }),
+    ])
     .range([margin.left, width - margin.right]);
 
   var yScale = d3
     .scaleLinear()
-    .domain([-1.1, 1.1])
+    .domain([
+      d3.min(Z, function (d) {
+        return d.coords[1];
+      }),
+      d3.max(Z, function (d) {
+        return d.coords[1];
+      }),
+    ])
     .range([height - margin.bottom, margin.top]);
 
   var axisx = d3.axisBottom(xScale).ticks(5);
@@ -258,6 +282,8 @@ function visualize_observation_space(X, Y, width, height, margin, IsWireframe) {
     .y(function (d) {
       return yScale(d.coords[1]);
     });
+
+  // wireframeを正方と仮定しているのでSOMはOKだが，UKRだとデータ数が正方にならずエラーがでるときがあるので注意
   if (IsWireframe == false) {
     // Path追加
     svg_f
