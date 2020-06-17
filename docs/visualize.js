@@ -193,10 +193,10 @@ function visualize_observation_space(X, Y, width, height, margin, IsWireframe) {
     .domain([
       d3.min(X, function (d) {
         return d.coords[0];
-      }) - 1,
+      }) * 1.2,
       d3.max(X, function (d) {
         return d.coords[0];
-      }) + 1,
+      }) * 1.2,
     ])
     .range([margin.left, width - margin.right]);
 
@@ -205,10 +205,10 @@ function visualize_observation_space(X, Y, width, height, margin, IsWireframe) {
     .domain([
       d3.min(X, function (d) {
         return d.coords[1];
-      }) - 1,
+      }) * 1.2,
       d3.max(X, function (d) {
         return d.coords[1];
-      }) + 1,
+      }) * 1.2,
     ])
     .range([height - margin.bottom, margin.top]);
 
