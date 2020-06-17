@@ -161,15 +161,6 @@ function init(rtn = false) {
     ];
 }
 
-// Standard Normal variate using Box-Muller transform.
-function randn_bm() {
-  var u = 0,
-    v = 0;
-  while (u === 0) u = Math.random(); //Converting [0,1) to (0,1)
-  while (v === 0) v = Math.random();
-  return Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
-}
-
 function splitArray(array, part) {
   var tmp = [];
   for (var i = 0; i < array.length; i += part) {
@@ -182,22 +173,17 @@ function initMatrix(n, dim) {
   let points = [];
   if (dim == 1) {
     for (let i = 0; i < n; i++) {
-      points.push([randn_bm() * 0.01, 0]);
+      points.push([d3.randomNormal(0, 0.01)(), 0]);
     }
   } else {
     for (let i = 0; i < n; i++) {
       let arr2 = [];
       for (let j = 0; j < dim; j++) {
-        arr2.push(randn_bm() * 0.01);
+        arr2.push(d3.randomNormal(0, 0.01)());
       }
       points.push(arr2);
-      // console.log(arr2)
-      // points.push(new Point(arr2, '#f89'))
-      // console.log(new Point(arr2, '#f89'))
     }
   }
-  // console.log("aaa")
-  // console.log(points)
   return points.map(function (p) {
     return new Point(p);
   });
