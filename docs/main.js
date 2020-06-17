@@ -8,7 +8,7 @@ var GLOBALS = {
   trayDemo: null, // the object to control running the tray simulation
   running: true,
   unpausedBefore: false,
-  stepLimit: 500,
+  stepLimit: document.getElementById("epoch-slider").value,
   state: {},
   showDemo: null,
   perplexitySlider: null,
