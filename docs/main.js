@@ -61,6 +61,8 @@ var dataMenus = menuDiv
     // data_slider.innerHTML = demo.options[0].start;
     var params = [demo.options[0].start];
     if (demo.options[1]) params.push(demo.options[1].start);
+    if (demo.options[2]) params.push(demo.options[2].start);
+    if (demo.options[3]) params.push(demo.options[3].start);
     var data_Dim = d3
       .select("#data-option")
       .select(".menu")
@@ -88,6 +90,8 @@ var dataMenus = menuDiv
           var params = [parseInt(document.getElementById("data-slider").value)];
           if (demo.options[1])
             params.push(d3.select("#dataDim-slider").node().value);
+          if (demo.options[2]) params.push(demo.options[2].start);
+          if (demo.options[3]) params.push(demo.options[3].start);
           // console.log(d3.select("#dataDim-slider").node().value);
           var points = demo.generator.apply(null, params);
           main(points);
@@ -109,6 +113,8 @@ dataMenus
     var demo = demos[i];
     var params = [demo.options[0].start];
     if (demo.options[1]) params.push(demo.options[1].start);
+    if (demo.options[2]) params.push(demo.options[2].start);
+    if (demo.options[3]) params.push(demo.options[3].start);
     var points = demo.generator.apply(null, params);
     var canvas = d3.select(this).node();
     visualize(points, canvas, null, null);
@@ -269,7 +275,7 @@ function demoMaker(
     //inform the caller about the current step
     stepCb(step);
 
-    // // SOM
+    // SOM
     if (GLOBALS.selected_model == "SOM") {
       visualize_latent_space(Z, Zeta, width, height, margin);
       // Dim=1,2,3のときだけ観測空間を表示
@@ -279,15 +285,21 @@ function demoMaker(
     } else {
       // UKR
       visualize_latent_space(Z, Zeta, width, height, margin);
-      // const mapping_resolution = 10;
-      var newY = ukr.generate_new_mapping(X, Z, mapping_resolution);
-      // console.log(newY);
-      // throw new Error("the end");
-      // Dim=1,2,3のときだけ観測空間を表示
-      if (Dim == 3)
-        plot_f_withPlotly(X, newY, width, height, margin, Zdim == 2);
-      else if (Dim == 1 || Dim == 2)
-        visualize_observation_space(X, newY, width, height, margin, Zdim == 2);
+      if (Dim < 4) {
+        var newY = ukr.generate_new_mapping(X, Z, mapping_resolution);
+        // Dim=1,2,3のときだけ観測空間を表示
+        if (Dim == 3)
+          plot_f_withPlotly(X, newY, width, height, margin, Zdim == 2);
+        else if (Dim == 1 || Dim == 2)
+          visualize_observation_space(
+            X,
+            newY,
+            width,
+            height,
+            margin,
+            Zdim == 2
+          );
+      }
     }
 
     //control the loop.
@@ -298,8 +310,6 @@ function demoMaker(
   }
 
   demo.pause = function () {
-    // console.log("paused");
-    // console.log(paused);
     if (paused) return; // already paused
     paused = true;
     window.cancelAnimationFrame(frameId);
@@ -441,6 +451,8 @@ window.onload = () => {
     var demo = demos[GLOBALS.selected_id];
     var params = [parseInt(document.getElementById("data-slider").value)];
     if (demo.options[1]) params.push(d3.select("#dataDim-slider").node().value);
+    if (demo.options[2]) params.push(demo.options[2].start);
+    if (demo.options[3]) params.push(demo.options[3].start);
     // console.log(d3.select("#dataDim-slider").node().value);
     var points = demo.generator.apply(null, params);
     main(points);
@@ -452,6 +464,8 @@ window.onload = () => {
     var demo = demos[GLOBALS.selected_id];
     var params = [parseInt(document.getElementById("data-slider").value)];
     if (demo.options[1]) params.push(demo.options[1].start);
+    if (demo.options[2]) params.push(demo.options[2].start);
+    if (demo.options[3]) params.push(demo.options[3].start);
     var points = demo.generator.apply(null, params);
     main(points);
   };
@@ -499,6 +513,8 @@ window.onload = () => {
       var params = [parseInt(document.getElementById("data-slider").value)];
       if (demo.options[1])
         params.push(d3.select("#dataDim-slider").node().value);
+      if (demo.options[2]) params.push(demo.options[2].start);
+      if (demo.options[3]) params.push(demo.options[3].start);
       // console.log(d3.select("#dataDim-slider").node());
       var points = demo.generator.apply(null, params);
       main(points);

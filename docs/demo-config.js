@@ -66,6 +66,65 @@ function angleColor(t) {
   return "hsl(" + hue + ",50%,50%)";
 }
 
+function multiplyScalar(vector, x) {
+  return vector.map((val) => val * x);
+}
+
+function addNoise(vector, x) {
+  return vector.map((val) => {
+    const noise = Math.random() * x - x / 2;
+    return val + noise;
+  });
+}
+
+function star(n, dim, nArms) {
+  const points = [];
+  const pointsPerArm = Math.floor(n / nArms);
+  for (let i = 0; i < nArms; i++) {
+    const color = angleColor((Math.PI * 2 * i) / nArms);
+    const armVector = normalVector(dim);
+    for (let i = 0; i < pointsPerArm; i++) {
+      const percent = i / pointsPerArm;
+      const noise = 0.01;
+      const p = addNoise(multiplyScalar(armVector, percent), noise);
+      points.push(new Point(p, color));
+    }
+  }
+  return points;
+}
+
+function interpolate(a, b, percent) {
+  return a.map((val, i) => {
+    const d = b[i] - val;
+    return d * percent + val;
+  });
+}
+
+function linkedClusters(nClusters, dim, perCluster, perLink) {
+  const points = [];
+  const centroids = [];
+  for (let i = 0; i < nClusters; i++) {
+    const color = angleColor((Math.PI * 2 * i) / nClusters);
+    const centroid = normalVector(dim);
+    centroids.push(centroid);
+
+    for (let i = 0; i < perCluster; i++) {
+      const p = addNoise(centroid, 0.2);
+      points.push(new Point(p, color));
+    }
+
+    if (i > 0) {
+      const lastCentroid = centroids[i - 1];
+      for (let i = 0; i < perLink; i++) {
+        const percent = i / perLink;
+        const p = interpolate(centroid, lastCentroid, percent);
+        points.push(new Point(addNoise(p, 0.01), "darkgray"));
+      }
+    }
+  }
+  return points;
+}
+
 // Data in a 2D circle, regularly spaced.
 function circleData(numPoints) {
   var points = [];
@@ -400,6 +459,62 @@ function gaussianMixtureCircle(N, num_cluster = 8, scale = 1, std = 0.3) {
 
 var demos = [
   {
+    name: "Star",
+    description: "Points arranged in a radial star pattern",
+    options: [
+      {
+        name: "Number of points",
+        min: 10,
+        max: 300,
+        start: 100,
+      },
+      {
+        name: "Dimensions",
+        min: 3,
+        max: 50,
+        start: 10,
+      },
+      {
+        name: "Number of arms",
+        min: 3,
+        max: 20,
+        start: 5,
+      },
+    ],
+    generator: star,
+  },
+  {
+    name: "Linked Clusters",
+    description: "Clusters linked with a chain of points",
+    options: [
+      {
+        name: "Number of clusters",
+        min: 3,
+        max: 20,
+        start: 6,
+      },
+      {
+        name: "Dimensions",
+        min: 3,
+        max: 100,
+        start: 10,
+      },
+      {
+        name: "Points per cluster",
+        min: 10,
+        max: 100,
+        start: 30,
+      },
+      {
+        name: "Points per link",
+        min: 5,
+        max: 100,
+        start: 15,
+      },
+    ],
+    generator: linkedClusters,
+  },
+  {
     name: "Grid",
     description:
       "A square grid with equal spacing between points. " +
@@ -689,7 +804,7 @@ var demos = [
         name: "Dimension",
         min: 2,
         max: 1000,
-        start: 3,
+        start: 100,
       },
     ],
     generator: randomWalk,
@@ -735,8 +850,8 @@ var demos = [
       {
         name: "Number Of Points",
         min: 2,
-        max: 200,
-        start: 50,
+        max: 1000,
+        start: 200,
       },
       {
         name: "Dimensions",
