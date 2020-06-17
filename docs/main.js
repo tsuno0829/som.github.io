@@ -125,7 +125,11 @@ function init(rtn = false) {
   const sigmax = parseFloat(document.getElementById("sigmax-slider").value);
   const sigmin = parseFloat(document.getElementById("sigmin-slider").value);
   const epoch = parseFloat(document.getElementById("epoch-slider").value);
-  const tau = parseFloat(document.getElementById("tau-slider").value);
+  const tau = parseInt(document.getElementById("tau-slider").value);
+  const eta = parseFloat(document.getElementById("eta-slider").value);
+  const mapping_resolution = parseInt(
+    document.getElementById("mapping-resolution-slider").value
+  );
   document.getElementById("current-data").innerHTML = data;
   document.getElementById("current-node").innerHTML = node;
   document.getElementById("current-ldim").innerHTML = ldim;
@@ -133,7 +137,22 @@ function init(rtn = false) {
   document.getElementById("current-sigmin").innerHTML = sigmin;
   document.getElementById("current-epoch").innerHTML = epoch;
   document.getElementById("current-tau").innerHTML = tau;
-  if (rtn) return [data, node, ldim, sigmax, sigmin, epoch, tau];
+  document.getElementById("current-eta").innerHTML = eta;
+  document.getElementById(
+    "current-mapping-resolution"
+  ).innerHTML = mapping_resolution;
+  if (rtn)
+    return [
+      data,
+      node,
+      ldim,
+      sigmax,
+      sigmin,
+      epoch,
+      tau,
+      eta,
+      mapping_resolution,
+    ];
 }
 
 // Standard Normal variate using Box-Muller transform.
@@ -204,6 +223,8 @@ function demoMaker(
   sigmin,
   nb_epoch,
   tau,
+  eta,
+  mapping_resolution,
   width,
   height,
   margin,
@@ -238,7 +259,7 @@ function demoMaker(
         Z = som.estimate_z(X, Y, Z, Zeta);
       } else {
         // UKR
-        const eta = 1;
+        // const eta = 1;
         Y = ukr.estimate_f(X, Y, Z);
         Z = ukr.estimate_z(X, Y, Z, eta);
       }
@@ -258,7 +279,7 @@ function demoMaker(
     } else {
       // UKR
       visualize_latent_space(Z, Zeta, width, height, margin);
-      const mapping_resolution = 10;
+      // const mapping_resolution = 10;
       var newY = ukr.generate_new_mapping(X, Z, mapping_resolution);
       // console.log(newY);
       // throw new Error("the end");
@@ -328,7 +349,17 @@ function main(X) {
   // }
 
   var format = d3.format(",");
-  const [N, K, ldim, sigmax, sigmin, nb_epoch, tau] = init((rtn = true));
+  const [
+    N,
+    K,
+    ldim,
+    sigmax,
+    sigmin,
+    nb_epoch,
+    tau,
+    eta,
+    mapping_resolution,
+  ] = init((rtn = true));
   Dim = X[0].coords.length;
   Zdim = ldim;
 
@@ -359,6 +390,8 @@ function main(X) {
     sigmin,
     nb_epoch,
     tau,
+    eta,
+    mapping_resolution,
     width,
     height,
     margin,
@@ -398,6 +431,10 @@ window.onload = () => {
   const current_sigmin = document.getElementById("current-sigmin");
   const current_epoch = document.getElementById("current-epoch");
   const current_tau = document.getElementById("current-tau");
+  const current_eta = document.getElementById("current-eta");
+  const current_mapping_resolution = document.getElementById(
+    "current-mapping-resolution"
+  );
   const setCurrentValue = (c) => (e) => {
     c.innerText = e.target.value;
     setRunning(false);
@@ -439,6 +476,12 @@ window.onload = () => {
   document
     .getElementById("tau-slider")
     .addEventListener("input", setCurrentValue(current_tau));
+  document
+    .getElementById("eta-slider")
+    .addEventListener("input", setCurrentValue(current_eta));
+  document
+    .getElementById("mapping-resolution-slider")
+    .addEventListener("input", setCurrentValue(current_mapping_resolution));
 
   //radio button's setting
   function model_select() {
