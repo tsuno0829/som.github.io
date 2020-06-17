@@ -256,7 +256,7 @@ function demoMaker(
     if (paused) return;
 
     // control speed at which we iterate
-    // if(step >= 200) chunk = 10;
+    if (step >= 200) chunk = 10;
     for (var k = 0; k < chunk; k++) {
       // SOM
       if (GLOBALS.selected_model == "SOM") {
@@ -269,11 +269,10 @@ function demoMaker(
         Y = ukr.estimate_f(X, Y, Z);
         Z = ukr.estimate_z(X, Y, Z, eta);
       }
-      step++;
+      // step++;
+      //inform the caller about the current step
+      stepCb(++step);
     }
-
-    //inform the caller about the current step
-    stepCb(step);
 
     // SOM
     if (GLOBALS.selected_model == "SOM") {
