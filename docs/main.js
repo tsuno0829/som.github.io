@@ -509,12 +509,14 @@ window.onload = () => {
     // 使用するmodelのパラメータを表示するHTMLに切り替える
     console.log(document.getElementById("sigmax").style.display);
     if (this.id == "SOM") {
+      document.getElementById("resolution-nodes").style.display = "";
       document.getElementById("sigmax").style.display = "";
       document.getElementById("sigmin").style.display = "";
       document.getElementById("tau").style.display = "";
       document.getElementById("eta").style.display = "none";
       document.getElementById("mapping-resolution").style.display = "none";
     } else {
+      document.getElementById("resolution-nodes").style.display = "none";
       document.getElementById("sigmax").style.display = "none";
       document.getElementById("sigmin").style.display = "none";
       document.getElementById("tau").style.display = "none";
