@@ -516,6 +516,36 @@ function moon(n_samples) {
   return points;
 }
 
+// from sklearn
+function circles(n_samples) {
+  var points = [];
+  var factor = 0.5;
+  n_samples_out = Math.floor(n_samples / 2);
+  n_samples_in = n_samples - n_samples_out;
+
+  linspace_out = linspace(0, 2 * Math.PI, n_samples_out, (endpoint = true));
+  linspace_in = linspace(0, 2 * Math.PI, n_samples_in, (endpoint = true));
+  outer_circ_x = linspace_out.map((d) => {
+    return Math.cos(d);
+  });
+  outer_circ_y = linspace_out.map((d) => {
+    return Math.sin(d);
+  });
+  inner_circ_x = linspace_in.map((d) => {
+    return Math.cos(d) * factor;
+  });
+  inner_circ_y = linspace_in.map((d) => {
+    return Math.sin(d) * factor;
+  });
+  for (let i = 0; i < n_samples_out; i++) {
+    points.push(new Point([outer_circ_x[i], outer_circ_y[i]], "#039"));
+  }
+  for (let i = 0; i < n_samples_in; i++) {
+    points.push(new Point([inner_circ_x[i], inner_circ_y[i]], "#f90"));
+  }
+  return points;
+}
+
 var demos = [
   {
     name: "Star",
@@ -972,6 +1002,19 @@ var demos = [
       },
     ],
     generator: moon,
+  },
+  {
+    name: "circles",
+    description: "circles",
+    options: [
+      {
+        name: "Number of Points",
+        min: 50,
+        max: 200,
+        start: 100,
+      },
+    ],
+    generator: circles,
   },
 ];
 
