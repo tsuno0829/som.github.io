@@ -40,6 +40,51 @@ var GLOBALS = {
 //   });
 // }
 
+d3.select("#play_pause").on("click", () => {
+  // 押されたときにplayとpauseのアイコンを切り替える
+  var play_pause = d3.select("#play_pause");
+  var icon;
+  if (play_pause.select("i").node().innerHTML == "pause") {
+    icon = "play_arrow";
+  } else {
+    icon = "pause";
+  }
+  play_pause.select("i").remove();
+  play_pause.append("i").attr("class", "material-icons");
+  play_pause.select("i").node().innerHTML = icon;
+
+  if (GLOBALS.playgroundDemo != null) {
+    // pauseのときスタート，playのときポーズの状態にする
+    if (icon == "pause") {
+      setRunning(true);
+    } else {
+      setRunning(false);
+    }
+  }
+});
+
+d3.select("#refresh").on("click", (d, i) => {
+  if (GLOBALS.playgroundDemo != null) {
+    setRunning(false);
+
+    // pauseアイコンに切り替える
+    var play_pause = d3.select("#play_pause");
+    var icon = "pause";
+    play_pause.select("i").remove();
+    play_pause.append("i").attr("class", "material-icons");
+    play_pause.select("i").node().innerHTML = icon;
+
+    // demoを実行する
+    var demo = demos[GLOBALS.selected_id];
+    var params = [parseInt(document.getElementById("data-slider").value)];
+    if (demo.options[1]) params.push(d3.select("#dataDim-slider").node().value);
+    if (demo.options[2]) params.push(demo.options[2].start);
+    if (demo.options[3]) params.push(demo.options[3].start);
+    var points = demo.generator.apply(null, params);
+    main(points);
+  }
+});
+
 // Create menu of possible demos.
 var menuDiv = d3.select("#data-menu");
 
@@ -50,15 +95,20 @@ var dataMenus = menuDiv
   .append("div")
   .classed("demo-data", true)
   .on("click", function (d, i) {
+    // playからpauseアイコンに切り替える
+    var play_pause = d3.select("#play_pause");
+    var icon = "pause";
+    play_pause.select("i").remove();
+    play_pause.append("i").attr("class", "material-icons");
+    play_pause.select("i").node().innerHTML = icon;
+    // demoの設定を行う
     GLOBALS.selected_id = i;
     var demo = demos[i];
-    // console.log(demo.options[0].start);
     data_slider = document.getElementById("data-slider");
     data_slider.min = demo.options[0].min;
     data_slider.max = demo.options[0].max;
     data_slider.defaultValue = demo.options[0].start;
     data_slider.value = demo.options[0].start;
-    // data_slider.innerHTML = demo.options[0].start;
     var params = [demo.options[0].start];
     if (demo.options[1]) params.push(demo.options[1].start);
     if (demo.options[2]) params.push(demo.options[2].start);
@@ -81,18 +131,17 @@ var dataMenus = menuDiv
         .attr("defaultValue", demo.options[1].start)
         .attr("value", demo.options[1].start)
         .on("input", () => {
+          setRunning(false);
           // パラメータが変更されたときに，現在の計算を中止して新規パラメータで再計算する
           d3.select("#current-dataDim").node().innerHTML =
             "dimension of points " + d3.select("#dataDim-slider").node().value;
-          // console.log(d3.select("#dataDim-slider").node().value);
-          setRunning(false);
+          // demoの設定
           var demo = demos[GLOBALS.selected_id];
           var params = [parseInt(document.getElementById("data-slider").value)];
           if (demo.options[1])
             params.push(d3.select("#dataDim-slider").node().value);
           if (demo.options[2]) params.push(demo.options[2].start);
           if (demo.options[3]) params.push(demo.options[3].start);
-          // console.log(d3.select("#dataDim-slider").node().value);
           var points = demo.generator.apply(null, params);
           main(points);
         });
@@ -434,6 +483,13 @@ window.onload = () => {
   const setCurrentValue = (c) => (e) => {
     c.innerText = e.target.value;
     setRunning(false);
+    // playからpauseアイコンに切り替える
+    var play_pause = d3.select("#play_pause");
+    var icon = "pause";
+    play_pause.select("i").remove();
+    play_pause.append("i").attr("class", "material-icons");
+    play_pause.select("i").node().innerHTML = icon;
+    // demoの設定を行う
     var demo = demos[GLOBALS.selected_id];
     var params = [parseInt(document.getElementById("data-slider").value)];
     if (demo.options[1]) params.push(d3.select("#dataDim-slider").node().value);
@@ -446,6 +502,13 @@ window.onload = () => {
     c.innerText = e.target.value;
     GLOBALS.stepLimit = e.target.value;
     setRunning(false);
+    // playからpauseアイコンに切り替える
+    var play_pause = d3.select("#play_pause");
+    var icon = "pause";
+    play_pause.select("i").remove();
+    play_pause.append("i").attr("class", "material-icons");
+    play_pause.select("i").node().innerHTML = icon;
+    // demoの設定を行う
     var demo = demos[GLOBALS.selected_id];
     var params = [parseInt(document.getElementById("data-slider").value)];
     if (demo.options[1]) params.push(demo.options[1].start);
@@ -509,13 +572,19 @@ window.onload = () => {
     // 特にdemoが動いてない時は，何もしない（後で変えるかも）
     if (GLOBALS.playgroundDemo != null) {
       setRunning(false);
+      // playからpauseアイコンに切り替える
+      var play_pause = d3.select("#play_pause");
+      var icon = "pause";
+      play_pause.select("i").remove();
+      play_pause.append("i").attr("class", "material-icons");
+      play_pause.select("i").node().innerHTML = icon;
+      // demoの設定
       var demo = demos[GLOBALS.selected_id];
       var params = [parseInt(document.getElementById("data-slider").value)];
       if (demo.options[1])
         params.push(d3.select("#dataDim-slider").node().value);
       if (demo.options[2]) params.push(demo.options[2].start);
       if (demo.options[3]) params.push(demo.options[3].start);
-      // console.log(d3.select("#dataDim-slider").node());
       var points = demo.generator.apply(null, params);
       main(points);
     }

@@ -24,13 +24,12 @@
     <script src="ukr.js"></script>
     <script src="demo-config.js"></script>
     <script src="visualize.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   </head>
   <body>
     <div>
       Source code available on <a href=https://github.com/tsuno0829/som.github.io>github</a>.
     </div>
-
-    <input id="reset_btn" type="button" value="reset"></button>
 
     <form id="model_selection">
       <input id="SOM" class=model type="radio" checked> Self-Organizing Map (SOM)
@@ -88,6 +87,16 @@
       </table>
       <div id="data-menu" class="menu"></div>
     </div>
+
+    <br>
+    <!-- <input id="pause" type="button" value="pause"></button>  -->
+    <!-- <input id="reset_btn" type="button" value="reset"></button> -->
+    <div>
+      <button id="play_pause" type="button" style="width: 40px;"><i class="material-icons">play_arrow</i></button>
+      <button id="refresh" type="button" style="width: 40px;"><i class="material-icons">refresh</i></button>
+      <!-- <button type="button" style="width: 40px;"><i class="material-icons">pause</i></button> -->
+    </div>
+
 
     <div class="no-select">
       <br>
