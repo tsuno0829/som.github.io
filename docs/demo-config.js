@@ -468,7 +468,7 @@ function gaussianMixtureCircle(N, num_cluster = 8, scale = 1, std = 0.3) {
 }
 
 // from sklearn
-function s_curve(n_samples) {
+function s_curve(n_samples, noise = 0.2) {
   var points = [];
   var t_hist = [];
   for (let i = 0; i < n_samples; i++) {
@@ -476,14 +476,15 @@ function s_curve(n_samples) {
     var x = Math.sin(t);
     var y = 2 * Math.random();
     var z = Math.sign(t) * (Math.cos(t) - 1);
-    points.push([x, y, z]);
+    var gen_noise = d3.randomNormal(0, noise);
+    points.push([x + gen_noise(), y + gen_noise(), z + gen_noise()]);
     t_hist.push(t);
   }
   return sequentialColorRainbow(points, t_hist);
 }
 
 // from sklearn
-function swiss_roll(n_samples, noise = 0.0) {
+function swiss_roll(n_samples, noise = 0.2) {
   var colors = [];
   var points = [];
   for (let i = 0; i < n_samples; i++) {
@@ -491,7 +492,8 @@ function swiss_roll(n_samples, noise = 0.0) {
     x = t * Math.cos(t);
     y = 21 * Math.random();
     z = t * Math.sin(t);
-    points.push([x + noise, y + noise, z + noise]);
+    var gen_noise = d3.randomNormal(0, noise);
+    points.push([x + gen_noise(), y + gen_noise(), z + gen_noise()]);
     colors.push(t);
   }
 
@@ -499,7 +501,7 @@ function swiss_roll(n_samples, noise = 0.0) {
 }
 
 // from sklearn
-function moon(n_samples) {
+function moon(n_samples, noise = 0.05) {
   var points = [];
   n_samples_out = Math.floor(n_samples / 2);
   n_samples_in = n_samples - n_samples_out;
@@ -523,17 +525,29 @@ function moon(n_samples) {
       return 1 - Math.sin(d) - 0.5;
     }
   );
+
+  var gen_noise = d3.randomNormal(0, noise);
   for (let i = 0; i < n_samples_out; i++) {
-    points.push(new Point([outer_circ_x[i], outer_circ_y[i]], "#CCCC00"));
+    points.push(
+      new Point(
+        [outer_circ_x[i] + gen_noise(), outer_circ_y[i] + gen_noise()],
+        "#CCCC00"
+      )
+    );
   }
   for (let i = 0; i < n_samples_in; i++) {
-    points.push(new Point([inner_circ_x[i], inner_circ_y[i]], "#333300"));
+    points.push(
+      new Point(
+        [inner_circ_x[i] + gen_noise(), inner_circ_y[i] + gen_noise()],
+        "#333300"
+      )
+    );
   }
   return points;
 }
 
 // from sklearn
-function circles(n_samples) {
+function circles(n_samples, noise = 0.05) {
   var points = [];
   var factor = 0.5;
   n_samples_out = Math.floor(n_samples / 2);
@@ -553,11 +567,23 @@ function circles(n_samples) {
   inner_circ_y = linspace_in.map((d) => {
     return Math.sin(d) * factor;
   });
+
+  var gen_noise = d3.randomNormal(0, noise);
   for (let i = 0; i < n_samples_out; i++) {
-    points.push(new Point([outer_circ_x[i], outer_circ_y[i]], "#039"));
+    points.push(
+      new Point(
+        [outer_circ_x[i] + gen_noise(), outer_circ_y[i] + gen_noise()],
+        "#039"
+      )
+    );
   }
   for (let i = 0; i < n_samples_in; i++) {
-    points.push(new Point([inner_circ_x[i], inner_circ_y[i]], "#f90"));
+    points.push(
+      new Point(
+        [inner_circ_x[i] + gen_noise(), inner_circ_y[i] + gen_noise()],
+        "#f90"
+      )
+    );
   }
   return points;
 }
@@ -588,29 +614,7 @@ function severed_sphere(n_samples) {
   return sequentialColorRainbow(points, colors);
 }
 
-// from matlab
-// function outlier(N=600, r=20, dist=30, outliers=0.04, noise=5) {
-//   N1 = Math.round(N * (.5 - outliers));
-//   N2 = N1;
-//   N3 = Math.round(N * outliers);
-//   N4 = N - N1 - N2 - N3;
-//   phi1 = rand(N1, 1) * pi;
-//   r1 = sqrt(rand(N1, 1)) * r;
-//   P1 = [-dist + r1.* sin(phi1) r1.* cos(phi1) zeros(N1, 1)];
-//   phi2 = rand(N2, 1) * pi;
-//   r2 = sqrt(rand(N2, 1)) * r;
-//   P2 = [dist - r2.* sin(phi2) r2.* cos(phi2) 3 * ones(N2, 1)];
-
-//   P3 = [rand(N3, 1) * noise dist + rand(N3, 1) * noise 2 * ones(N3, 1)];
-
-//   P4 = [rand(N4, 1) * noise - dist + rand(N4, 1) * noise ones(N4, 1)];
-
-//   data = [P1; P2; P3; P4];
-// }
-
 function two_cluster_with_outlier(n_samples) {
-  // Generating a normally distributed data set for training
-  // X = 0.3 * np.random.randn(100, 2)
   var points = [];
   var n_outliers = Math.floor(n_samples * 0.01);
   var N1 = Math.floor((n_samples - n_outliers) / 2);
