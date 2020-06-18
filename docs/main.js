@@ -41,9 +41,17 @@ var GLOBALS = {
 // }
 
 d3.select("#play_pause").on("click", () => {
+  var play_pause = d3.select("#play_pause");
+  // console.log(d3.select("#step").node().innerHTML < GLOBALS.stepLimit);
+  // if (d3.select("#step").node().innerHTML >= GLOBALS.stepLimit) {
+  //   var icon = "play_arrow";
+  //   play_pause.select("i").remove();
+  //   play_pause.append("i").attr("class", "material-icons");
+  //   play_pause.select("i").node().innerHTML = icon;
+  //   return;
+  // }
   if (GLOBALS.playgroundDemo != null) {
     // 押されたときにplayとpauseのアイコンを切り替える
-    var play_pause = d3.select("#play_pause");
     var icon;
     if (play_pause.select("i").node().innerHTML == "pause") {
       icon = "play_arrow";
@@ -424,6 +432,11 @@ function main(X) {
       d3.select("#step").text(format(step));
       if (step >= GLOBALS.stepLimit) {
         setRunning(false);
+        var play_pause = d3.select("#play_pause");
+        var icon = "play_arrow";
+        play_pause.select("i").remove();
+        play_pause.append("i").attr("class", "material-icons");
+        play_pause.select("i").node().innerHTML = icon;
       }
     }
   );
