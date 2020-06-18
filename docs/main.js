@@ -42,14 +42,12 @@ var GLOBALS = {
 
 d3.select("#play_pause").on("click", () => {
   var play_pause = d3.select("#play_pause");
-  // console.log(d3.select("#step").node().innerHTML < GLOBALS.stepLimit);
-  // if (d3.select("#step").node().innerHTML >= GLOBALS.stepLimit) {
-  //   var icon = "play_arrow";
-  //   play_pause.select("i").remove();
-  //   play_pause.append("i").attr("class", "material-icons");
-  //   play_pause.select("i").node().innerHTML = icon;
-  //   return;
-  // }
+
+  // step >= stepLimitのとき，何もしない
+  var step = parseInt(d3.select("#step").node().innerHTML);
+  var stepLimit = parseInt(GLOBALS.stepLimit);
+  if (step >= stepLimit) return;
+
   if (GLOBALS.playgroundDemo != null) {
     // 押されたときにplayとpauseのアイコンを切り替える
     var icon;
