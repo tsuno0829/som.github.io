@@ -227,6 +227,8 @@ function demoMaker(
   var chunk = 1;
   var frameId;
   let Dim = X[0].coords.length;
+  var h;
+  var H;
 
   var timescale = d3
     .scaleLinear()
@@ -251,8 +253,8 @@ function demoMaker(
       } else {
         // UKR
         // const eta = 1;
-        Y = ukr.estimate_f(X, Y, Z);
-        Z = ukr.estimate_z(X, Y, Z, eta);
+        [Y, h, H] = ukr.estimate_f(X, Y, Z);
+        Z = ukr.estimate_z(X, Y, Z, h, H, eta);
       }
       // step++;
       //inform the caller about the current step

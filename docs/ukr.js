@@ -74,22 +74,16 @@ UnsupervisedKernelRegression.prototype = {
           y[d] += (h[n][i] * X[n].coords[d]) / H[i];
         }
       }
-      //   console.log(Y);
       Y[i].coords = y;
     }
-    // throw new Error("終了します");
 
-    return Y;
+    return [Y, h, H];
   },
 
-  estimate_z: (X, Y, Z, eta) => {
+  estimate_z: (X, Y, Z, h, H, eta) => {
     let N = Z.length;
     let Zdim = Z[0].coords.length;
     let Xdim = X[0].coords.length;
-    // console.log(Y);
-    let dist = calc_sqeuclid_dist(Z, Z);
-    let h = [];
-    let H = [];
     let r = [];
     let delta = [];
     let dd = [];
@@ -115,26 +109,7 @@ UnsupervisedKernelRegression.prototype = {
       delta.push(tmp1);
       dd.push(tmp2);
     }
-    // console.log(d[0][0][1]);
-    // console.log(d);
 
-    for (let i = 0; i < N; i++) {
-      let tmp = [];
-      for (let j = 0; j < N; j++) {
-        let t = Math.exp(-0.5 * dist[i][j]);
-        tmp.push(t);
-      }
-      h.push(tmp);
-    }
-
-    for (let i = 0; i < N; i++) {
-      let sum_h = 0;
-      for (let j = 0; j < N; j++) {
-        sum_h += h[i][j];
-      }
-      H.push(sum_h);
-    }
-    // console.log(H);
     for (let i = 0; i < N; i++) {
       tmp = [];
       for (let j = 0; j < N; j++) {
@@ -152,12 +127,6 @@ UnsupervisedKernelRegression.prototype = {
           d1_inner_product += dd[n][n][d] * dd[n][i][d];
           d2_inner_product += dd[i][i][d] * dd[i][n][d];
         }
-        // console.log(d1_inner_product);
-        // console.log(d2_inner_product);
-        // console.log(r[i]);
-        // console.log(r[n][i]);
-        // console.log(r[i][n]);
-        // console.log(delta[0]);
         let Zn = [];
         for (let d = 0; d < Zdim; d++) {
           Zn.push(
@@ -167,15 +136,9 @@ UnsupervisedKernelRegression.prototype = {
           );
         }
         for (let d = 0; d < Zdim; d++) {
-          //   console.log(Z[n].coords[d]);
-          //   console.log(eta * Zn[d]);
-          //   console.log(eta);
           Z[n].coords[d] = Z[n].coords[d] - eta * Zn[d];
         }
-        // console.log(Zn);
-        // console.log(H[i]);
       }
-      //   throw new Error("終了します");
     }
     return Z;
   },
@@ -222,12 +185,7 @@ UnsupervisedKernelRegression.prototype = {
       }
     }
 
-    // console.log(Zdim);
-    // console.log(Z);
-    // console.log(Znew);
-
     dist = calc_sqeuclid_dist(Znew, Z);
-    // console.log(dist);
 
     for (let i = 0; i < Math.pow(mapping_resolution, Zdim); i++) {
       let tmp = [];
@@ -237,7 +195,6 @@ UnsupervisedKernelRegression.prototype = {
       }
       h.push(tmp);
     }
-    // console.log(h);
 
     for (let i = 0; i < Math.pow(mapping_resolution, Zdim); i++) {
       let sum_h = 0;
@@ -246,7 +203,6 @@ UnsupervisedKernelRegression.prototype = {
       }
       H.push(sum_h);
     }
-    // console.log(H);
 
     for (let i = 0; i < Math.pow(mapping_resolution, Zdim); i++) {
       let y;
@@ -260,11 +216,8 @@ UnsupervisedKernelRegression.prototype = {
           y[d] += (h[i][n] * X[n].coords[d]) / H[i];
         }
       }
-      //   console.log(Y);
-      //   Y[i].coords = y;
       newY.push(new Point(y));
     }
-    // throw new Error("終了します");
 
     return newY;
   },
