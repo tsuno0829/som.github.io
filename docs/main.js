@@ -187,7 +187,6 @@ function initMatrix(n, dim) {
   return points.map(function (p) {
     return new Point(p);
   });
-  // return points
 }
 
 // var playPause = document.getElementById('play-pause');
@@ -242,7 +241,7 @@ function demoMaker(
     if (paused) return;
 
     // control speed at which we iterate
-    if (step >= 200) chunk = 10;
+    if (step >= 200 || Dim == 3) chunk = 10;
     for (var k = 0; k < chunk; k++) {
       // SOM
       if (GLOBALS.selected_model == "SOM") {
@@ -438,7 +437,6 @@ window.onload = () => {
     if (demo.options[1]) params.push(d3.select("#dataDim-slider").node().value);
     if (demo.options[2]) params.push(demo.options[2].start);
     if (demo.options[3]) params.push(demo.options[3].start);
-    // console.log(d3.select("#dataDim-slider").node().value);
     var points = demo.generator.apply(null, params);
     main(points);
   };
@@ -490,9 +488,7 @@ window.onload = () => {
       else models[i].checked = false;
     }
     GLOBALS.selected_model = this.id;
-    console.log(GLOBALS.selected_model);
     // 使用するmodelのパラメータを表示するHTMLに切り替える
-    console.log(document.getElementById("sigmax").style.display);
     if (this.id == "SOM") {
       document.getElementById("resolution-nodes").style.display = "";
       document.getElementById("sigmax").style.display = "";

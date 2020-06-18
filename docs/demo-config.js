@@ -66,6 +66,16 @@ function angleColor(t) {
   return "hsl(" + hue + ",50%,50%)";
 }
 
+function sequentialColorRainbow(points, t) {
+  var colorScale = d3
+    .scaleSequential(d3.interpolateRainbow)
+    .domain([d3.min(t), d3.max(t)]);
+
+  return points.map((d, i) => {
+    return new Point(d, colorScale(t[i]));
+  });
+}
+
 function multiplyScalar(vector, x) {
   return vector.map((val) => val * x);
 }
@@ -455,6 +465,111 @@ function gaussianMixtureCircle(N, num_cluster = 8, scale = 1, std = 0.3) {
     points.push(new Point(point, color));
   }
   return points;
+}
+
+// from sklearn
+function s_curve(n_samples) {
+  var points = [];
+  var t_hist = [];
+  for (let i = 0; i < n_samples; i++) {
+    var t = 3 * Math.PI * (Math.random() - 0.5);
+    var x = Math.sin(t);
+    var y = 2 * Math.random();
+    var z = Math.sign(t) * (Math.cos(t) - 1);
+    points.push([x, y, z]);
+    t_hist.push(t);
+  }
+  return sequentialColorRainbow(points, t_hist);
+}
+
+// from sklearn
+function moon(n_samples) {
+  var points = [];
+  n_samples_out = Math.floor(n_samples / 2);
+  n_samples_in = n_samples - n_samples_out;
+  outer_circ_x = linspace(0, Math.PI, n_samples_out, (endpoint = true)).map(
+    (d) => {
+      return Math.cos(d);
+    }
+  );
+  outer_circ_y = linspace(0, Math.PI, n_samples_out, (endpoint = true)).map(
+    (d) => {
+      return Math.sin(d);
+    }
+  );
+  inner_circ_x = linspace(0, Math.PI, n_samples_in, (endpoint = true)).map(
+    (d) => {
+      return 1 - Math.cos(d);
+    }
+  );
+  inner_circ_y = linspace(0, Math.PI, n_samples_in, (endpoint = true)).map(
+    (d) => {
+      return 1 - Math.sin(d) - 0.5;
+    }
+  );
+  for (let i = 0; i < n_samples_out; i++) {
+    points.push(new Point([outer_circ_x[i], outer_circ_y[i]], "#CCCC00"));
+  }
+  for (let i = 0; i < n_samples_in; i++) {
+    points.push(new Point([inner_circ_x[i], inner_circ_y[i]], "#333300"));
+  }
+  return points;
+}
+
+// from sklearn
+function circles(n_samples) {
+  var points = [];
+  var factor = 0.5;
+  n_samples_out = Math.floor(n_samples / 2);
+  n_samples_in = n_samples - n_samples_out;
+
+  linspace_out = linspace(0, 2 * Math.PI, n_samples_out, (endpoint = true));
+  linspace_in = linspace(0, 2 * Math.PI, n_samples_in, (endpoint = true));
+  outer_circ_x = linspace_out.map((d) => {
+    return Math.cos(d);
+  });
+  outer_circ_y = linspace_out.map((d) => {
+    return Math.sin(d);
+  });
+  inner_circ_x = linspace_in.map((d) => {
+    return Math.cos(d) * factor;
+  });
+  inner_circ_y = linspace_in.map((d) => {
+    return Math.sin(d) * factor;
+  });
+  for (let i = 0; i < n_samples_out; i++) {
+    points.push(new Point([outer_circ_x[i], outer_circ_y[i]], "#039"));
+  }
+  for (let i = 0; i < n_samples_in; i++) {
+    points.push(new Point([inner_circ_x[i], inner_circ_y[i]], "#f90"));
+  }
+  return points;
+}
+
+// from sklearn
+function severed_sphere(n_samples) {
+  var p = [];
+  var t = [];
+  var indices = [];
+  for (let i = 0; i < n_samples; i++) {
+    var x = Math.random() * Math.PI;
+    p.push(Math.random() * (2 * Math.PI - 0.55));
+    t.push(x);
+    indices.push((x < Math.PI - Math.PI / 8) & (x > Math.PI / 8));
+  }
+  var colors = [];
+  var points = [];
+  for (let i = 0; i < indices.length; i++) {
+    var x, y, z;
+    if (indices[i]) {
+      colors.push(p[i]);
+      x = Math.sin(t[i]) * Math.cos(p[i]);
+      y = Math.sin(t[i]) * Math.sin(p[i]);
+      z = Math.cos(t[i]);
+      points.push([x, y, z]);
+    }
+  }
+  return sequentialColorRainbow(points, colors);
 }
 
 var demos = [
@@ -857,7 +972,7 @@ var demos = [
         name: "Dimensions",
         min: 2,
         max: 10,
-        start: 3,
+        start: 2,
       },
     ],
     generator: cubeData,
@@ -887,6 +1002,58 @@ var demos = [
       },
     ],
     generator: kuraData,
+  },
+  {
+    name: "S curve",
+    description: "S curve",
+    options: [
+      {
+        name: "Number of Points",
+        min: 100,
+        max: 500,
+        start: 300,
+      },
+    ],
+    generator: s_curve,
+  },
+  {
+    name: "moon",
+    description: "moon",
+    options: [
+      {
+        name: "Number of Points",
+        min: 50,
+        max: 200,
+        start: 100,
+      },
+    ],
+    generator: moon,
+  },
+  {
+    name: "circles",
+    description: "circles",
+    options: [
+      {
+        name: "Number of Points",
+        min: 50,
+        max: 200,
+        start: 100,
+      },
+    ],
+    generator: circles,
+  },
+  {
+    name: "severed sphere",
+    description: "severed sphere",
+    options: [
+      {
+        name: "Number of Points",
+        min: 200,
+        max: 1000,
+        start: 500,
+      },
+    ],
+    generator: severed_sphere,
   },
 ];
 
