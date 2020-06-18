@@ -972,7 +972,7 @@ var demos = [
         name: "Dimensions",
         min: 2,
         max: 10,
-        start: 3,
+        start: 2,
       },
     ],
     generator: cubeData,
