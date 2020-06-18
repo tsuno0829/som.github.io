@@ -483,6 +483,22 @@ function s_curve(n_samples) {
 }
 
 // from sklearn
+function swiss_roll(n_samples, noise = 0.0) {
+  var colors = [];
+  var points = [];
+  for (let i = 0; i < n_samples; i++) {
+    t = 1.5 * Math.PI * (1 + 2 * Math.random());
+    x = t * Math.cos(t);
+    y = 21 * Math.random();
+    z = t * Math.sin(t);
+    points.push([x + noise, y + noise, z + noise]);
+    colors.push(t);
+  }
+
+  return sequentialColorRainbow(points, colors);
+}
+
+// from sklearn
 function moon(n_samples) {
   var points = [];
   n_samples_out = Math.floor(n_samples / 2);
@@ -1015,6 +1031,19 @@ var demos = [
       },
     ],
     generator: s_curve,
+  },
+  {
+    name: "swiss_roll",
+    description: "swiss_roll",
+    options: [
+      {
+        name: "Number of Points",
+        min: 100,
+        max: 500,
+        start: 300,
+      },
+    ],
+    generator: swiss_roll,
   },
   {
     name: "moon",
