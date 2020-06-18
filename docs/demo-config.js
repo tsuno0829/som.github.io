@@ -482,6 +482,40 @@ function s_curve(n_samples) {
   return sequentialColorRainbow(points, t_hist);
 }
 
+// from sklearn
+function moon(n_samples) {
+  var points = [];
+  n_samples_out = Math.floor(n_samples / 2);
+  n_samples_in = n_samples - n_samples_out;
+  outer_circ_x = linspace(0, Math.PI, n_samples_out, (endpoint = true)).map(
+    (d) => {
+      return Math.cos(d);
+    }
+  );
+  outer_circ_y = linspace(0, Math.PI, n_samples_out, (endpoint = true)).map(
+    (d) => {
+      return Math.sin(d);
+    }
+  );
+  inner_circ_x = linspace(0, Math.PI, n_samples_in, (endpoint = true)).map(
+    (d) => {
+      return 1 - Math.cos(d);
+    }
+  );
+  inner_circ_y = linspace(0, Math.PI, n_samples_in, (endpoint = true)).map(
+    (d) => {
+      return 1 - Math.sin(d) - 0.5;
+    }
+  );
+  for (let i = 0; i < n_samples_out; i++) {
+    points.push(new Point([outer_circ_x[i], outer_circ_y[i]], "#CCCC00"));
+  }
+  for (let i = 0; i < n_samples_in; i++) {
+    points.push(new Point([inner_circ_x[i], inner_circ_y[i]], "#333300"));
+  }
+  return points;
+}
+
 var demos = [
   {
     name: "Star",
@@ -925,6 +959,19 @@ var demos = [
       },
     ],
     generator: s_curve,
+  },
+  {
+    name: "moon",
+    description: "moon",
+    options: [
+      {
+        name: "Number of Points",
+        min: 50,
+        max: 200,
+        start: 100,
+      },
+    ],
+    generator: moon,
   },
 ];
 
