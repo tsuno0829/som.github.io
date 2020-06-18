@@ -430,6 +430,8 @@ function sinData(N) {
   return makePoints(points);
 }
 
+function
+
 function kuraData(N) {
   let points = [];
   for (let i = 0; i < N; i++) {
@@ -588,29 +590,7 @@ function severed_sphere(n_samples) {
   return sequentialColorRainbow(points, colors);
 }
 
-// // from matlab
-// function outlier(N=600, r=20, dist=30, outliers=0.04, noise=5) {
-//   N1 = Math.round(N * (.5 - outliers));
-//   N2 = N1;
-//   N3 = Math.round(N * outliers);
-//   N4 = N - N1 - N2 - N3;
-//   phi1 = rand(N1, 1) * pi;
-//   r1 = sqrt(rand(N1, 1)) * r;
-//   P1 = [-dist + r1.* sin(phi1) r1.* cos(phi1) zeros(N1, 1)];
-//   phi2 = rand(N2, 1) * pi;
-//   r2 = sqrt(rand(N2, 1)) * r;
-//   P2 = [dist - r2.* sin(phi2) r2.* cos(phi2) 3 * ones(N2, 1)];
-
-//   P3 = [rand(N3, 1) * noise dist + rand(N3, 1) * noise 2 * ones(N3, 1)];
-
-//   P4 = [rand(N4, 1) * noise - dist + rand(N4, 1) * noise ones(N4, 1)];
-
-//   data = [P1; P2; P3; P4];
-// }
-
 function two_cluster_with_outlier(n_samples) {
-  // Generating a normally distributed data set for training
-  // X = 0.3 * np.random.randn(100, 2)
   var points = [];
   var n_outliers = Math.floor(n_samples * 0.01);
   var N1 = Math.floor((n_samples - n_outliers) / 2);
