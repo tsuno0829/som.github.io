@@ -41,19 +41,19 @@ var GLOBALS = {
 // }
 
 d3.select("#play_pause").on("click", () => {
-  // 押されたときにplayとpauseのアイコンを切り替える
-  var play_pause = d3.select("#play_pause");
-  var icon;
-  if (play_pause.select("i").node().innerHTML == "pause") {
-    icon = "play_arrow";
-  } else {
-    icon = "pause";
-  }
-  play_pause.select("i").remove();
-  play_pause.append("i").attr("class", "material-icons");
-  play_pause.select("i").node().innerHTML = icon;
-
   if (GLOBALS.playgroundDemo != null) {
+    // 押されたときにplayとpauseのアイコンを切り替える
+    var play_pause = d3.select("#play_pause");
+    var icon;
+    if (play_pause.select("i").node().innerHTML == "pause") {
+      icon = "play_arrow";
+    } else {
+      icon = "pause";
+    }
+    play_pause.select("i").remove();
+    play_pause.append("i").attr("class", "material-icons");
+    play_pause.select("i").node().innerHTML = icon;
+
     // pauseのときスタート，playのときポーズの状態にする
     if (icon == "pause") {
       setRunning(true);
