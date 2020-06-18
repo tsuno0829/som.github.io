@@ -546,6 +546,32 @@ function circles(n_samples) {
   return points;
 }
 
+// from sklearn
+function severed_sphere(n_samples) {
+  var p = [];
+  var t = [];
+  var indices = [];
+  for (let i = 0; i < n_samples; i++) {
+    var x = Math.random() * Math.PI;
+    p.push(Math.random() * (2 * Math.PI - 0.55));
+    t.push(x);
+    indices.push((x < Math.PI - Math.PI / 8) & (x > Math.PI / 8));
+  }
+  var colors = [];
+  var points = [];
+  for (let i = 0; i < indices.length; i++) {
+    var x, y, z;
+    if (indices[i]) {
+      colors.push(p[i]);
+      x = Math.sin(t[i]) * Math.cos(p[i]);
+      y = Math.sin(t[i]) * Math.sin(p[i]);
+      z = Math.cos(t[i]);
+      points.push([x, y, z]);
+    }
+  }
+  return sequentialColorRainbow(points, colors);
+}
+
 var demos = [
   {
     name: "Star",
@@ -1015,6 +1041,19 @@ var demos = [
       },
     ],
     generator: circles,
+  },
+  {
+    name: "severed sphere",
+    description: "severed sphere",
+    options: [
+      {
+        name: "Number of Points",
+        min: 200,
+        max: 1000,
+        start: 500,
+      },
+    ],
+    generator: severed_sphere,
   },
 ];
 
