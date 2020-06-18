@@ -66,6 +66,16 @@ function angleColor(t) {
   return "hsl(" + hue + ",50%,50%)";
 }
 
+function sequentialColorRainbow(points, t) {
+  var colorScale = d3
+    .scaleSequential(d3.interpolateRainbow)
+    .domain([d3.min(t), d3.max(t)]);
+
+  return points.map((d, i) => {
+    return new Point(d, colorScale(t[i]));
+  });
+}
+
 function multiplyScalar(vector, x) {
   return vector.map((val) => val * x);
 }
@@ -455,6 +465,21 @@ function gaussianMixtureCircle(N, num_cluster = 8, scale = 1, std = 0.3) {
     points.push(new Point(point, color));
   }
   return points;
+}
+
+// from sklearn
+function s_curve(n_samples) {
+  var points = [];
+  var t_hist = [];
+  for (let i = 0; i < n_samples; i++) {
+    var t = 3 * Math.PI * (Math.random() - 0.5);
+    var x = Math.sin(t);
+    var y = 2 * Math.random();
+    var z = Math.sign(t) * (Math.cos(t) - 1);
+    points.push([x, y, z]);
+    t_hist.push(t);
+  }
+  return sequentialColorRainbow(points, t_hist);
 }
 
 var demos = [
@@ -887,6 +912,19 @@ var demos = [
       },
     ],
     generator: kuraData,
+  },
+  {
+    name: "S curve",
+    description: "S curve",
+    options: [
+      {
+        name: "Number of Points",
+        min: 100,
+        max: 500,
+        start: 300,
+      },
+    ],
+    generator: s_curve,
   },
 ];
 
