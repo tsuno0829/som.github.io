@@ -588,6 +588,57 @@ function severed_sphere(n_samples) {
   return sequentialColorRainbow(points, colors);
 }
 
+// from matlab
+// function outlier(N=600, r=20, dist=30, outliers=0.04, noise=5) {
+//   N1 = Math.round(N * (.5 - outliers));
+//   N2 = N1;
+//   N3 = Math.round(N * outliers);
+//   N4 = N - N1 - N2 - N3;
+//   phi1 = rand(N1, 1) * pi;
+//   r1 = sqrt(rand(N1, 1)) * r;
+//   P1 = [-dist + r1.* sin(phi1) r1.* cos(phi1) zeros(N1, 1)];
+//   phi2 = rand(N2, 1) * pi;
+//   r2 = sqrt(rand(N2, 1)) * r;
+//   P2 = [dist - r2.* sin(phi2) r2.* cos(phi2) 3 * ones(N2, 1)];
+
+//   P3 = [rand(N3, 1) * noise dist + rand(N3, 1) * noise 2 * ones(N3, 1)];
+
+//   P4 = [rand(N4, 1) * noise - dist + rand(N4, 1) * noise ones(N4, 1)];
+
+//   data = [P1; P2; P3; P4];
+// }
+
+function two_cluster_with_outlier(n_samples) {
+  // Generating a normally distributed data set for training
+  // X = 0.3 * np.random.randn(100, 2)
+  var points = [];
+  var n_outliers = Math.floor(n_samples * 0.01);
+  var N1 = Math.floor((n_samples - n_outliers) / 2);
+  var N2 = n_samples - n_outliers - N1;
+  for (let i = 0; i < n_outliers; i++) {
+    points.push(
+      new Point([Math.random() * 10 - 5, Math.random() * 10 - 5], "#039")
+    );
+  }
+  for (let i = 0; i < N1; i++) {
+    points.push(
+      new Point(
+        [d3.randomNormal(0, 0.5)() + 2, d3.randomNormal(0, 0.5)() + 2],
+        "#6a3"
+      )
+    );
+  }
+  for (let i = 0; i < N2; i++) {
+    points.push(
+      new Point(
+        [d3.randomNormal(0, 0.5)() - 2, d3.randomNormal(0, 0.5)() - 2],
+        "#f90"
+      )
+    );
+  }
+  return points;
+}
+
 var demos = [
   {
     name: "Star",
@@ -644,21 +695,6 @@ var demos = [
       },
     ],
     generator: linkedClusters,
-  },
-  {
-    name: "Grid",
-    description:
-      "A square grid with equal spacing between points. " +
-      "Try convergence at different sizes.",
-    options: [
-      {
-        name: "Points Per Side",
-        min: 2,
-        max: 20,
-        start: 10,
-      },
-    ],
-    generator: gridData,
   },
   {
     name: "Two Clusters",
@@ -729,40 +765,17 @@ var demos = [
     generator: twoDifferentClustersData,
   },
   {
-    name: "Two Long Linear Clusters",
-    description:
-      "Two sets of points, arranged in parallel lines that " +
-      "are close to each other. Note curvature of lines.",
+    name: "two_cluster_with_outlier",
+    description: "two_cluster_with_outlier",
     options: [
       {
-        name: "Points Per Cluster",
-        min: 1,
-        max: 100,
-        start: 50,
+        name: "Number of Points",
+        min: 100,
+        max: 500,
+        start: 200,
       },
     ],
-    generator: longClusterData,
-  },
-  {
-    name: "Cluster In Cluster",
-    description:
-      "A dense, tight cluster inside of a wide, sparse cluster. " +
-      "Perplexity makes a big difference here.",
-    options: [
-      {
-        name: "Points Per Cluster",
-        min: 1,
-        max: 100,
-        start: 50,
-      },
-      {
-        name: "Dimensions",
-        min: 2,
-        max: 100,
-        start: 2,
-      },
-    ],
-    generator: subsetClustersData,
+    generator: two_cluster_with_outlier,
   },
   {
     name: "Circle (Evenly Spaced)",
@@ -821,6 +834,68 @@ var demos = [
     generator: gaussianMixtureCircle,
   },
   {
+    name: "circles",
+    description: "circles",
+    options: [
+      {
+        name: "Number of Points",
+        min: 50,
+        max: 200,
+        start: 100,
+      },
+    ],
+    generator: circles,
+  },
+  {
+    name: "moon",
+    description: "moon",
+    options: [
+      {
+        name: "Number of Points",
+        min: 50,
+        max: 200,
+        start: 100,
+      },
+    ],
+    generator: moon,
+  },
+  {
+    name: "Two Long Linear Clusters",
+    description:
+      "Two sets of points, arranged in parallel lines that " +
+      "are close to each other. Note curvature of lines.",
+    options: [
+      {
+        name: "Points Per Cluster",
+        min: 1,
+        max: 100,
+        start: 50,
+      },
+    ],
+    generator: longClusterData,
+  },
+  {
+    name: "Cluster In Cluster",
+    description:
+      "A dense, tight cluster inside of a wide, sparse cluster. " +
+      "Perplexity makes a big difference here.",
+    options: [
+      {
+        name: "Points Per Cluster",
+        min: 1,
+        max: 100,
+        start: 50,
+      },
+      {
+        name: "Dimensions",
+        min: 2,
+        max: 100,
+        start: 2,
+      },
+    ],
+    generator: subsetClustersData,
+  },
+  {
     name: "Gaussian Cloud",
     description:
       "Points in a unit Gaussian distribution. " +
@@ -862,6 +937,19 @@ var demos = [
       },
     ],
     generator: longGaussianData,
+  },
+  {
+    name: "sine curve",
+    description: "sine curve",
+    options: [
+      {
+        name: "Number of Points",
+        min: 2,
+        max: 200,
+        start: 100,
+      },
+    ],
+    generator: sinData,
   },
   {
     name: "Trefoil Knot",
@@ -994,17 +1082,19 @@ var demos = [
     generator: cubeData,
   },
   {
-    name: "sine curve",
-    description: "sine curve",
+    name: "Grid",
+    description:
+      "A square grid with equal spacing between points. " +
+      "Try convergence at different sizes.",
     options: [
       {
-        name: "Number of Points",
+        name: "Points Per Side",
         min: 2,
-        max: 200,
-        start: 100,
+        max: 20,
+        start: 10,
       },
     ],
-    generator: sinData,
+    generator: gridData,
   },
   {
     name: "kura data",
@@ -1044,32 +1134,6 @@ var demos = [
       },
     ],
     generator: swiss_roll,
-  },
-  {
-    name: "moon",
-    description: "moon",
-    options: [
-      {
-        name: "Number of Points",
-        min: 50,
-        max: 200,
-        start: 100,
-      },
-    ],
-    generator: moon,
-  },
-  {
-    name: "circles",
-    description: "circles",
-    options: [
-      {
-        name: "Number of Points",
-        min: 50,
-        max: 200,
-        start: 100,
-      },
-    ],
-    generator: circles,
   },
   {
     name: "severed sphere",
