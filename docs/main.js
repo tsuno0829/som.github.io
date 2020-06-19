@@ -92,7 +92,6 @@ d3.select("#visibility_on_off").on("click", () => {
         .attr("id", "svg_observation")
         .attr("class", "a");
       // visualize_Z_Y
-      // console.log(GLOBALS.playgroundDemo);
       GLOBALS.playgroundDemo.visualize(true);
       // visibility iconをonに変更
       var visi = d3.select("#visibility_on_off");
@@ -110,11 +109,9 @@ function updateParameters() {
   // GLOBALS.state.perplexity = perplexitySlider.value;
   // GLOBALS.state.epsilon = epsilonSlider.value;
   GLOBALS.state.seed = Math.random();
-  d3.select("#share1")
+  d3.select("#share")
     .style("display", "")
     .attr("href", "#" + generateHash());
-
-  // runState();
 }
 
 function generateHash() {
@@ -130,7 +127,7 @@ function generateHash() {
 }
 
 // URL button
-d3.select("#share1").on("click", () => {
+d3.select("#share").on("click", () => {
   updateParameters();
 });
 
