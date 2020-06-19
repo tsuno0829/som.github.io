@@ -207,6 +207,12 @@
       letter-spacing: normal; /* 文字間を元に戻す */
       white-space: normal; /* 自動で折り返し(元に戻す) */
     }
+    #svg_latent.a::after {
+      content: aaa;
+    }
+    .a {
+      text-align: center;
+    }
     .no-select {
       user-select: none;
     }
@@ -215,12 +221,8 @@
 
 
     <div id="figure">
-      <div class=a id="svg_latent"></div>
-      <div class=a id="svg_observation"></div>
-    </div>
-    <div>
-      <pre class=a>  latent space</p>
-      <pre class=a>  observation space</p>
+      <div class=a id="svg_latent">latent space</div>
+      <div class=a id="svg_observation">observation space</div>
     </div>
 
     <script type="text/javascript" src="main.js"></script>
