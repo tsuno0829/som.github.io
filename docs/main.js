@@ -103,12 +103,29 @@ d3.select("#visibility_on_off").on("click", () => {
 });
 
 function updateParameters() {
-  // GLOBALS.state.demoParams = optionControls.map(function (s) {
-  // return s.value;
-  // });
-  // GLOBALS.state.perplexity = perplexitySlider.value;
-  // GLOBALS.state.epsilon = epsilonSlider.value;
-  GLOBALS.state.seed = Math.random();
+  if (GLOBALS.playgroundDemo != null) {
+    GLOBALS.state.model = GLOBALS.selected_model;
+    GLOBALS.state.demo_id = GLOBALS.selected_id;
+    GLOBALS.state.data = document.getElementById("data-slider").value;
+    if (demos[GLOBALS.selected_id].options[1]) {
+      GLOBALS.state.dataDim = document.getElementById("dataDim-slider").value;
+    }
+    if (GLOBALS.selected_model == "SOM") {
+      GLOBALS.state.node_reso = document.getElementById("node-slider").value;
+      GLOBALS.state.ldim = document.getElementById("ldim-slider").value;
+      GLOBALS.state.sigmax = document.getElementById("sigmax-slider").value;
+      GLOBALS.state.sigmin = document.getElementById("sigmin-slider").value;
+      GLOBALS.state.epoch = document.getElementById("epoch-slider").value;
+      GLOBALS.state.tau = document.getElementById("tau-slider").value;
+    } else {
+      GLOBALS.state.ldim = document.getElementById("ldim-slider").value;
+      GLOBALS.state.epoch = document.getElementById("epoch-slider").value;
+      GLOBALS.state.eta = document.getElementById("eta-slider").value;
+      GLOBALS.state.mapping_reso = document.getElementById(
+        "mapping-resolution-slider"
+      ).value;
+    }
+  }
   d3.select("#share")
     .style("display", "")
     .attr("href", "#" + generateHash());
@@ -126,7 +143,7 @@ function generateHash() {
   return stringify(GLOBALS.state);
 }
 
-// URL button
+// share button
 d3.select("#share").on("click", () => {
   updateParameters();
 });
@@ -429,6 +446,8 @@ function main(X) {
   if (GLOBALS.playgroundDemo != null) {
     // 前回のdemoを削除
     GLOBALS.playgroundDemo.destroy();
+    // 前回の状態を破棄（要検討）
+    GLOBALS.state = {};
     // 前回のdemoの観測空間の描画を削除
     d3.select("#figure").select("#svg_observation").remove();
     d3.select("#figure")
