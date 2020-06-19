@@ -408,6 +408,7 @@ function main(X) {
       .attr("id", "svg_observation")
       .classed("a", true);
   }
+
   var format = d3.format(",");
   const [
     N,
