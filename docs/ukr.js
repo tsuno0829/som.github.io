@@ -102,7 +102,7 @@ UnsupervisedKernelRegression.prototype = {
         let t1 = [];
         let t2 = [];
         for (let d = 0; d < Zdim; d++) t1.push(Z[i].coords[d] - Z[j].coords[d]);
-        for (let d = 0; d < Xdim; d++) t2.push(X[j].coords[d] - Y[i].coords[d]);
+        for (let d = 0; d < Xdim; d++) t2.push(X[i].coords[d] - Y[j].coords[d]);
         tmp1.push(t1);
         tmp2.push(t2);
       }
