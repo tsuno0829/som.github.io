@@ -147,7 +147,10 @@ d3.select("#share").on("click", () => {
   // URLに最新のパラメータを反映する
   updateParameters();
   // URLをクリップボードにコピーする
-  navigator.clipboard.writeText(location.href);
+  setTimeout(async () => {
+    await navigator.clipboard.writeText(location.href);
+    console.log("copied");
+  }, 100);
 });
 
 // Create menu of possible demos.
