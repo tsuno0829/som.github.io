@@ -398,13 +398,16 @@ function demoMaker(
 }
 
 function main(X) {
-  if (GLOBALS.playgroundDemo != null) GLOBALS.playgroundDemo.destroy();
-  d3.select("#figure").select("#svg_observation").remove();
-  d3.select("#figure")
-    .append("div")
-    .attr("id", "svg_observation")
-    .classed("a", true);
-
+  if (GLOBALS.playgroundDemo != null) {
+    // 前回のdemoを削除
+    GLOBALS.playgroundDemo.destroy();
+    // 前回のdemoの観測空間の描画を削除
+    d3.select("#figure").select("#svg_observation").remove();
+    d3.select("#figure")
+      .append("div")
+      .attr("id", "svg_observation")
+      .classed("a", true);
+  }
   var format = d3.format(",");
   const [
     N,
