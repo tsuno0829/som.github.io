@@ -103,16 +103,36 @@ d3.select("#visibility_on_off").on("click", () => {
   }
 });
 
+function updateParameters() {
+  // GLOBALS.state.demoParams = optionControls.map(function (s) {
+  // return s.value;
+  // });
+  // GLOBALS.state.perplexity = perplexitySlider.value;
+  // GLOBALS.state.epsilon = epsilonSlider.value;
+  GLOBALS.state.seed = Math.random();
+  d3.select("#share1")
+    .style("display", "")
+    .attr("href", "#" + generateHash());
+
+  // runState();
+}
+
+function generateHash() {
+  function stringify(map) {
+    var s = "";
+    for (key in map) {
+      s += "&" + key + "=" + map[key];
+    }
+    return s.substring(1);
+  }
+  //window.location.hash = stringify(GLOBALS.state);
+  return stringify(GLOBALS.state);
+}
+
 // URL button
-d3.select("#share").on("click", () => {
-  location.href = location.host + "#aaa";
-  var urlParams = location.hash;
-  console.log(urlParams);
-  // location.href;
+d3.select("#share1").on("click", () => {
+  updateParameters();
 });
-// d3.select("#share")
-//   .style("display", "")
-//   .attr("href", "#" + "aaa");
 
 // Create menu of possible demos.
 var menuDiv = d3.select("#data-menu");
