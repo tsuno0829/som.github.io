@@ -169,6 +169,10 @@ var dataMenus = menuDiv
     play_pause.select("i").remove();
     play_pause.append("i").attr("class", "material-icons");
     play_pause.select("i").node().innerHTML = icon;
+    // demos[i]をselectedに変更する
+    d3.selectAll(".demo-data").classed("selected", (_, j) => {
+      return i == j;
+    });
     // demoの設定を行う
     GLOBALS.selected_id = i;
     var demo = demos[i];
