@@ -104,9 +104,15 @@ d3.select("#visibility_on_off").on("click", () => {
 });
 
 // URL button
-d3.select("#share")
-  .style("display", "")
-  .attr("href", "#" + "aaa");
+d3.select("#share").on("click", () => {
+  location.href = location.host + "#aaa";
+  var urlParams = location.hash;
+  console.log(urlParams);
+  // location.href;
+});
+// d3.select("#share")
+//   .style("display", "")
+//   .attr("href", "#" + "aaa");
 
 // Create menu of possible demos.
 var menuDiv = d3.select("#data-menu");
