@@ -139,13 +139,15 @@ function generateHash() {
     }
     return s.substring(1);
   }
-  //window.location.hash = stringify(GLOBALS.state);
   return stringify(GLOBALS.state);
 }
 
-// share button
+// share-button
 d3.select("#share").on("click", () => {
+  // URLに最新のパラメータを反映する
   updateParameters();
+  // URLをクリップボードにコピーする
+  navigator.clipboard.writeText(location.href);
 });
 
 // Create menu of possible demos.
