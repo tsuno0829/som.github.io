@@ -15,30 +15,8 @@ var GLOBALS = {
   epsilonSlider: null,
   selected_model: "SOM",
   selected_id: 0,
+  visibility: "off",
 };
-
-// function showDemo(index, initializeFromState) {
-//   GLOBALS.state.demo = index;
-//   demo = demos[index];
-//   // Show description of demo data.
-//   //document.querySelector('#data-description span').textContent = demo.description;
-//   d3.select("#data-description span").text(demo.description);
-//   // Create UI for the demo data options.
-//   var dataOptionsArea = document.getElementById("data-options");
-//   dataOptionsArea.innerHTML = "";
-//   optionControls = demo.options.map(function (option, i) {
-//     var value = initializeFromState
-//       ? GLOBALS.state.demoParams[i]
-//       : option.start;
-//     return makeSlider(
-//       dataOptionsArea,
-//       option.name,
-//       option.min,
-//       option.max,
-//       value
-//     );
-//   });
-// }
 
 d3.select("#play_pause").on("click", () => {
   var play_pause = d3.select("#play_pause");
@@ -88,6 +66,17 @@ d3.select("#refresh").on("click", (d, i) => {
     if (demo.options[3]) params.push(demo.options[3].start);
     var points = demo.generator.apply(null, params);
     main(points);
+  }
+});
+
+d3.select("#visibility_on_off").on("click", (d, i) => {
+  if (GLOBALS.playgroundDemo != null) {
+    if (GLOBALS.visibility == "on") {
+      GLOBALS.visibility = "off";
+      d3.select("#svg_observation").remove();
+    } else {
+      GLOBALS.visibility = "on";
+    }
   }
 });
 
@@ -316,22 +305,32 @@ function demoMaker(
       stepCb(++step);
     }
 
+    // visualize
     // SOM
     if (GLOBALS.selected_model == "SOM") {
       visualize_latent_space(Z, Zeta, width, height, margin);
       // Dim=1,2,3のときだけ観測空間を表示
-      if (Dim == 3) plot_f_withPlotly(X, Y, width, height, margin, Zdim == 2);
-      else if (Dim == 1 || Dim == 2)
-        visualize_observation_space(X, Y, width, height, margin, Zdim == 2);
+      if (GLOBALS.visibility == "on") {
+        // d3.select("#figure").select("#svg_observation").style.display = "";
+        d3.select("#figure").select("#svg_observation").remove();
+        var observation = d3.select("#figure");
+        observation
+          .append("div")
+          .attr("id", "svg_observation")
+          .attr("class", "a");
+        if (Dim == 3) plot_f_withPlotly(X, Y, width, height, margin, Zdim == 2);
+        else if (Dim == 1 || Dim == 2)
+          visualize_observation_space(X, Y, width, height, margin, Zdim == 2);
+      }
     } else {
       // UKR
       visualize_latent_space(Z, Zeta, width, height, margin);
-      if (Dim < 4) {
+      if (Dim < 4 && GLOBALS.visibility == "on") {
         var newY = ukr.generate_new_mapping(X, Z, mapping_resolution);
         // Dim=1,2,3のときだけ観測空間を表示
-        if (Dim == 3)
+        if (Dim == 3) {
           plot_f_withPlotly(X, newY, width, height, margin, Zdim == 2);
-        else if (Dim == 1 || Dim == 2)
+        } else if (Dim == 1 || Dim == 2)
           visualize_observation_space(
             X,
             newY,
@@ -340,6 +339,8 @@ function demoMaker(
             margin,
             Zdim == 2
           );
+      } else {
+        d3.select("#figure").select("#svg_observation").style.display = "none";
       }
     }
 
@@ -408,6 +409,20 @@ function main(X) {
   var width = 350;
   var height = 350;
   var margin = { top: 30, bottom: 60, right: 30, left: 60 };
+
+  // Dimが3以下のとき，visibilityをon，iconをvisibilityに設定する．
+  if (Dim < 4) {
+    GLOBALS.visibility = "on";
+    var visi = d3.select("#visibility_on_off");
+    document.getElementById("visibility_on_off").style.display = "";
+    var icon = "visibility_off";
+    visi.select("i").remove();
+    visi.append("i").attr("class", "material-icons");
+    visi.select("i").node().innerHTML = icon;
+  } else {
+    GLOBALS.visibility = "off";
+    document.getElementById("visibility_on_off").style.display = "none";
+  }
 
   GLOBALS.playgroundDemo = demoMaker(
     X,
