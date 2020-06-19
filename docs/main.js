@@ -16,6 +16,8 @@ var GLOBALS = {
   selected_model: "SOM",
   selected_id: 0,
   visibility: "off",
+  current_Z: null,
+  current_Y: null,
 };
 
 d3.select("#play_pause").on("click", () => {
@@ -69,13 +71,34 @@ d3.select("#refresh").on("click", (d, i) => {
   }
 });
 
-d3.select("#visibility_on_off").on("click", (d, i) => {
+d3.select("#visibility_on_off").on("click", () => {
   if (GLOBALS.playgroundDemo != null) {
     if (GLOBALS.visibility == "on") {
       GLOBALS.visibility = "off";
+      // observation spaceを削除
       d3.select("#svg_observation").remove();
+      // visibility iconをoffに変更
+      var visi = d3.select("#visibility_on_off");
+      visi.select("i").remove();
+      visi.append("i").attr("class", "material-icons");
+      visi.select("i").node().innerHTML = "visibility";
     } else {
       GLOBALS.visibility = "on";
+      // observation spaceを作成
+      d3.select("#figure").select("#svg_observation").remove();
+      var observation_space = d3.select("#figure");
+      observation_space
+        .append("div")
+        .attr("id", "svg_observation")
+        .attr("class", "a");
+      // visualize_Z_Y
+      // console.log(GLOBALS.playgroundDemo);
+      GLOBALS.playgroundDemo.visualize(true);
+      // visibility iconをonに変更
+      var visi = d3.select("#visibility_on_off");
+      visi.select("i").remove();
+      visi.append("i").attr("class", "material-icons");
+      visi.select("i").node().innerHTML = "visibility_off";
     }
   }
 });
@@ -300,24 +323,32 @@ function demoMaker(
         [Y, h, H] = ukr.estimate_f(X, Y, Z);
         Z = ukr.estimate_z(X, Y, Z, h, H, eta);
       }
-      // step++;
+      GLOBALS.current_Z = Z;
+      GLOBALS.current_Y = Y;
       //inform the caller about the current step
       stepCb(++step);
     }
 
-    // visualize
+    // visualize Z and Y(mapping)
+    visualize_Z_Y();
+
+    //control the loop.
+    var timeout = timescale(step);
+    setTimeout(function () {
+      frameId = window.requestAnimationFrame(iterate);
+    }, timeout);
+  }
+
+  function visualize_Z_Y(visibility_on = false) {
+    if (visibility_on) {
+      Z = GLOBALS.current_Z;
+      Y = GLOBALS.current_Y;
+    }
     // SOM
     if (GLOBALS.selected_model == "SOM") {
       visualize_latent_space(Z, Zeta, width, height, margin);
       // Dim=1,2,3のときだけ観測空間を表示
       if (GLOBALS.visibility == "on") {
-        // d3.select("#figure").select("#svg_observation").style.display = "";
-        d3.select("#figure").select("#svg_observation").remove();
-        var observation = d3.select("#figure");
-        observation
-          .append("div")
-          .attr("id", "svg_observation")
-          .attr("class", "a");
         if (Dim == 3) plot_f_withPlotly(X, Y, width, height, margin, Zdim == 2);
         else if (Dim == 1 || Dim == 2)
           visualize_observation_space(X, Y, width, height, margin, Zdim == 2);
@@ -339,16 +370,8 @@ function demoMaker(
             margin,
             Zdim == 2
           );
-      } else {
-        d3.select("#figure").select("#svg_observation").style.display = "none";
       }
     }
-
-    //control the loop.
-    var timeout = timescale(step);
-    setTimeout(function () {
-      frameId = window.requestAnimationFrame(iterate);
-    }, timeout);
   }
 
   demo.pause = function () {
@@ -368,6 +391,8 @@ function demoMaker(
     demo.pause();
     delete demo;
   };
+  demo.visualize = visualize_Z_Y;
+
   iterate();
   return demo;
 }
@@ -410,12 +435,12 @@ function main(X) {
   var height = 350;
   var margin = { top: 30, bottom: 60, right: 30, left: 60 };
 
-  // Dimが3以下のとき，visibilityをon，iconをvisibilityに設定する．
+  // Dimが3以下のとき，観測データは表示せずにvisibility iconのみ表示する．
   if (Dim < 4) {
-    GLOBALS.visibility = "on";
+    GLOBALS.visibility = "off";
     var visi = d3.select("#visibility_on_off");
     document.getElementById("visibility_on_off").style.display = "";
-    var icon = "visibility_off";
+    var icon = "visibility";
     visi.select("i").remove();
     visi.append("i").attr("class", "material-icons");
     visi.select("i").node().innerHTML = icon;
