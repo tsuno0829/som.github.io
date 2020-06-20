@@ -635,6 +635,7 @@ window.onload = () => {
     }
     GLOBALS.selected_model = this.id;
     // 使用するmodelのパラメータを表示するHTMLに切り替える
+    console.log("OH");
     if (this.id == "SOM") {
       document.getElementById("resolution-nodes").style.display = "";
       document.getElementById("sigmax").style.display = "";
@@ -669,6 +670,7 @@ window.onload = () => {
       var points = demo.generator.apply(null, params);
       main(points);
     }
+    console.log("HELLO");
   }
   document.getElementById("SOM").addEventListener("change", model_select);
   document.getElementById("UKR").addEventListener("change", model_select);
