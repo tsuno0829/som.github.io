@@ -467,8 +467,6 @@ function main(X) {
   if (GLOBALS.selected_model == "SOM") {
     // document.getElementById("model_params").value = "a";
     var x = d3.select("model-params");
-    console.log(x);
-    console.log(x.node());
   }
 
   var format = d3.format(",");
@@ -545,17 +543,6 @@ function main(X) {
     }
   );
 }
-
-// try {
-//   var demo = demos[0];
-//   var params = [demo.options[0].start];
-//   if (demo.options[1]) params.push(demo.options[1].start);
-//   var points = demo.generator.apply(null, params);
-//   main(points); // 起動時の表示
-//   console.log(demos);
-// } catch (error) {
-//   console.log("ERROR");
-// }
 
 window.onload = () => {
   const current_data = document.getElementById("current-data");
@@ -685,4 +672,64 @@ window.onload = () => {
   }
   document.getElementById("SOM").addEventListener("change", model_select);
   document.getElementById("UKR").addEventListener("change", model_select);
+
+  // 起動時にdemoを再生する
+  // playからpauseアイコンに切り替える
+  var play_pause = d3.select("#play_pause");
+  var icon = "pause";
+  play_pause.select("i").remove();
+  play_pause.append("i").attr("class", "material-icons");
+  play_pause.select("i").node().innerHTML = icon;
+  // demoの設定を行う
+  var demo = demos[GLOBALS.selected_id];
+  data_slider = document.getElementById("data-slider");
+  data_slider.min = demo.options[0].min;
+  data_slider.max = demo.options[0].max;
+  data_slider.defaultValue = demo.options[0].start;
+  data_slider.value = demo.options[0].start;
+  var params = [demo.options[0].start];
+  if (demo.options[1]) params.push(demo.options[1].start);
+  if (demo.options[2]) params.push(demo.options[2].start);
+  if (demo.options[3]) params.push(demo.options[3].start);
+  var data_Dim = d3
+    .select("#data-option")
+    .select(".menu")
+    .select("#Dimensions");
+  data_Dim.selectAll("td").remove();
+  if (demo.options[1]) {
+    params.push(demo.options[1].start);
+    data_Dim.append("td").append("span").attr("id", "current-dataDim");
+    data_Dim
+      .append("td")
+      .append("input")
+      .attr("id", "dataDim-slider")
+      .attr("type", "range")
+      .attr("min", demo.options[1].min)
+      .attr("max", demo.options[1].max)
+      .attr("defaultValue", demo.options[1].start)
+      .attr("value", demo.options[1].start)
+      .on("input", () => {
+        setRunning(false);
+        // パラメータが変更されたときに，現在の計算を中止して新規パラメータで再計算する
+        d3.select("#current-dataDim").node().innerHTML =
+          "dimension of points " + d3.select("#dataDim-slider").node().value;
+        // demoの設定
+        var demo = demos[GLOBALS.selected_id];
+        var params = [parseInt(document.getElementById("data-slider").value)];
+        if (demo.options[1])
+          params.push(d3.select("#dataDim-slider").node().value);
+        if (demo.options[2]) params.push(demo.options[2].start);
+        if (demo.options[3]) params.push(demo.options[3].start);
+        var points = demo.generator.apply(null, params);
+        main(points);
+      });
+  }
+  // demoの設定
+  var demo = demos[GLOBALS.selected_id];
+  var params = [parseInt(document.getElementById("data-slider").value)];
+  if (demo.options[1]) params.push(d3.select("#dataDim-slider").node().value);
+  if (demo.options[2]) params.push(demo.options[2].start);
+  if (demo.options[3]) params.push(demo.options[3].start);
+  var points = demo.generator.apply(null, params);
+  main(points);
 };
