@@ -13,7 +13,7 @@ var GLOBALS = {
   showDemo: null,
   perplexitySlider: null,
   epsilonSlider: null,
-  selected_model: "SOM",
+  selected_model: "UKR",
   selected_id: 0,
   visibility: "off",
   current_Z: null,
