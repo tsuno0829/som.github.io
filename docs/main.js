@@ -521,8 +521,8 @@ window.onload = () => {
     if (slider_key == "epoch") {
       GLOBALS.stepLimit = e.target.value;
     }
-    console.log(slider_key);
-    console.log(e.target.value);
+    // console.log(slider_key);
+    // console.log(e.target.value);
     GLOBALS.state[slider_key] = e.target.value;
     c.innerText = e.target.value;
     if (GLOBALS.playgroundDemo != null) {
@@ -732,6 +732,10 @@ window.onload = () => {
     d3.select("#current-dataDim").node().innerHTML =
       "dimension of data " + GLOBALS.state.demoParams[1];
   }
+  // demos[GLOBALS.selected_id]をselectedに変更する
+  d3.selectAll(".demo-data").classed("selected", (_, j) => {
+    return GLOBALS.selected_id == j;
+  });
   // sliderのinnerTextにparamsを反映させる
   current_data.innerText = GLOBALS.state.demoParams[0];
   current_epoch.innerText = GLOBALS.state.epoch;
