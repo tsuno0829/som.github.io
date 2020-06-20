@@ -157,16 +157,71 @@ d3.select("#share").on("click", () => {
   }, 100);
 });
 
+function makeDemoParamsSlider() {
+  var demoParamsName = "demo-params";
+  if (GLOBALS.playgroundDemo != null) {
+    // 前回のdemo-paramsスライダーをすべて消す
+    for (let i = 0; i < 5; i++) {
+      var name = "#" + demoParamsName + String(i);
+      d3.select(name).selectAll(td).remove();
+    }
+  }
+  var demo = demos[GLOBALS.selected_id];
+  // 引数が６個以上ある場合は，エラーとして処理する
+  if (demo.options.length > 5)
+    throw new Error("Not implimented Error (demo-options.length > 5)");
+  // demo.option[i]のsliderの設定を行う
+  for (let i = 0; i < demo.options.length; i++) {
+    var x = d3.select("#" + demoParamsName + String(i));
+    // console.log(demo.options[i]);
+    var y = "current-" + String(demo.options[i].name.split(" ").join(""));
+    var z = demo.options[i];
+    // 1つ目のtdタグには，スライダーの現在値を表示する
+    x.append("td").append("span").attr("id", y);
+    // 起動初回時かつ，URLにhashでパラメータが指定されている時
+    if (GLOBALS.playgroundDemo == null && location.hash != "") {
+      // 事前にGLOBALS.state.demoParamsにURLのhashがあるとすると
+      d3.select("#" + y).node().innerText =
+        z.name + " " + GLOBALS.state.demoParams[i];
+    } else {
+      // 起動初回でURLにhashがないとき，あるいは既にdemoが行われているとき
+      d3.select("#" + y).node().innerText = z.name + " " + z.start;
+    }
+    // console.log(d3.select("#" + y).node());
+    // 2つ目のtdタグには，range sliderを生成する
+    x.append("td")
+      .append("input")
+      .attr("id", y + "-slider")
+      .attr("type", "range")
+      .attr("min", z.min)
+      .attr("max", z.max)
+      .attr("defaultValue", GLOBALS.state.demoParams[i])
+      .attr("value", GLOBALS.state.demoParams[i])
+      .on("input", () => {
+        // スライダーの値が変更されたときに，GLOBALS.stateに値を反映
+        // して，値を1つめのtdタグのinnerTextに更新する
+        GLOBALS.state.demoParams[i] = this.value;
+        d3.select("#" + y).node().innerText = z.name + " " + this.value;
+        // スライダーが変化したときに更新後のdemoを再生する
+        var params = [];
+        for (let j = 0; j < demo.params.length; j++) {
+          params.push(d3.select(y + "-slider").value);
+        }
+        var points = demo.generator.apply(null, params);
+        main(points);
+      });
+  }
+}
+
 // Create menu of possible demos.
 var menuDiv = d3.select("#data-menu");
-
 var dataMenus = menuDiv
   .selectAll(".demo-data")
   .data(demos)
   .enter()
   .append("div")
   .classed("demo-data", true)
-  .on("click", function (d, i) {
+  .on("click", function (_, i) {
     // playからpauseアイコンに切り替える
     var play_pause = d3.select("#play_pause");
     var icon = "pause";
@@ -687,6 +742,9 @@ window.onload = () => {
   // URLにhashがついていない場合は，用意しておいたデモを再生する
   // hashがついている場合は，そのhash通りのパラメータでデモを再生する
   setStateFromLocationHash();
+
+  makeDemoParamsSlider();
+
   // demoの設定を行う
   var demo = demos[GLOBALS.selected_id];
   // demoのoptionの反映する（１）
