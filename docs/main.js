@@ -248,44 +248,6 @@ dataMenus.append("span").text(function (d) {
   return d.name;
 });
 
-// function init(rtn = false) {
-//   const data = parseInt(document.getElementById("data-slider").value);
-//   const node = parseInt(document.getElementById("node-slider").value);
-//   const ldim = parseInt(document.getElementById("ldim-slider").value);
-//   const sigmax = parseFloat(document.getElementById("sigmax-slider").value);
-//   const sigmin = parseFloat(document.getElementById("sigmin-slider").value);
-//   // const epoch = parseFloat(document.getElementById("epoch-slider").value);
-//   const tau = parseInt(document.getElementById("tau-slider").value);
-//   // const eta = parseFloat(document.getElementById("eta-slider").value);
-//   const eta = GLOBALS.state.eta;
-//   const mapping_resolution = parseInt(
-//     document.getElementById("mapping-resolution-slider").value
-//   );
-//   document.getElementById("current-data").innerHTML = data;
-//   document.getElementById("current-node").innerHTML = node;
-//   document.getElementById("current-ldim").innerHTML = ldim;
-//   document.getElementById("current-sigmax").innerHTML = sigmax;
-//   document.getElementById("current-sigmin").innerHTML = sigmin;
-//   document.getElementById("current-epoch").innerHTML = GLOBALS.stepLimit;
-//   document.getElementById("current-tau").innerHTML = tau;
-//   document.getElementById("current-eta").innerHTML = eta;
-//   document.getElementById(
-//     "current-mapping-resolution"
-//   ).innerHTML = mapping_resolution;
-//   if (rtn)
-//     return [
-//       data,
-//       node,
-//       ldim,
-//       sigmax,
-//       sigmin,
-//       // epoch,
-//       tau,
-//       eta,
-//       mapping_resolution,
-//     ];
-// }
-
 function initMatrix(n, dim) {
   let points = [];
   if (dim == 1) {
@@ -478,18 +440,6 @@ function main(X) {
     var x = d3.select("model-params");
   }
 
-  // const [
-  //   N,
-  //   K,
-  //   ldim,
-  //   sigmax,
-  //   sigmin,
-  //   // nb_epoch,
-  //   tau,
-  //   eta,
-  //   mapping_resolution,
-  // ] = init((rtn = true));
-
   const N = parseInt(document.getElementById("data-slider").value);
   const K = parseInt(document.getElementById("node-slider").value);
   const ldim = parseInt(document.getElementById("ldim-slider").value);
@@ -502,17 +452,6 @@ function main(X) {
   const mapping_resolution = parseInt(
     document.getElementById("mapping-resolution-slider").value
   );
-  // document.getElementById("current-data").innerHTML = data;
-  // document.getElementById("current-node").innerHTML = node;
-  // document.getElementById("current-ldim").innerHTML = ldim;
-  // document.getElementById("current-sigmax").innerHTML = sigmax;
-  // document.getElementById("current-sigmin").innerHTML = sigmin;
-  // document.getElementById("current-epoch").innerHTML = GLOBALS.stepLimit;
-  // document.getElementById("current-tau").innerHTML = tau;
-  // document.getElementById("current-eta").innerHTML = eta;
-  // document.getElementById(
-  //   "current-mapping-resolution"
-  // ).innerHTML = mapping_resolution;
 
   Dim = X[0].coords.length;
   Zdim = ldim;
@@ -579,6 +518,9 @@ window.onload = () => {
   );
   const setCurrentValue = (c) => (e) => {
     var slider_key = e.target.id.split("-")[0];
+    if (slider_key == "epoch") {
+      GLOBALS.stepLimit = e.target.value;
+    }
     console.log(slider_key);
     console.log(e.target.value);
     GLOBALS.state[slider_key] = e.target.value;
@@ -602,28 +544,7 @@ window.onload = () => {
       main(points);
     }
   };
-  const setCurrentEpoch = (c) => (e) => {
-    c.innerText = e.target.value;
-    GLOBALS.stepLimit = e.target.value;
-    GLOBALS.state.epoch = e.target.value;
-    if (GLOBALS.playgroundDemo != null) {
-      setRunning(false);
-      // playからpauseアイコンに切り替える
-      var play_pause = d3.select("#play_pause");
-      var icon = "pause";
-      play_pause.select("i").remove();
-      play_pause.append("i").attr("class", "material-icons");
-      play_pause.select("i").node().innerHTML = icon;
-      // demoの設定を行う
-      var demo = demos[GLOBALS.selected_id];
-      var params = [parseInt(document.getElementById("data-slider").value)];
-      if (demo.options[1]) params.push(demo.options[1].start);
-      if (demo.options[2]) params.push(demo.options[2].start);
-      if (demo.options[3]) params.push(demo.options[3].start);
-      var points = demo.generator.apply(null, params);
-      main(points);
-    }
-  };
+
   document
     .getElementById("data-slider")
     .addEventListener("input", setCurrentValue(current_data));
@@ -641,7 +562,7 @@ window.onload = () => {
     .addEventListener("input", setCurrentValue(current_sigmin));
   document
     .getElementById("epoch-slider")
-    .addEventListener("input", setCurrentEpoch(current_epoch));
+    .addEventListener("input", setCurrentValue(current_epoch));
   document
     .getElementById("tau-slider")
     .addEventListener("input", setCurrentValue(current_tau));
@@ -811,13 +732,11 @@ window.onload = () => {
     d3.select("#current-dataDim").node().innerHTML =
       "dimension of data " + GLOBALS.state.demoParams[1];
   }
-  // modelのparamsを反映させる
-  // console.log(current_epoch);
-  // console.log(GLOBALS.state.epoch);
-  // current_epoch.innerHTML = String(GLOBALS.state.epoch);
-  // current_epoch.innerText = String(GLOBALS.state.epoch);
-  // current_epoch.value = GLOBALS.state.epoch;
-  // current_epoch.defaultValue = GLOBALS.state.epoch;
+  // sliderのinnerTextにparamsを反映させる
+  current_data.innerText = GLOBALS.state.demoParams[0];
+  current_epoch.innerText = GLOBALS.state.epoch;
+  current_eta.innerText = GLOBALS.state.eta;
+  current_mapping_resolution.innerText = GLOBALS.state.mapping_reso;
   // UKR
 
   // demoの設定
