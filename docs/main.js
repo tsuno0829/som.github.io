@@ -99,6 +99,7 @@ d3.select("#visibility_on_off").on("click", () => {
 
 function updateParameters() {
   if (GLOBALS.playgroundDemo != null) {
+    console.log(GLOBALS);
     GLOBALS.state.model = GLOBALS.selected_model;
     GLOBALS.state.demo_id = GLOBALS.selected_id;
     // GLOBALS.state.data = document.getElementById("data-slider").value;
@@ -179,22 +180,27 @@ var dataMenus = menuDiv
     // demoの設定を行う
     GLOBALS.selected_id = i;
     var demo = demos[i];
+    // ここsliderを作って対応したほうがよさそう（要修正）
+    // sliderに選択されたdemoのstart値を表示，設定する
     data_slider = document.getElementById("data-slider");
     data_slider.min = demo.options[0].min;
     data_slider.max = demo.options[0].max;
     data_slider.defaultValue = demo.options[0].start;
     data_slider.value = demo.options[0].start;
-    var params = [demo.options[0].start];
-    if (demo.options[1]) params.push(demo.options[1].start);
-    if (demo.options[2]) params.push(demo.options[2].start);
-    if (demo.options[3]) params.push(demo.options[3].start);
-    var data_Dim = d3
-      .select("#data-option")
-      .select(".menu")
-      .select("#Dimensions");
-    data_Dim.selectAll("td").remove();
+    document.getElementById("current-data").innerText = demo.options[0].start;
+    // demoの引数を全て読み込む
+    var params = [];
+    for (let j = 0; j < demo.options.length; j++) {
+      params.push(demo.options[j].start);
+    }
+    // データ次元に対応するsliderについても他の引数と同じように設定できるように後で変更する（要修正）
     if (demo.options[1]) {
-      params.push(demo.options[1].start);
+      var data_Dim = d3
+        .select("#data-option")
+        .select(".menu")
+        .select("#Dimensions");
+      // 古いdataDimを削除
+      data_Dim.selectAll("td").remove();
       data_Dim.append("td").append("span").attr("id", "current-dataDim");
       data_Dim
         .append("td")
@@ -225,6 +231,7 @@ var dataMenus = menuDiv
       data_Dim.select("#dataDim-slider").node().innerHTML =
         demo.options[1].start;
     }
+    // demoに引数を渡してデータを生成する
     var points = demo.generator.apply(null, params);
     main(points);
   });
@@ -600,25 +607,21 @@ window.onload = () => {
       document.getElementById("eta").style.display = "";
       document.getElementById("mapping-resolution").style.display = "";
     }
-    // 特にdemoが動いてない時は，何もしない（後で変えるかも）
-    if (GLOBALS.playgroundDemo != null) {
-      setRunning(false);
-      // playからpauseアイコンに切り替える
-      var play_pause = d3.select("#play_pause");
-      var icon = "pause";
-      play_pause.select("i").remove();
-      play_pause.append("i").attr("class", "material-icons");
-      play_pause.select("i").node().innerHTML = icon;
-      // demoの設定
-      var demo = demos[GLOBALS.selected_id];
-      var params = [parseInt(document.getElementById("data-slider").value)];
-      if (demo.options[1])
-        params.push(d3.select("#dataDim-slider").node().value);
-      if (demo.options[2]) params.push(demo.options[2].start);
-      if (demo.options[3]) params.push(demo.options[3].start);
-      var points = demo.generator.apply(null, params);
-      main(points);
-    }
+    // playからpauseアイコンに切り替える
+    var play_pause = d3.select("#play_pause");
+    var icon = "pause";
+    play_pause.select("i").remove();
+    play_pause.append("i").attr("class", "material-icons");
+    play_pause.select("i").node().innerHTML = icon;
+    // GLOBALS.stateのmodel関連の削除をした方がいいかもしれない
+    // demoの設定
+    var demo = demos[GLOBALS.selected_id];
+    var params = [parseInt(document.getElementById("data-slider").value)];
+    if (demo.options[1]) params.push(d3.select("#dataDim-slider").node().value);
+    if (demo.options[2]) params.push(demo.options[2].start);
+    if (demo.options[3]) params.push(demo.options[3].start);
+    var points = demo.generator.apply(null, params);
+    main(points);
     console.log("Changed Model");
   }
   document.getElementById("SOM").addEventListener("change", model_select);
@@ -650,21 +653,31 @@ window.onload = () => {
       }
       GLOBALS.selected_model = getParam("model", "UKR");
       GLOBALS.selected_id = parseFloat(getParam("demo_id", 0));
-      GLOBALS.state = {
-        // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
-        demoParams: getParam("demoParams", "100,10").split(",").map(Number),
-        // モデルのパラメータ
-        ldim: parseFloat(getParam("ldim", 2)),
-        epoch: parseFloat(getParam("epoch", 1000)),
-        // UKRのパラメータ
-        eta: parseFloat(getParam("eta", 2)),
-        mapping_reso: parseFloat(getParam("mapping_reso", 10)),
-        // SOMのパラメータ
-        node_reso: parseFloat(getParam("node_reso", 20)),
-        sigmax: parseFloat(getParam("sigmax", 2.2)),
-        sigmin: parseFloat(getParam("sigmin", 0.2)),
-        tau: parseFloat(getParam("tau", 900)),
-      };
+      if (GLOBALS.selected_model == "UKR") {
+        GLOBALS.state = {
+          // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
+          demoParams: getParam("demoParams", "100,10").split(",").map(Number),
+          // モデルのパラメータ
+          ldim: parseFloat(getParam("ldim", 2)),
+          epoch: parseFloat(getParam("epoch", 1000)),
+          // UKRのパラメータ
+          eta: parseFloat(getParam("eta", 2)),
+          mapping_reso: parseFloat(getParam("mapping_reso", 10)),
+        };
+      } else {
+        GLOBALS.state = {
+          // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
+          demoParams: getParam("demoParams", "100,10").split(",").map(Number),
+          // モデルのパラメータ
+          ldim: parseFloat(getParam("ldim", 2)),
+          epoch: parseFloat(getParam("epoch", 1000)),
+          // SOMのパラメータ
+          node_reso: parseFloat(getParam("node_reso", 20)),
+          sigmax: parseFloat(getParam("sigmax", 2.2)),
+          sigmin: parseFloat(getParam("sigmin", 0.2)),
+          tau: parseFloat(getParam("tau", 900)),
+        };
+      }
       // 要修正箇所
       GLOBALS.stepLimit = GLOBALS.state.epoch;
       // console.log(GLOBALS);
@@ -737,11 +750,12 @@ window.onload = () => {
     return GLOBALS.selected_id == j;
   });
   // sliderのinnerTextにparamsを反映させる
+  // UKR
   current_data.innerText = GLOBALS.state.demoParams[0];
   current_epoch.innerText = GLOBALS.state.epoch;
+  current_ldim.innerHTML = GLOBALS.state.ldim;
   current_eta.innerText = GLOBALS.state.eta;
   current_mapping_resolution.innerText = GLOBALS.state.mapping_reso;
-  // UKR
 
   // demoの設定
   var demo = demos[GLOBALS.selected_id];
@@ -750,5 +764,6 @@ window.onload = () => {
   if (demo.options[2]) params.push(demo.options[2].start);
   if (demo.options[3]) params.push(demo.options[3].start);
   var points = demo.generator.apply(null, params);
+  console.log(GLOBALS.state);
   main(points);
 };
