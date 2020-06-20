@@ -656,7 +656,7 @@ var demos = [
       },
       {
         name: "Dimensions",
-        min: 3,
+        min: 2,
         max: 50,
         start: 10,
       },
