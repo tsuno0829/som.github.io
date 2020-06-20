@@ -237,7 +237,6 @@ function makeDemoParamsSlider() {
       .attr("value", firstBoot_urlHash ? GLOBALS.state.demoParams[i] : z.start)
       .on("input", () => {
         var s = "current-" + String(demo.options[i].name.split(" ").join(""));
-        console.log(s);
         // スライダーの値が変更されたときに，GLOBALS.stateに値を反映
         // して，値を1つめのtdタグのinnerTextに更新する
         var value = d3.select("#" + s + "-slider").node().value;
@@ -275,12 +274,13 @@ var dataMenus = menuDiv
     var demo = demos[i];
     // ここsliderを作って対応したほうがよさそう（要修正）
     // sliderに選択されたdemoのstart値を表示，設定する
-    data_slider = document.getElementById("data-slider");
-    data_slider.min = demo.options[0].min;
-    data_slider.max = demo.options[0].max;
-    data_slider.defaultValue = demo.options[0].start;
-    data_slider.value = demo.options[0].start;
-    document.getElementById("current-data").innerText = demo.options[0].start;
+    // data_slider = document.getElementById("data-slider");
+    // data_slider.min = demo.options[0].min;
+    // data_slider.max = demo.options[0].max;
+    // data_slider.defaultValue = demo.options[0].start;
+    // data_slider.value = demo.options[0].start;
+    // document.getElementById("current-data").innerText = demo.options[0].start;
+
     // demoの引数を全て読み込む
     var params = [];
     for (let j = 0; j < demo.options.length; j++) {
@@ -290,44 +290,45 @@ var dataMenus = menuDiv
     // demo用のスライダーを作成する
     makeDemoParamsSlider();
 
-    // データ次元に対応するsliderについても他の引数と同じように設定できるように後で変更する（要修正）
-    if (demo.options[1]) {
-      var data_Dim = d3
-        .select("#data-option")
-        .select(".menu")
-        .select("#Dimensions");
-      // 古いdataDimを削除
-      data_Dim.selectAll("td").remove();
-      data_Dim.append("td").append("span").attr("id", "current-dataDim");
-      data_Dim
-        .append("td")
-        .append("input")
-        .attr("id", "dataDim-slider")
-        .attr("type", "range")
-        .attr("min", demo.options[1].min)
-        .attr("max", demo.options[1].max)
-        .attr("defaultValue", demo.options[1].start)
-        .attr("value", demo.options[1].start)
-        .on("input", () => {
-          setRunning(false);
-          // パラメータが変更されたときに，現在の計算を中止して新規パラメータで再計算する
-          d3.select("#current-dataDim").node().innerHTML =
-            "dimension of points " + d3.select("#dataDim-slider").node().value;
-          // demoの設定
-          var demo = demos[GLOBALS.selected_id];
-          var params = [parseInt(document.getElementById("data-slider").value)];
-          if (demo.options[1])
-            params.push(d3.select("#dataDim-slider").node().value);
-          if (demo.options[2]) params.push(demo.options[2].start);
-          if (demo.options[3]) params.push(demo.options[3].start);
-          var points = demo.generator.apply(null, params);
-          main(points);
-        });
-      d3.select("#current-dataDim").node().innerHTML =
-        "dimension of points " + demo.options[1].start;
-      data_Dim.select("#dataDim-slider").node().innerHTML =
-        demo.options[1].start;
-    }
+    // // データ次元に対応するsliderについても他の引数と同じように設定できるように後で変更する（要修正）
+    // if (demo.options[1]) {
+    //   var data_Dim = d3
+    //     .select("#data-option")
+    //     .select(".menu")
+    //     .select("#Dimensions");
+    //   // 古いdataDimを削除
+    //   data_Dim.selectAll("td").remove();
+    //   data_Dim.append("td").append("span").attr("id", "current-dataDim");
+    //   data_Dim
+    //     .append("td")
+    //     .append("input")
+    //     .attr("id", "dataDim-slider")
+    //     .attr("type", "range")
+    //     .attr("min", demo.options[1].min)
+    //     .attr("max", demo.options[1].max)
+    //     .attr("defaultValue", demo.options[1].start)
+    //     .attr("value", demo.options[1].start)
+    //     .on("input", () => {
+    //       setRunning(false);
+    //       // パラメータが変更されたときに，現在の計算を中止して新規パラメータで再計算する
+    //       d3.select("#current-dataDim").node().innerHTML =
+    //         "dimension of points " + d3.select("#dataDim-slider").node().value;
+    //       // demoの設定
+    //       var demo = demos[GLOBALS.selected_id];
+    //       var params = [parseInt(document.getElementById("data-slider").value)];
+    //       if (demo.options[1])
+    //         params.push(d3.select("#dataDim-slider").node().value);
+    //       if (demo.options[2]) params.push(demo.options[2].start);
+    //       if (demo.options[3]) params.push(demo.options[3].start);
+    //       var points = demo.generator.apply(null, params);
+    //       main(points);
+    //     });
+    //   d3.select("#current-dataDim").node().innerHTML =
+    //     "dimension of points " + demo.options[1].start;
+    //   data_Dim.select("#dataDim-slider").node().innerHTML =
+    //     demo.options[1].start;
+    // }
+
     // demoに引数を渡してデータを生成する
     var points = demo.generator.apply(null, params);
     main(points);
@@ -544,7 +545,8 @@ function main(X) {
     var x = d3.select("model-params");
   }
 
-  const N = parseInt(document.getElementById("data-slider").value);
+  const N = GLOBALS.state.demoParams[0];
+  // const N = parseInt(document.getElementById("data-slider").value);
   const K = parseInt(document.getElementById("node-slider").value);
   const ldim = parseInt(document.getElementById("ldim-slider").value);
   const sigmax = parseFloat(document.getElementById("sigmax-slider").value);
@@ -639,19 +641,23 @@ window.onload = () => {
       play_pause.select("i").node().innerHTML = icon;
       // demoの設定を行う
       var demo = demos[GLOBALS.selected_id];
-      var params = [parseInt(document.getElementById("data-slider").value)];
-      if (demo.options[1])
-        params.push(d3.select("#dataDim-slider").node().value);
-      if (demo.options[2]) params.push(demo.options[2].start);
-      if (demo.options[3]) params.push(demo.options[3].start);
+      // var params = [parseInt(document.getElementById("data-slider").value)];
+      // if (demo.options[1])
+      //   params.push(d3.select("#dataDim-slider").node().value);
+      // if (demo.options[2]) params.push(demo.options[2].start);
+      // if (demo.options[3]) params.push(demo.options[3].start);
+      var params = [];
+      for (let j = 0; j < demo.options.length; j++) {
+        params.push(GLOBALS.state.demoParams[j]);
+      }
       var points = demo.generator.apply(null, params);
       main(points);
     }
   };
 
-  document
-    .getElementById("data-slider")
-    .addEventListener("input", setCurrentValue(current_data));
+  // document
+  //   .getElementById("data-slider")
+  //   .addEventListener("input", setCurrentValue(current_data));
   document
     .getElementById("node-slider")
     .addEventListener("input", setCurrentValue(current_node));
@@ -850,7 +856,7 @@ window.onload = () => {
   });
   // sliderのinnerTextにparamsを反映させる
   // UKR
-  current_data.innerText = GLOBALS.state.demoParams[0];
+  // current_data.innerText = GLOBALS.state.demoParams[0];
   current_epoch.innerText = GLOBALS.state.epoch;
   current_ldim.innerHTML = GLOBALS.state.ldim;
   current_eta.innerText = GLOBALS.state.eta;
