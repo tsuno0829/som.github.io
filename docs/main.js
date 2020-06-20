@@ -248,42 +248,43 @@ dataMenus.append("span").text(function (d) {
   return d.name;
 });
 
-function init(rtn = false) {
-  const data = parseInt(document.getElementById("data-slider").value);
-  const node = parseInt(document.getElementById("node-slider").value);
-  const ldim = parseInt(document.getElementById("ldim-slider").value);
-  const sigmax = parseFloat(document.getElementById("sigmax-slider").value);
-  const sigmin = parseFloat(document.getElementById("sigmin-slider").value);
-  // const epoch = parseFloat(document.getElementById("epoch-slider").value);
-  const tau = parseInt(document.getElementById("tau-slider").value);
-  const eta = parseFloat(document.getElementById("eta-slider").value);
-  const mapping_resolution = parseInt(
-    document.getElementById("mapping-resolution-slider").value
-  );
-  document.getElementById("current-data").innerHTML = data;
-  document.getElementById("current-node").innerHTML = node;
-  document.getElementById("current-ldim").innerHTML = ldim;
-  document.getElementById("current-sigmax").innerHTML = sigmax;
-  document.getElementById("current-sigmin").innerHTML = sigmin;
-  document.getElementById("current-epoch").innerHTML = GLOBALS.stepLimit;
-  document.getElementById("current-tau").innerHTML = tau;
-  document.getElementById("current-eta").innerHTML = eta;
-  document.getElementById(
-    "current-mapping-resolution"
-  ).innerHTML = mapping_resolution;
-  if (rtn)
-    return [
-      data,
-      node,
-      ldim,
-      sigmax,
-      sigmin,
-      // epoch,
-      tau,
-      eta,
-      mapping_resolution,
-    ];
-}
+// function init(rtn = false) {
+//   const data = parseInt(document.getElementById("data-slider").value);
+//   const node = parseInt(document.getElementById("node-slider").value);
+//   const ldim = parseInt(document.getElementById("ldim-slider").value);
+//   const sigmax = parseFloat(document.getElementById("sigmax-slider").value);
+//   const sigmin = parseFloat(document.getElementById("sigmin-slider").value);
+//   // const epoch = parseFloat(document.getElementById("epoch-slider").value);
+//   const tau = parseInt(document.getElementById("tau-slider").value);
+//   // const eta = parseFloat(document.getElementById("eta-slider").value);
+//   const eta = GLOBALS.state.eta;
+//   const mapping_resolution = parseInt(
+//     document.getElementById("mapping-resolution-slider").value
+//   );
+//   document.getElementById("current-data").innerHTML = data;
+//   document.getElementById("current-node").innerHTML = node;
+//   document.getElementById("current-ldim").innerHTML = ldim;
+//   document.getElementById("current-sigmax").innerHTML = sigmax;
+//   document.getElementById("current-sigmin").innerHTML = sigmin;
+//   document.getElementById("current-epoch").innerHTML = GLOBALS.stepLimit;
+//   document.getElementById("current-tau").innerHTML = tau;
+//   document.getElementById("current-eta").innerHTML = eta;
+//   document.getElementById(
+//     "current-mapping-resolution"
+//   ).innerHTML = mapping_resolution;
+//   if (rtn)
+//     return [
+//       data,
+//       node,
+//       ldim,
+//       sigmax,
+//       sigmin,
+//       // epoch,
+//       tau,
+//       eta,
+//       mapping_resolution,
+//     ];
+// }
 
 function initMatrix(n, dim) {
   let points = [];
@@ -463,8 +464,6 @@ function main(X) {
   if (GLOBALS.playgroundDemo != null) {
     // 前回のdemoを削除
     GLOBALS.playgroundDemo.destroy();
-    // 前回の状態を破棄（要検討）
-    GLOBALS.state = {};
     // 前回のdemoの観測空間の描画を削除
     d3.select("#figure").select("#svg_observation").remove();
     d3.select("#figure")
@@ -479,17 +478,42 @@ function main(X) {
     var x = d3.select("model-params");
   }
 
-  const [
-    N,
-    K,
-    ldim,
-    sigmax,
-    sigmin,
-    // nb_epoch,
-    tau,
-    eta,
-    mapping_resolution,
-  ] = init((rtn = true));
+  // const [
+  //   N,
+  //   K,
+  //   ldim,
+  //   sigmax,
+  //   sigmin,
+  //   // nb_epoch,
+  //   tau,
+  //   eta,
+  //   mapping_resolution,
+  // ] = init((rtn = true));
+
+  const N = parseInt(document.getElementById("data-slider").value);
+  const K = parseInt(document.getElementById("node-slider").value);
+  const ldim = parseInt(document.getElementById("ldim-slider").value);
+  const sigmax = parseFloat(document.getElementById("sigmax-slider").value);
+  const sigmin = parseFloat(document.getElementById("sigmin-slider").value);
+  // // const epoch = parseFloat(document.getElementById("epoch-slider").value);
+  const tau = parseInt(document.getElementById("tau-slider").value);
+  // const eta = parseFloat(document.getElementById("eta-slider").value);
+  const eta = GLOBALS.state.eta;
+  const mapping_resolution = parseInt(
+    document.getElementById("mapping-resolution-slider").value
+  );
+  // document.getElementById("current-data").innerHTML = data;
+  // document.getElementById("current-node").innerHTML = node;
+  // document.getElementById("current-ldim").innerHTML = ldim;
+  // document.getElementById("current-sigmax").innerHTML = sigmax;
+  // document.getElementById("current-sigmin").innerHTML = sigmin;
+  // document.getElementById("current-epoch").innerHTML = GLOBALS.stepLimit;
+  // document.getElementById("current-tau").innerHTML = tau;
+  // document.getElementById("current-eta").innerHTML = eta;
+  // document.getElementById(
+  //   "current-mapping-resolution"
+  // ).innerHTML = mapping_resolution;
+
   Dim = X[0].coords.length;
   Zdim = ldim;
 
@@ -532,7 +556,6 @@ function main(X) {
     ldim,
     sigmax,
     sigmin,
-    // nb_epoch,
     tau,
     eta,
     mapping_resolution,
@@ -555,6 +578,10 @@ window.onload = () => {
     "current-mapping-resolution"
   );
   const setCurrentValue = (c) => (e) => {
+    var slider_key = e.target.id.split("-")[0];
+    console.log(slider_key);
+    console.log(e.target.value);
+    GLOBALS.state[slider_key] = e.target.value;
     c.innerText = e.target.value;
     if (GLOBALS.playgroundDemo != null) {
       setRunning(false);
@@ -577,11 +604,8 @@ window.onload = () => {
   };
   const setCurrentEpoch = (c) => (e) => {
     c.innerText = e.target.value;
-    // c.innerHTML =
     GLOBALS.stepLimit = e.target.value;
     GLOBALS.state.epoch = e.target.value;
-    console.log(GLOBALS.state.epoch);
-    console.log(e.target.value);
     if (GLOBALS.playgroundDemo != null) {
       setRunning(false);
       // playからpauseアイコンに切り替える
