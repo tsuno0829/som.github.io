@@ -715,13 +715,13 @@ window.onload = () => {
         ldim: parseFloat(getParam("ldim", 2)),
         epoch: parseFloat(getParam("epoch", 1000)),
         // UKRのパラメータ
-        eta: parseFloat(getParam("eta", 1)),
+        eta: parseFloat(getParam("eta", 2)),
         mapping_reso: parseFloat(getParam("mapping_reso", 10)),
         // SOMのパラメータ
         node_reso: parseFloat(getParam("node_reso", 20)),
         sigmax: parseFloat(getParam("sigmax", 2.2)),
         sigmin: parseFloat(getParam("sigmin", 0.2)),
-        tau: parseFloat(getParam("tau", 1000)),
+        tau: parseFloat(getParam("tau", 900)),
       };
       console.log(GLOBALS);
     }
@@ -741,11 +741,6 @@ window.onload = () => {
   data_slider.defaultValue = GLOBALS.state.demoParams[0];
   data_slider.value = GLOBALS.state.demoParams[0];
   // var params = [demo.options[0].start];
-  // demoのoptionの反映する（２）
-  if (demo.options[1]) {
-    d3.select("#current-dataDim").node().innerHTML =
-      "dimension of points " + d3.select("#dataDim-slider").node().value;
-  }
   // demoのparamsを保存する
   var params = [];
   for (let i = 0; i < GLOBALS.state.demoParams.length; i++) {
@@ -754,6 +749,7 @@ window.onload = () => {
   // if (demo.options[1]) params.push(demo.options[1].start);
   // if (demo.options[2]) params.push(demo.options[2].start);
   // if (demo.options[3]) params.push(demo.options[3].start);
+  // demo option[1]のスライダーを作る
   var data_Dim = d3
     .select("#data-option")
     .select(".menu")
@@ -787,6 +783,14 @@ window.onload = () => {
         main(points);
       });
   }
+  // demoのoptionの反映する（２）
+  if (demo.options[1]) {
+    d3.select("#current-dataDim").node().innerHTML =
+      "dimension of data " + GLOBALS.state.demoParams[1];
+  }
+  // modelのparamsを反映させる
+  // UKR
+
   // demoの設定
   var demo = demos[GLOBALS.selected_id];
   var params = [parseInt(document.getElementById("data-slider").value)];
