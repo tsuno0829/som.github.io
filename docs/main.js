@@ -16,40 +16,6 @@ var GLOBALS = {
   current_Y: null,
 };
 
-// shareされたURLのハッシュ部分からパラメータを引き継ぐ
-function setStateFromLocationHash() {
-  // 起動初回時のみパラメータを引き継ぐ
-  if (playgroundDemo == null) {
-    var params = {};
-    window.location.hash
-      .substring(1)
-      .split("&")
-      .forEach(function (p) {
-        var tokens = p.split("=");
-        params[tokens[0]] = tokens[1];
-      });
-    function getParam(key, fallback) {
-      return params[key] === undefined ? fallback : params[key];
-    }
-    GLOBALS.state = {
-      model: getParam("model", "UKR"),
-      // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
-      demoParams: getParam("demoParams", "0,100,10,5").split(",").map(Number),
-      // モデルのパラメータ
-      ldim: getParam("ldim", 2),
-      epoch: getParam("epoch", 1000),
-      // UKRのパラメータ
-      eta: getParam("eta", 1),
-      mapping_reso: getParam("mapping_reso", 10),
-      // SOMのパラメータ
-      node_reso: getParam("node_reso", 20),
-      sigmax: getParam("sigmax", 2.2),
-      sigmin: getParam("sigmin", 0.2),
-      tau: getParam("tau", 1000),
-    };
-  }
-}
-
 d3.select("#play_pause").on("click", () => {
   var play_pause = d3.select("#play_pause");
 
@@ -716,31 +682,85 @@ window.onload = () => {
   document.getElementById("SOM").addEventListener("change", model_select);
   document.getElementById("UKR").addEventListener("change", model_select);
 
-  // 起動時にdemoを再生する
+  // 初回起動時にdemoを再生する
   // playからpauseアイコンに切り替える
   var play_pause = d3.select("#play_pause");
   var icon = "pause";
   play_pause.select("i").remove();
   play_pause.append("i").attr("class", "material-icons");
   play_pause.select("i").node().innerHTML = icon;
+
+  // shareされたURLのハッシュ部分からパラメータを引き継ぐ
+  function setStateFromLocationHash() {
+    // 起動初回時のみパラメータを引き継ぐ
+    // パラメータがない場合は，用意しておいたdemoを再生する
+    if (GLOBALS.playgroundDemo == null) {
+      var params = {};
+      window.location.hash
+        .substring(1)
+        .split("&")
+        .forEach(function (p) {
+          var tokens = p.split("=");
+          params[tokens[0]] = tokens[1];
+        });
+      function getParam(key, fallback) {
+        return params[key] === undefined ? fallback : params[key];
+      }
+      GLOBALS.selected_model = getParam("model", "UKR");
+      GLOBALS.selected_id = parseFloat(getParam("demo_id", 0));
+      GLOBALS.state = {
+        // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
+        demoParams: getParam("demoParams", "100,10").split(",").map(Number),
+        // モデルのパラメータ
+        ldim: parseFloat(getParam("ldim", 2)),
+        epoch: parseFloat(getParam("epoch", 1000)),
+        // UKRのパラメータ
+        eta: parseFloat(getParam("eta", 1)),
+        mapping_reso: parseFloat(getParam("mapping_reso", 10)),
+        // SOMのパラメータ
+        node_reso: parseFloat(getParam("node_reso", 20)),
+        sigmax: parseFloat(getParam("sigmax", 2.2)),
+        sigmin: parseFloat(getParam("sigmin", 0.2)),
+        tau: parseFloat(getParam("tau", 1000)),
+      };
+      console.log(GLOBALS);
+    }
+  }
+
+  // URLにhashがついていない場合は，用意しておいたデモを再生する
+  // hashがついている場合は，そのhash通りのパラメータでデモを再生する
+  setStateFromLocationHash();
   // demoの設定を行う
   var demo = demos[GLOBALS.selected_id];
+  // demoのoptionの反映する（１）
   data_slider = document.getElementById("data-slider");
   data_slider.min = demo.options[0].min;
   data_slider.max = demo.options[0].max;
-  data_slider.defaultValue = demo.options[0].start;
-  data_slider.value = demo.options[0].start;
-  var params = [demo.options[0].start];
-  if (demo.options[1]) params.push(demo.options[1].start);
-  if (demo.options[2]) params.push(demo.options[2].start);
-  if (demo.options[3]) params.push(demo.options[3].start);
+  // data_slider.defaultValue = demo.options[0].start;
+  // data_slider.value = demo.options[0].start;
+  data_slider.defaultValue = GLOBALS.state.demoParams[0];
+  data_slider.value = GLOBALS.state.demoParams[0];
+  // var params = [demo.options[0].start];
+  // demoのoptionの反映する（２）
+  if (demo.options[1]) {
+    d3.select("#current-dataDim").node().innerHTML =
+      "dimension of points " + d3.select("#dataDim-slider").node().value;
+  }
+  // demoのparamsを保存する
+  var params = [];
+  for (let i = 0; i < GLOBALS.state.demoParams.length; i++) {
+    params.push(GLOBALS.state.demoParams[i]);
+  }
+  // if (demo.options[1]) params.push(demo.options[1].start);
+  // if (demo.options[2]) params.push(demo.options[2].start);
+  // if (demo.options[3]) params.push(demo.options[3].start);
   var data_Dim = d3
     .select("#data-option")
     .select(".menu")
     .select("#Dimensions");
   data_Dim.selectAll("td").remove();
   if (demo.options[1]) {
-    params.push(demo.options[1].start);
+    // params.push(GLOBALS.state.demoParams[1]);
     data_Dim.append("td").append("span").attr("id", "current-dataDim");
     data_Dim
       .append("td")
@@ -749,8 +769,8 @@ window.onload = () => {
       .attr("type", "range")
       .attr("min", demo.options[1].min)
       .attr("max", demo.options[1].max)
-      .attr("defaultValue", demo.options[1].start)
-      .attr("value", demo.options[1].start)
+      .attr("defaultValue", GLOBALS.state.demoParams[1])
+      .attr("value", GLOBALS.state.demoParams[1])
       .on("input", () => {
         setRunning(false);
         // パラメータが変更されたときに，現在の計算を中止して新規パラメータで再計算する
@@ -766,11 +786,6 @@ window.onload = () => {
         var points = demo.generator.apply(null, params);
         main(points);
       });
-  }
-  // dataのoptionの反映
-  if (demo.options[1]) {
-    d3.select("#current-dataDim").node().innerHTML =
-      "dimension of points " + d3.select("#dataDim-slider").node().value;
   }
   // demoの設定
   var demo = demos[GLOBALS.selected_id];
