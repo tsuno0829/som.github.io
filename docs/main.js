@@ -97,21 +97,55 @@ d3.select("#visibility_on_off").on("click", () => {
   }
 });
 
+// function updateParameters() {
+//   if (GLOBALS.playgroundDemo != null) {
+//     console.log(GLOBALS);
+//     GLOBALS.state.model = GLOBALS.selected_model;
+//     GLOBALS.state.demo_id = GLOBALS.selected_id;
+//     var demoParams = "";
+//     // dataParamsの数が可変のときに対応できないので要修正箇所
+//     demoParams += String(document.getElementById("data-slider").value) + ",";
+//     if (demos[GLOBALS.selected_id].options[1]) {
+//       demoParams +=
+//         String(document.getElementById("dataDim-slider").value) + ",";
+//     }
+//     GLOBALS.state.demoParams = demoParams.slice(0, -1);
+//     if (GLOBALS.selected_model == "SOM") {
+//       GLOBALS.state.node_reso = document.getElementById("node-slider").value;
+//       GLOBALS.state.ldim = document.getElementById("ldim-slider").value;
+//       GLOBALS.state.sigmax = document.getElementById("sigmax-slider").value;
+//       GLOBALS.state.sigmin = document.getElementById("sigmin-slider").value;
+//       GLOBALS.state.epoch = document.getElementById("epoch-slider").value;
+//       GLOBALS.state.tau = document.getElementById("tau-slider").value;
+//     } else {
+//       GLOBALS.state.ldim = document.getElementById("ldim-slider").value;
+//       GLOBALS.state.epoch = document.getElementById("epoch-slider").value;
+//       GLOBALS.state.eta = document.getElementById("eta-slider").value;
+//       GLOBALS.state.mapping_reso = document.getElementById(
+//         "mapping-resolution-slider"
+//       ).value;
+//     }
+//   }
+//   d3.select("#share")
+//     .style("display", "")
+//     .attr("href", "#" + generateHash());
+// }
+
 function updateParameters() {
   if (GLOBALS.playgroundDemo != null) {
     console.log(GLOBALS);
-    GLOBALS.state.model = GLOBALS.selected_model;
-    GLOBALS.state.demo_id = GLOBALS.selected_id;
-    // GLOBALS.state.data = document.getElementById("data-slider").value;
-    // if (demos[GLOBALS.selected_id].options[1]) {
-    //   GLOBALS.state.dataDim = document.getElementById("dataDim-slider").value;
-    // }
+    var demo = demos[GLOBALS.selected_id];
+    // GLOBALS.state.model = GLOBALS.selected_model;
+    // GLOBALS.state.demo_id = GLOBALS.selected_id;
     var demoParams = "";
     // dataParamsの数が可変のときに対応できないので要修正箇所
-    demoParams += String(document.getElementById("data-slider").value) + ",";
-    if (demos[GLOBALS.selected_id].options[1]) {
-      demoParams +=
-        String(document.getElementById("dataDim-slider").value) + ",";
+    // demoParams += String(document.getElementById("data-slider").value) + ",";
+    // if (demos[GLOBALS.selected_id].options[1]) {
+    //   demoParams +=
+    //     String(document.getElementById("dataDim-slider").value) + ",";
+    // }
+    for (let i = 0; i < demo.options.length; i++) {
+      demoParams += GLOBALS.state.demoParams[i] + ",";
     }
     GLOBALS.state.demoParams = demoParams.slice(0, -1);
     if (GLOBALS.selected_model == "SOM") {
@@ -173,13 +207,14 @@ function makeDemoParamsSlider() {
   // demo.option[i]のsliderの設定を行う
   for (let i = 0; i < demo.options.length; i++) {
     var x = d3.select("#" + demoParamsName + String(i));
-    // console.log(demo.options[i]);
     var y = "current-" + String(demo.options[i].name.split(" ").join(""));
     var z = demo.options[i];
     // 1つ目のtdタグには，スライダーの現在値を表示する
     x.append("td").append("span").attr("id", y);
     // 起動初回時かつ，URLにhashでパラメータが指定されている時
-    if (GLOBALS.playgroundDemo == null && location.hash != "") {
+    var firstBoot_urlHash =
+      GLOBALS.playgroundDemo == null && location.hash != "";
+    if (firstBoot_urlHash) {
       // 事前にGLOBALS.state.demoParamsにURLのhashがあるとすると
       d3.select("#" + y).node().innerText =
         z.name + " " + GLOBALS.state.demoParams[i];
@@ -195,19 +230,22 @@ function makeDemoParamsSlider() {
       .attr("type", "range")
       .attr("min", z.min)
       .attr("max", z.max)
-      .attr("defaultValue", GLOBALS.state.demoParams[i])
-      .attr("value", GLOBALS.state.demoParams[i])
+      .attr(
+        "defaultValue",
+        firstBoot_urlHash ? GLOBALS.state.demoParams[i] : z.start
+      )
+      .attr("value", firstBoot_urlHash ? GLOBALS.state.demoParams[i] : z.start)
       .on("input", () => {
+        var s = "current-" + String(demo.options[i].name.split(" ").join(""));
+        console.log(s);
         // スライダーの値が変更されたときに，GLOBALS.stateに値を反映
         // して，値を1つめのtdタグのinnerTextに更新する
-        GLOBALS.state.demoParams[i] = this.value;
-        d3.select("#" + y).node().innerText = z.name + " " + this.value;
+        var value = d3.select("#" + s + "-slider").node().value;
+        GLOBALS.state.demoParams[i] = parseFloat(value);
+        d3.select("#" + s).node().innerText =
+          demo.options[i].name + " " + value;
         // スライダーが変化したときに更新後のdemoを再生する
-        var params = [];
-        for (let j = 0; j < demo.params.length; j++) {
-          params.push(d3.select(y + "-slider").value);
-        }
-        var points = demo.generator.apply(null, params);
+        var points = demo.generator.apply(null, GLOBALS.state.demoParams);
         main(points);
       });
   }
@@ -715,7 +753,7 @@ window.onload = () => {
       if (GLOBALS.selected_model == "UKR") {
         GLOBALS.state = {
           // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
-          demoParams: getParam("demoParams", "100,10").split(",").map(Number),
+          demoParams: getParam("demoParams", "100,10,5").split(",").map(Number),
           // モデルのパラメータ
           ldim: parseFloat(getParam("ldim", 2)),
           epoch: parseFloat(getParam("epoch", 1000)),
@@ -726,7 +764,7 @@ window.onload = () => {
       } else {
         GLOBALS.state = {
           // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
-          demoParams: getParam("demoParams", "100,10").split(",").map(Number),
+          demoParams: getParam("demoParams", "100,10,5").split(",").map(Number),
           // モデルのパラメータ
           ldim: parseFloat(getParam("ldim", 2)),
           epoch: parseFloat(getParam("epoch", 1000)),
@@ -748,64 +786,64 @@ window.onload = () => {
   setStateFromLocationHash();
   // demo用のスライダーを作成する
   makeDemoParamsSlider();
-  // demoの設定を行う
-  var demo = demos[GLOBALS.selected_id];
-  // demoのoptionの反映する（１）
-  data_slider = document.getElementById("data-slider");
-  data_slider.min = demo.options[0].min;
-  data_slider.max = demo.options[0].max;
-  // data_slider.defaultValue = demo.options[0].start;
-  // data_slider.value = demo.options[0].start;
-  data_slider.defaultValue = GLOBALS.state.demoParams[0];
-  data_slider.value = GLOBALS.state.demoParams[0];
-  // var params = [demo.options[0].start];
-  // demoのparamsを保存する
-  var params = [];
-  for (let i = 0; i < GLOBALS.state.demoParams.length; i++) {
-    params.push(GLOBALS.state.demoParams[i]);
-  }
-  // if (demo.options[1]) params.push(demo.options[1].start);
-  // if (demo.options[2]) params.push(demo.options[2].start);
-  // if (demo.options[3]) params.push(demo.options[3].start);
-  // demo option[1]のスライダーを作る
-  var data_Dim = d3
-    .select("#data-option")
-    .select(".menu")
-    .select("#Dimensions");
-  data_Dim.selectAll("td").remove();
-  if (demo.options[1]) {
-    // params.push(GLOBALS.state.demoParams[1]);
-    data_Dim.append("td").append("span").attr("id", "current-dataDim");
-    data_Dim
-      .append("td")
-      .append("input")
-      .attr("id", "dataDim-slider")
-      .attr("type", "range")
-      .attr("min", demo.options[1].min)
-      .attr("max", demo.options[1].max)
-      .attr("defaultValue", GLOBALS.state.demoParams[1])
-      .attr("value", GLOBALS.state.demoParams[1])
-      .on("input", () => {
-        setRunning(false);
-        // パラメータが変更されたときに，現在の計算を中止して新規パラメータで再計算する
-        d3.select("#current-dataDim").node().innerHTML =
-          "dimension of points " + d3.select("#dataDim-slider").node().value;
-        // demoの設定
-        var demo = demos[GLOBALS.selected_id];
-        var params = [parseInt(document.getElementById("data-slider").value)];
-        if (demo.options[1])
-          params.push(d3.select("#dataDim-slider").node().value);
-        if (demo.options[2]) params.push(demo.options[2].start);
-        if (demo.options[3]) params.push(demo.options[3].start);
-        var points = demo.generator.apply(null, params);
-        main(points);
-      });
-  }
-  // demoのoptionの反映する（２）
-  if (demo.options[1]) {
-    d3.select("#current-dataDim").node().innerHTML =
-      "dimension of data " + GLOBALS.state.demoParams[1];
-  }
+  // // demoの設定を行う
+  // var demo = demos[GLOBALS.selected_id];
+  // // demoのoptionの反映する（１）
+  // data_slider = document.getElementById("data-slider");
+  // data_slider.min = demo.options[0].min;
+  // data_slider.max = demo.options[0].max;
+  // // data_slider.defaultValue = demo.options[0].start;
+  // // data_slider.value = demo.options[0].start;
+  // data_slider.defaultValue = GLOBALS.state.demoParams[0];
+  // data_slider.value = GLOBALS.state.demoParams[0];
+  // // var params = [demo.options[0].start];
+  // // demoのparamsを保存する
+  // var params = [];
+  // for (let i = 0; i < GLOBALS.state.demoParams.length; i++) {
+  //   params.push(GLOBALS.state.demoParams[i]);
+  // }
+  // // if (demo.options[1]) params.push(demo.options[1].start);
+  // // if (demo.options[2]) params.push(demo.options[2].start);
+  // // if (demo.options[3]) params.push(demo.options[3].start);
+  // // demo option[1]のスライダーを作る
+  // var data_Dim = d3
+  //   .select("#data-option")
+  //   .select(".menu")
+  //   .select("#Dimensions");
+  // data_Dim.selectAll("td").remove();
+  // if (demo.options[1]) {
+  //   // params.push(GLOBALS.state.demoParams[1]);
+  //   data_Dim.append("td").append("span").attr("id", "current-dataDim");
+  //   data_Dim
+  //     .append("td")
+  //     .append("input")
+  //     .attr("id", "dataDim-slider")
+  //     .attr("type", "range")
+  //     .attr("min", demo.options[1].min)
+  //     .attr("max", demo.options[1].max)
+  //     .attr("defaultValue", GLOBALS.state.demoParams[1])
+  //     .attr("value", GLOBALS.state.demoParams[1])
+  //     .on("input", () => {
+  //       setRunning(false);
+  //       // パラメータが変更されたときに，現在の計算を中止して新規パラメータで再計算する
+  //       d3.select("#current-dataDim").node().innerHTML =
+  //         "dimension of points " + d3.select("#dataDim-slider").node().value;
+  //       // demoの設定
+  //       var demo = demos[GLOBALS.selected_id];
+  //       var params = [parseInt(document.getElementById("data-slider").value)];
+  //       if (demo.options[1])
+  //         params.push(d3.select("#dataDim-slider").node().value);
+  //       if (demo.options[2]) params.push(demo.options[2].start);
+  //       if (demo.options[3]) params.push(demo.options[3].start);
+  //       var points = demo.generator.apply(null, params);
+  //       main(points);
+  //     });
+  // }
+  // // demoのoptionの反映する（２）
+  // if (demo.options[1]) {
+  //   d3.select("#current-dataDim").node().innerHTML =
+  //     "dimension of data " + GLOBALS.state.demoParams[1];
+  // }
   // demos[GLOBALS.selected_id]をselectedに変更する
   d3.selectAll(".demo-data").classed("selected", (_, j) => {
     return GLOBALS.selected_id == j;
@@ -820,11 +858,10 @@ window.onload = () => {
 
   // demoの設定
   var demo = demos[GLOBALS.selected_id];
-  var params = [parseInt(document.getElementById("data-slider").value)];
-  if (demo.options[1]) params.push(d3.select("#dataDim-slider").node().value);
-  if (demo.options[2]) params.push(demo.options[2].start);
-  if (demo.options[3]) params.push(demo.options[3].start);
+  var params = [];
+  for (let i = 0; i < demo.options.length; i++)
+    params.push(GLOBALS.state.demoParams[i]);
   var points = demo.generator.apply(null, params);
-  console.log(GLOBALS.state);
+  // console.log(GLOBALS.state);
   main(points);
 };
