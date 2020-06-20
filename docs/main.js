@@ -726,6 +726,11 @@ window.onload = () => {
         main(points);
       });
   }
+  // dataのoptionの反映
+  if (demo.options[1]) {
+    d3.select("#current-dataDim").node().innerHTML =
+      "dimension of points " + d3.select("#dataDim-slider").node().value;
+  }
   // demoの設定
   var demo = demos[GLOBALS.selected_id];
   var params = [parseInt(document.getElementById("data-slider").value)];
