@@ -6,7 +6,8 @@ if (typeof require != "undefined") {
 var GLOBALS = {
   playgroundDemo: null, // the object to control running the playground simulation
   running: true,
-  stepLimit: document.getElementById("epoch-slider").value,
+  // stepLimit: document.getElementById("epoch-slider").value,
+  stepLimit: null,
   state: {},
   showDemo: null,
   selected_model: "UKR",
@@ -253,7 +254,7 @@ function init(rtn = false) {
   const ldim = parseInt(document.getElementById("ldim-slider").value);
   const sigmax = parseFloat(document.getElementById("sigmax-slider").value);
   const sigmin = parseFloat(document.getElementById("sigmin-slider").value);
-  const epoch = parseFloat(document.getElementById("epoch-slider").value);
+  // const epoch = parseFloat(document.getElementById("epoch-slider").value);
   const tau = parseInt(document.getElementById("tau-slider").value);
   const eta = parseFloat(document.getElementById("eta-slider").value);
   const mapping_resolution = parseInt(
@@ -264,7 +265,7 @@ function init(rtn = false) {
   document.getElementById("current-ldim").innerHTML = ldim;
   document.getElementById("current-sigmax").innerHTML = sigmax;
   document.getElementById("current-sigmin").innerHTML = sigmin;
-  document.getElementById("current-epoch").innerHTML = epoch;
+  document.getElementById("current-epoch").innerHTML = GLOBALS.stepLimit;
   document.getElementById("current-tau").innerHTML = tau;
   document.getElementById("current-eta").innerHTML = eta;
   document.getElementById(
@@ -277,7 +278,7 @@ function init(rtn = false) {
       ldim,
       sigmax,
       sigmin,
-      epoch,
+      // epoch,
       tau,
       eta,
       mapping_resolution,
@@ -327,7 +328,7 @@ function demoMaker(
   ldim,
   sigmax,
   sigmin,
-  nb_epoch,
+  // nb_epoch,
   tau,
   eta,
   mapping_resolution,
@@ -353,6 +354,19 @@ function demoMaker(
   var som, ukr;
   if (GLOBALS.selected_model == "SOM") som = new somjs.SOM();
   else ukr = new ukrjs.UKR();
+
+  function stepCb(step) {
+    var format = d3.format(",");
+    d3.select("#step").text(format(step));
+    if (step >= GLOBALS.stepLimit) {
+      setRunning(false);
+      var play_pause = d3.select("#play_pause");
+      var icon = "play_arrow";
+      play_pause.select("i").remove();
+      play_pause.append("i").attr("class", "material-icons");
+      play_pause.select("i").node().innerHTML = icon;
+    }
+  }
 
   function iterate() {
     if (paused) return;
@@ -465,14 +479,13 @@ function main(X) {
     var x = d3.select("model-params");
   }
 
-  var format = d3.format(",");
   const [
     N,
     K,
     ldim,
     sigmax,
     sigmin,
-    nb_epoch,
+    // nb_epoch,
     tau,
     eta,
     mapping_resolution,
@@ -519,24 +532,13 @@ function main(X) {
     ldim,
     sigmax,
     sigmin,
-    nb_epoch,
+    // nb_epoch,
     tau,
     eta,
     mapping_resolution,
     width,
     height,
-    margin,
-    function (step) {
-      d3.select("#step").text(format(step));
-      if (step >= GLOBALS.stepLimit) {
-        setRunning(false);
-        var play_pause = d3.select("#play_pause");
-        var icon = "play_arrow";
-        play_pause.select("i").remove();
-        play_pause.append("i").attr("class", "material-icons");
-        play_pause.select("i").node().innerHTML = icon;
-      }
-    }
+    margin
   );
 }
 
@@ -575,7 +577,11 @@ window.onload = () => {
   };
   const setCurrentEpoch = (c) => (e) => {
     c.innerText = e.target.value;
+    // c.innerHTML =
     GLOBALS.stepLimit = e.target.value;
+    GLOBALS.state.epoch = e.target.value;
+    console.log(GLOBALS.state.epoch);
+    console.log(e.target.value);
     if (GLOBALS.playgroundDemo != null) {
       setRunning(false);
       // playからpauseアイコンに切り替える
@@ -668,7 +674,7 @@ window.onload = () => {
       var points = demo.generator.apply(null, params);
       main(points);
     }
-    console.log("HELLO");
+    console.log("Changed Model");
   }
   document.getElementById("SOM").addEventListener("change", model_select);
   document.getElementById("UKR").addEventListener("change", model_select);
@@ -714,7 +720,9 @@ window.onload = () => {
         sigmin: parseFloat(getParam("sigmin", 0.2)),
         tau: parseFloat(getParam("tau", 900)),
       };
-      console.log(GLOBALS);
+      // 要修正箇所
+      GLOBALS.stepLimit = GLOBALS.state.epoch;
+      // console.log(GLOBALS);
     }
   }
 
@@ -780,12 +788,12 @@ window.onload = () => {
       "dimension of data " + GLOBALS.state.demoParams[1];
   }
   // modelのparamsを反映させる
-  console.log(current_epoch);
-  console.log(GLOBALS.state.epoch);
-  current_epoch.innerHTML = String(GLOBALS.state.epoch);
-  current_epoch.innerText = String(GLOBALS.state.epoch);
-  current_epoch.value = GLOBALS.state.epoch;
-  current_epoch.defaultValue = GLOBALS.state.epoch;
+  // console.log(current_epoch);
+  // console.log(GLOBALS.state.epoch);
+  // current_epoch.innerHTML = String(GLOBALS.state.epoch);
+  // current_epoch.innerText = String(GLOBALS.state.epoch);
+  // current_epoch.value = GLOBALS.state.epoch;
+  // current_epoch.defaultValue = GLOBALS.state.epoch;
   // UKR
 
   // demoの設定
