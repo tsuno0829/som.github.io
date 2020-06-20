@@ -643,6 +643,16 @@ function two_cluster_with_outlier(n_samples) {
   return points;
 }
 
+function rectangle(n_samples) {
+  var points = [];
+  for (let i = 0; i < n_samples; i++) {
+    var x = Math.random() * 20 - 10;
+    var y = Math.random() * 1 - 0.5;
+    points.push([x, y]);
+  }
+  return makePoints(points);
+}
+
 var demos = [
   {
     name: "Star",
@@ -877,6 +887,19 @@ var demos = [
       },
     ],
     generator: longClusterData,
+  },
+  {
+    name: "rectangle",
+    description: "Simply a very long horizontal distribution.",
+    options: [
+      {
+        name: "Number of Points",
+        min: 100,
+        max: 1000,
+        start: 200,
+      },
+    ],
+    generator: rectangle,
   },
   {
     name: "Cluster In Cluster",
