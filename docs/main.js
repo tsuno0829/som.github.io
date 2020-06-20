@@ -86,11 +86,9 @@ d3.select("#visibility_on_off").on("click", () => {
       GLOBALS.visibility = "on";
       // observation spaceを作成
       d3.select("#figure").select("#svg_observation").remove();
-      var observation_space = d3.select("#figure");
-      observation_space
-        .append("div")
-        .attr("id", "svg_observation")
-        .attr("class", "a");
+      var figure = d3.select("#figure");
+      figure.append("div").attr("id", "svg_observation").attr("class", "a");
+      figure.select("#svg_observation").node().innerHTML = "observation space";
       // visualize_Z_Y
       GLOBALS.playgroundDemo.visualize(true);
       // visibility iconをonに変更
@@ -463,6 +461,14 @@ function main(X) {
       .append("div")
       .attr("id", "svg_observation")
       .classed("a", true);
+  }
+
+  // Modelの名前が変更されていたら反映する
+  if (GLOBALS.selected_model == "SOM") {
+    // document.getElementById("model_params").value = "a";
+    var x = d3.select("model-params");
+    console.log(x);
+    console.log(x.node());
   }
 
   var format = d3.format(",");
