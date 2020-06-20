@@ -362,7 +362,7 @@ function demoMaker(
     if (paused) return;
 
     // control speed at which we iterate
-    if (step >= 200 || Dim == 3) chunk = 10;
+    if (step >= 200 || Dim == 3) chunk = 1;
     for (var k = 0; k < chunk; k++) {
       // SOM
       if (GLOBALS.selected_model == "SOM") {
