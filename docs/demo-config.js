@@ -421,11 +421,11 @@ function randomJump(n, dim) {
   return points;
 }
 
-function sinData(N) {
+function sinData(N, noise) {
   let points = [];
   for (let i = 0; i < N; i++) {
     let r = Math.random() * 6 - 3;
-    points.push([r, Math.sin(r) + Math.random() * 0.2]);
+    points.push([r, Math.sin(r) + d3.randomNormal(0, noise ** 2)()]);
   }
   return makePoints(points);
 }
@@ -970,10 +970,16 @@ var demos = [
     description: "sine curve",
     options: [
       {
-        name: "Number of Points",
+        name: "Number Of Points",
         min: 2,
         max: 200,
         start: 100,
+      },
+      {
+        name: "std of gaussian noise",
+        min: 0,
+        max: 1,
+        start: 0.3,
       },
     ],
     generator: sinData,
