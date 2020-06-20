@@ -634,6 +634,9 @@ window.onload = () => {
       else models[i].checked = false;
     }
     GLOBALS.selected_model = this.id;
+    // model-paramsの表示を新しいモデル名に変更する
+    document.getElementById("model-params").innerHTML =
+      "[" + this.id + " params]";
     // 使用するmodelのパラメータを表示するHTMLに切り替える
     console.log("OH");
     if (this.id == "SOM") {
