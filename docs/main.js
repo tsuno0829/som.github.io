@@ -163,7 +163,7 @@ function makeDemoParamsSlider() {
     // 前回のdemo-paramsスライダーをすべて消す
     for (let i = 0; i < 5; i++) {
       var name = "#" + demoParamsName + String(i);
-      d3.select(name).selectAll(td).remove();
+      d3.select(name).selectAll("td").remove();
     }
   }
   var demo = demos[GLOBALS.selected_id];
@@ -248,6 +248,10 @@ var dataMenus = menuDiv
     for (let j = 0; j < demo.options.length; j++) {
       params.push(demo.options[j].start);
     }
+
+    // demo用のスライダーを作成する
+    makeDemoParamsSlider();
+
     // データ次元に対応するsliderについても他の引数と同じように設定できるように後で変更する（要修正）
     if (demo.options[1]) {
       var data_Dim = d3
@@ -742,9 +746,8 @@ window.onload = () => {
   // URLにhashがついていない場合は，用意しておいたデモを再生する
   // hashがついている場合は，そのhash通りのパラメータでデモを再生する
   setStateFromLocationHash();
-
+  // demo用のスライダーを作成する
   makeDemoParamsSlider();
-
   // demoの設定を行う
   var demo = demos[GLOBALS.selected_id];
   // demoのoptionの反映する（１）
