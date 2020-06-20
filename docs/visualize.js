@@ -3,6 +3,14 @@ if (typeof require != "undefined") {
   var d3 = require("./d3.min.js");
 }
 
+function splitArray(array, part) {
+  var tmp = [];
+  for (var i = 0; i < array.length; i += part) {
+    tmp.push(array.slice(i, i + part));
+  }
+  return tmp;
+}
+
 // Helper function to draw a circle.
 // TODO: replace with canvas blitting for web rendering
 function circle(g, x, y, r) {

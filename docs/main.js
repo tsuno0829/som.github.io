@@ -284,14 +284,6 @@ function init(rtn = false) {
     ];
 }
 
-function splitArray(array, part) {
-  var tmp = [];
-  for (var i = 0; i < array.length; i += part) {
-    tmp.push(array.slice(i, i + part));
-  }
-  return tmp;
-}
-
 function initMatrix(n, dim) {
   let points = [];
   if (dim == 1) {
@@ -642,7 +634,6 @@ window.onload = () => {
     document.getElementById("model-params").innerHTML =
       "[" + this.id + " params]";
     // 使用するmodelのパラメータを表示するHTMLに切り替える
-    console.log("OH");
     if (this.id == "SOM") {
       document.getElementById("resolution-nodes").style.display = "";
       document.getElementById("sigmax").style.display = "";
@@ -789,6 +780,12 @@ window.onload = () => {
       "dimension of data " + GLOBALS.state.demoParams[1];
   }
   // modelのparamsを反映させる
+  console.log(current_epoch);
+  console.log(GLOBALS.state.epoch);
+  current_epoch.innerHTML = String(GLOBALS.state.epoch);
+  current_epoch.innerText = String(GLOBALS.state.epoch);
+  current_epoch.value = GLOBALS.state.epoch;
+  current_epoch.defaultValue = GLOBALS.state.epoch;
   // UKR
 
   // demoの設定
