@@ -5,20 +5,50 @@ if (typeof require != "undefined") {
 
 var GLOBALS = {
   playgroundDemo: null, // the object to control running the playground simulation
-  trayDemo: null, // the object to control running the tray simulation
   running: true,
-  unpausedBefore: false,
   stepLimit: document.getElementById("epoch-slider").value,
   state: {},
   showDemo: null,
-  perplexitySlider: null,
-  epsilonSlider: null,
   selected_model: "UKR",
   selected_id: 0,
   visibility: "off",
   current_Z: null,
   current_Y: null,
 };
+
+// shareされたURLのハッシュ部分からパラメータを引き継ぐ
+function setStateFromLocationHash() {
+  // 起動初回時のみパラメータを引き継ぐ
+  if (playgroundDemo == null) {
+    var params = {};
+    window.location.hash
+      .substring(1)
+      .split("&")
+      .forEach(function (p) {
+        var tokens = p.split("=");
+        params[tokens[0]] = tokens[1];
+      });
+    function getParam(key, fallback) {
+      return params[key] === undefined ? fallback : params[key];
+    }
+    GLOBALS.state = {
+      model: getParam("model", "UKR"),
+      // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
+      demoParams: getParam("demoParams", "0,100,10,5").split(",").map(Number),
+      // モデルのパラメータ
+      ldim: getParam("ldim", 2),
+      epoch: getParam("epoch", 1000),
+      // UKRのパラメータ
+      eta: getParam("eta", 1),
+      mapping_reso: getParam("mapping_reso", 10),
+      // SOMのパラメータ
+      node_reso: getParam("node_reso", 20),
+      sigmax: getParam("sigmax", 2.2),
+      sigmin: getParam("sigmin", 0.2),
+      tau: getParam("tau", 1000),
+    };
+  }
+}
 
 d3.select("#play_pause").on("click", () => {
   var play_pause = d3.select("#play_pause");
@@ -104,10 +134,18 @@ function updateParameters() {
   if (GLOBALS.playgroundDemo != null) {
     GLOBALS.state.model = GLOBALS.selected_model;
     GLOBALS.state.demo_id = GLOBALS.selected_id;
-    GLOBALS.state.data = document.getElementById("data-slider").value;
+    // GLOBALS.state.data = document.getElementById("data-slider").value;
+    // if (demos[GLOBALS.selected_id].options[1]) {
+    //   GLOBALS.state.dataDim = document.getElementById("dataDim-slider").value;
+    // }
+    var demoParams = "";
+    // dataParamsの数が可変のときに対応できないので要修正箇所
+    demoParams += String(document.getElementById("data-slider").value) + ",";
     if (demos[GLOBALS.selected_id].options[1]) {
-      GLOBALS.state.dataDim = document.getElementById("dataDim-slider").value;
+      demoParams +=
+        String(document.getElementById("dataDim-slider").value) + ",";
     }
+    GLOBALS.state.demoParams = demoParams.slice(0, -1);
     if (GLOBALS.selected_model == "SOM") {
       GLOBALS.state.node_reso = document.getElementById("node-slider").value;
       GLOBALS.state.ldim = document.getElementById("ldim-slider").value;
