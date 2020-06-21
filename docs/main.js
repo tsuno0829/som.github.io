@@ -6,8 +6,6 @@ if (typeof require != "undefined") {
 var GLOBALS = {
   playgroundDemo: null, // the object to control running the playground simulation
   running: true,
-  // stepLimit: document.getElementById("epoch-slider").value,
-  stepLimit: null,
   state: {},
   showDemo: null,
   selected_model: "UKR",
@@ -20,11 +18,10 @@ var GLOBALS = {
 d3.select("#play_pause").on("click", () => {
   var play_pause = d3.select("#play_pause");
 
-  // step >= stepLimitのとき，何もしない
+  // step >= GLOBALS.state.epochのとき，何もしない
   // 見やすくするためにstepが1,000のように点が含まれているので前処理で取り除く
   var step = parseInt(d3.select("#step").node().innerText.split(",").join(""));
-  var stepLimit = parseInt(GLOBALS.stepLimit);
-  if (step >= stepLimit) return;
+  if (step >= GLOBALS.state.epoch) return;
 
   if (GLOBALS.playgroundDemo != null) {
     // 押されたときにplayとpauseのアイコンを切り替える
@@ -252,8 +249,8 @@ function makeModelParamsSlider() {
   // var model = GLOBALS.selected_model;
   // 起動時のみ，modelParams用のsliderを生成する
   if (GLOBALS.playgroundDemo == null) {
-    // ukr sliderの初期設定用の連想配列
-    ukr_slider = {
+    // epochとldimはukr, somともに共通
+    model_slider = {
       epoch: {
         min: 1,
         max: 2000,
@@ -264,6 +261,9 @@ function makeModelParamsSlider() {
         max: 2,
         step: 1,
       },
+    };
+    // ukr sliderの初期設定用の連想配列
+    ukr_slider = {
       eta: {
         min: 0.01,
         max: 50,
@@ -277,16 +277,6 @@ function makeModelParamsSlider() {
     };
     // som sliderの初期設定用の連想配列
     som_slider = {
-      epoch: {
-        min: 1,
-        max: 2000,
-        step: 1,
-      },
-      ldim: {
-        min: 1,
-        max: 2,
-        step: 1,
-      },
       node_reso: {
         min: 1,
         max: 50,
@@ -308,7 +298,36 @@ function makeModelParamsSlider() {
         step: 1,
       },
     };
-    // epochが上に来てほしいのでkeyでsortする
+    // epochとldimに関して，ここでsliderを作る
+    var keys_epoch_ldim = ["epoch", "ldim"];
+    for (let i = 0; i < 2; i++) {
+      var tr = demoParamsTag.append("tr").attr("id", keys_epoch_ldim[i]);
+      // 1つ目の<td>は数字の表示用
+      tr
+        .append("td")
+        .append("span")
+        .attr("id", "curr-" + keys_epoch_ldim[i])
+        .node().innerText =
+        keys_epoch_ldim[i] + " " + GLOBALS.state[keys_epoch_ldim[i]];
+      // 2つ目の<td>はrange slider用
+      tr.append("td")
+        .append("input")
+        .attr("id", keys_epoch_ldim[i] + "-slider_")
+        .attr("type", "range")
+        .attr("min", model_slider[keys_epoch_ldim[i]].min)
+        .attr("max", model_slider[keys_epoch_ldim[i]].max)
+        .attr("step", model_slider[keys_epoch_ldim[i]].step)
+        .attr("value", GLOBALS.state[keys_epoch_ldim[i]])
+        .on("change", () => {
+          var value = d3.select("#" + keys_epoch_ldim[i] + "-slider_").node()
+            .value;
+          d3.select("#curr-" + keys_epoch_ldim[i]).node().innerText =
+            keys_epoch_ldim[i] + " " + String(value);
+          GLOBALS.state[keys_epoch_ldim[i]] = parseFloat(value);
+          console.log(GLOBALS.state[keys_epoch_ldim[i]]);
+          runDemo();
+        });
+    }
     var keys_ukr = Object.keys(GLOBALS.state.ukrParams).sort();
     for (let i = 0; i < keys_ukr.length; i++) {
       var tr = demoParamsTag
@@ -319,7 +338,7 @@ function makeModelParamsSlider() {
           "style",
           GLOBALS.selected_model == "UKR" ? "display:" : "display:none;"
         );
-      // 2つ目の<td>は数字の表示用
+      // 1つ目の<td>は数字の表示用
       tr
         .append("td")
         .append("span")
@@ -344,9 +363,7 @@ function makeModelParamsSlider() {
           runDemo();
         });
     }
-    // epochが上に来てほしいのでkeyでsortする
     var keys_som = Object.keys(GLOBALS.state.somParams).sort();
-    // console.log(GLOBALS.state.somParams);
     for (let i = 0; i < keys_som.length; i++) {
       var tr = demoParamsTag
         .append("tr")
@@ -374,6 +391,7 @@ function makeModelParamsSlider() {
         .attr("value", GLOBALS.state.somParams[keys_som[i]])
         .on("change", () => {
           var value = d3.select("#" + keys_som[i] + "-slider_").node().value;
+          console.log(value);
           d3.select("#curr-" + keys_som[i]).node().innerText =
             keys_som[i] + " " + String(value);
           GLOBALS.state.somParams[keys_som[i]] = parseFloat(value);
@@ -391,6 +409,8 @@ function makeModelParamsSlider() {
       d3.selectAll(".UKR").attr("style", "display:none;");
       d3.selectAll(".SOM").attr("style", "display: ;");
     }
+    d3.select("#epoch").attr("style", "display:");
+    d3.select("#ldim").attr("style", "display:");
   }
 }
 
@@ -525,7 +545,7 @@ function demoMaker(
   function stepCb(step) {
     var format = d3.format(",");
     d3.select("#step").text(format(step));
-    if (step >= GLOBALS.stepLimit) {
+    if (step >= GLOBALS.state.epoch) {
       setRunning(false);
       var play_pause = d3.select("#play_pause");
       var icon = "play_arrow";
@@ -640,10 +660,7 @@ function main(X) {
 
   const N = GLOBALS.state.demoParams[0];
   const K = GLOBALS.state.somParams["node_reso"];
-  const ldim =
-    GLOBALS.selected_model == "UKR"
-      ? GLOBALS.state.ukrParams["ldim"]
-      : GLOBALS.state.somParams["ldim"];
+  const ldim = GLOBALS.state.ldim;
   const sigmax = GLOBALS.state.somParams["sigmax"];
   const sigmin = GLOBALS.state.somParams["sigmin"];
   const tau = GLOBALS.state.somParams["tau"];
@@ -705,70 +722,6 @@ function main(X) {
 }
 
 window.onload = () => {
-  const current_node = document.getElementById("current-node");
-  const current_ldim = document.getElementById("current-ldim");
-  const current_sigmax = document.getElementById("current-sigmax");
-  const current_sigmin = document.getElementById("current-sigmin");
-  const current_epoch = document.getElementById("current-epoch");
-  const current_tau = document.getElementById("current-tau");
-  const current_eta = document.getElementById("current-eta");
-  const current_mapping_resolution = document.getElementById(
-    "current-mapping-resolution"
-  );
-  const setCurrentValue = (c) => (e) => {
-    var slider_key = e.target.id.split("-")[0];
-    if (slider_key == "epoch") {
-      GLOBALS.stepLimit = e.target.value;
-    }
-    // console.log(slider_key);
-    // console.log(e.target.value);
-    GLOBALS.state[slider_key] = e.target.value;
-    c.innerText = e.target.value;
-    if (GLOBALS.playgroundDemo != null) {
-      // setRunning(false);
-      // // playからpauseアイコンに切り替える
-      // var play_pause = d3.select("#play_pause");
-      // var icon = "pause";
-      // play_pause.select("i").remove();
-      // play_pause.append("i").attr("class", "material-icons");
-      // play_pause.select("i").node().innerHTML = icon;
-      // // demoの設定を行う
-      // var demo = demos[GLOBALS.selected_id];
-      // var params = [];
-      // for (let j = 0; j < demo.options.length; j++) {
-      //   params.push(GLOBALS.state.demoParams[j]);
-      // }
-      // var points = demo.generator.apply(null, params);
-      // main(points);
-      runDemo();
-    }
-  };
-
-  document
-    .getElementById("node-slider")
-    .addEventListener("input", setCurrentValue(current_node));
-  document
-    .getElementById("ldim-slider")
-    .addEventListener("input", setCurrentValue(current_ldim));
-  document
-    .getElementById("sigmax-slider")
-    .addEventListener("input", setCurrentValue(current_sigmax));
-  document
-    .getElementById("sigmin-slider")
-    .addEventListener("input", setCurrentValue(current_sigmin));
-  document
-    .getElementById("epoch-slider")
-    .addEventListener("input", setCurrentValue(current_epoch));
-  document
-    .getElementById("tau-slider")
-    .addEventListener("input", setCurrentValue(current_tau));
-  document
-    .getElementById("eta-slider")
-    .addEventListener("input", setCurrentValue(current_eta));
-  document
-    .getElementById("mapping-resolution-slider")
-    .addEventListener("input", setCurrentValue(current_mapping_resolution));
-
   //radio button's setting
   function model_select() {
     var models = document.getElementsByClassName("model");
@@ -782,22 +735,6 @@ window.onload = () => {
     // model-paramsの表示を新しいモデル名に変更する
     document.getElementById("model-params").innerHTML =
       "[" + this.id + " params]";
-    // 使用するmodelのパラメータを表示するHTMLに切り替える
-    if (this.id == "SOM") {
-      document.getElementById("resolution-nodes").style.display = "";
-      document.getElementById("sigmax").style.display = "";
-      document.getElementById("sigmin").style.display = "";
-      document.getElementById("tau").style.display = "";
-      document.getElementById("eta").style.display = "none";
-      document.getElementById("mapping-resolution").style.display = "none";
-    } else {
-      document.getElementById("resolution-nodes").style.display = "none";
-      document.getElementById("sigmax").style.display = "none";
-      document.getElementById("sigmin").style.display = "none";
-      document.getElementById("tau").style.display = "none";
-      document.getElementById("eta").style.display = "";
-      document.getElementById("mapping-resolution").style.display = "";
-    }
     // UKRとSOMのスライダーを切り替える
     makeModelParamsSlider();
     // playからpauseアイコンに切り替える
@@ -844,53 +781,24 @@ window.onload = () => {
       }
       GLOBALS.state.selected_model = getParam("model", "UKR");
       GLOBALS.selected_id = parseFloat(getParam("demo_id", 0));
-      if (GLOBALS.state.selected_model == "UKR") {
-        GLOBALS.state = {
-          // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
-          demoParams: getParam("demoParams", "100,10,5").split(",").map(Number),
-          // モデルのパラメータ
-          ldim: parseFloat(getParam("ldim", 2)),
-          epoch: parseFloat(getParam("epoch", 1000)),
-          // UKRのパラメータ
-          eta: parseFloat(getParam("eta", 2)),
-          mapping_reso: parseFloat(getParam("mapping_reso", 10)),
-        };
-      } else {
-        GLOBALS.state = {
-          // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
-          demoParams: getParam("demoParams", "100,10,5").split(",").map(Number),
-          // モデルのパラメータ
-          ldim: parseFloat(getParam("ldim", 2)),
-          epoch: parseFloat(getParam("epoch", 1000)),
-          // SOMのパラメータ
-          node_reso: parseFloat(getParam("node_reso", 20)),
-          sigmax: parseFloat(getParam("sigmax", 2.2)),
-          sigmin: parseFloat(getParam("sigmin", 0.2)),
-          tau: parseFloat(getParam("tau", 900)),
-        };
-      }
-      // modelSlider用に保存する
-      GLOBALS.state.ukrParams = {
+      // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
+      GLOBALS.state = {
+        // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
+        demoParams: getParam("demoParams", "100,10,5").split(",").map(Number),
         // モデルのパラメータ
         ldim: parseFloat(getParam("ldim", 2)),
         epoch: parseFloat(getParam("epoch", 1000)),
-        // UKRのパラメータ
+      };
+      GLOBALS.state.ukrParams = {
         eta: parseFloat(getParam("eta", 2)),
         mapping_reso: parseFloat(getParam("mapping_reso", 10)),
       };
-      // modelSlider用に保存する
       GLOBALS.state.somParams = {
-        // モデルのパラメータ
-        ldim: parseFloat(getParam("ldim", 2)),
-        epoch: parseFloat(getParam("epoch", 1000)),
-        // SOMのパラメータ
         node_reso: parseFloat(getParam("node_reso", 20)),
         sigmax: parseFloat(getParam("sigmax", 2.2)),
         sigmin: parseFloat(getParam("sigmin", 0.2)),
         tau: parseFloat(getParam("tau", 900)),
       };
-      // 要修正箇所
-      GLOBALS.stepLimit = GLOBALS.state.epoch;
       // console.log(GLOBALS);
     }
   }
@@ -906,17 +814,7 @@ window.onload = () => {
   d3.selectAll(".demo-data").classed("selected", (_, j) => {
     return GLOBALS.selected_id == j;
   });
-  // sliderのinnerTextにparamsを反映させる
-  // UKR
-  current_epoch.innerText = GLOBALS.state.epoch;
-  current_ldim.innerHTML = GLOBALS.state.ldim;
-  current_eta.innerText = GLOBALS.state.eta;
-  current_mapping_resolution.innerText = GLOBALS.state.mapping_reso;
-  // SOM
-  current_node.innerText = GLOBALS.state.node_reso;
-  current_sigmax.innerText = GLOBALS.state.sigmax;
-  current_sigmin.innerText = GLOBALS.state.sigmin;
-  current_tau.innerText = GLOBALS.state.tau;
+  console.log(GLOBALS);
   // demoの設定
   var demo = demos[GLOBALS.selected_id];
   var params = [];
