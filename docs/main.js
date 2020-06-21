@@ -102,7 +102,7 @@ function updateParameters() {
       demoParams += GLOBALS.state.demoParams[i] + ",";
     }
     GLOBALS.state.demoParams = demoParams.slice(0, -1);
-    if (GLOBALS.selected_model == "SOM") {
+    if (GLOBALS.state.selected_model == "SOM") {
       GLOBALS.state.node_reso = document.getElementById("node-slider").value;
       GLOBALS.state.ldim = document.getElementById("ldim-slider").value;
       GLOBALS.state.sigmax = document.getElementById("sigmax-slider").value;
@@ -351,7 +351,7 @@ function demoMaker(
     .range([60, 30, 20, 10, 0]);
 
   var som, ukr;
-  if (GLOBALS.selected_model == "SOM") som = new somjs.SOM();
+  if (GLOBALS.state.selected_model == "SOM") som = new somjs.SOM();
   else ukr = new ukrjs.UKR();
 
   function stepCb(step) {
@@ -374,7 +374,7 @@ function demoMaker(
     if (step >= 200 || Dim == 3) chunk = 1;
     for (var k = 0; k < chunk; k++) {
       // SOM
-      if (GLOBALS.selected_model == "SOM") {
+      if (GLOBALS.state.selected_model == "SOM") {
         sigma = calc_sigma(step, tau, sigmax, sigmin);
         Y = som.estimate_f(X, Y, Z, Zeta, sigma);
         Z = som.estimate_z(X, Y, Z, Zeta);
@@ -406,7 +406,7 @@ function demoMaker(
       Y = GLOBALS.current_Y;
     }
     // SOM
-    if (GLOBALS.selected_model == "SOM") {
+    if (GLOBALS.state.selected_model == "SOM") {
       visualize_latent_space(Z, Zeta, width, height, margin);
       // Dim=1,2,3のときだけ観測空間を表示
       if (GLOBALS.visibility == "on") {
@@ -471,7 +471,7 @@ function main(X) {
   }
 
   // Modelの名前が変更されていたら反映する
-  if (GLOBALS.selected_model == "SOM") {
+  if (GLOBALS.state.selected_model == "SOM") {
     // document.getElementById("model_params").value = "a";
     var x = d3.select("model-params");
   }
@@ -497,7 +497,7 @@ function main(X) {
   for (let n = 0; n < X.length; n++) Z[n].color = X[n].color; // XとZが指すcolorを統一する
 
   var Y, Zeta;
-  if (GLOBALS.selected_model == "SOM") {
+  if (GLOBALS.state.selected_model == "SOM") {
     Zeta = create_zeta(K, Zdim);
     Y = initMatrix(Zeta.length, Dim);
   } else {
@@ -613,7 +613,7 @@ window.onload = () => {
       if (models[i].id == this.id) models[i].checked = true;
       else models[i].checked = false;
     }
-    GLOBALS.selected_model = this.id;
+    GLOBALS.state.selected_model = this.id;
     // model-paramsの表示を新しいモデル名に変更する
     document.getElementById("model-params").innerHTML =
       "[" + this.id + " params]";
@@ -676,9 +676,9 @@ window.onload = () => {
       function getParam(key, fallback) {
         return params[key] === undefined ? fallback : params[key];
       }
-      GLOBALS.selected_model = getParam("model", "UKR");
+      GLOBALS.state.selected_model = getParam("model", "UKR");
       GLOBALS.selected_id = parseFloat(getParam("demo_id", 0));
-      if (GLOBALS.selected_model == "UKR") {
+      if (GLOBALS.state.selected_model == "UKR") {
         GLOBALS.state = {
           // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
           demoParams: getParam("demoParams", "100,10,5").split(",").map(Number),
