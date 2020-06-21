@@ -542,7 +542,6 @@ function main(X) {
 }
 
 window.onload = () => {
-  const current_data = document.getElementById("current-data");
   const current_node = document.getElementById("current-node");
   const current_ldim = document.getElementById("current-ldim");
   const current_sigmax = document.getElementById("current-sigmax");
@@ -647,7 +646,6 @@ window.onload = () => {
     }
     var points = demo.generator.apply(null, params);
     main(points);
-    console.log("Changed Model");
   }
   document.getElementById("SOM").addEventListener("change", model_select);
   document.getElementById("UKR").addEventListener("change", model_select);
@@ -720,12 +718,15 @@ window.onload = () => {
   });
   // sliderのinnerTextにparamsを反映させる
   // UKR
-  // current_data.innerText = GLOBALS.state.demoParams[0];
   current_epoch.innerText = GLOBALS.state.epoch;
   current_ldim.innerHTML = GLOBALS.state.ldim;
   current_eta.innerText = GLOBALS.state.eta;
   current_mapping_resolution.innerText = GLOBALS.state.mapping_reso;
-
+  // SOM
+  current_node.innerText = GLOBALS.state.node_reso;
+  current_sigmax.innerText = GLOBALS.state.sigmax;
+  current_sigmin.innerText = GLOBALS.state.sigmin;
+  current_tau.innerText = GLOBALS.state.tau;
   // demoの設定
   var demo = demos[GLOBALS.selected_id];
   var params = [];
