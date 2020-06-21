@@ -437,6 +437,9 @@ var dataMenus = menuDiv
     GLOBALS.selected_id = i;
     var demo = demos[i];
 
+    // demoの説明文をdemo-descriptionに反映する
+    d3.select("#demo-description").node().innerText = demo.description;
+
     // demoの引数を全て読み込む
     var params = [];
     for (let j = 0; j < demo.options.length; j++) {
@@ -817,6 +820,8 @@ window.onload = () => {
   console.log(GLOBALS);
   // demoの設定
   var demo = demos[GLOBALS.selected_id];
+  // demoの説明文をdemo-descriptionに反映する
+  d3.select("#demo-description").node().innerText = demo.description;
   var params = [];
   for (let i = 0; i < demo.options.length; i++)
     params.push(GLOBALS.state.demoParams[i]);
