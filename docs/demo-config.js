@@ -501,7 +501,7 @@ function swiss_roll(n_samples, noise = 0.2) {
 }
 
 // from sklearn
-function moon(n_samples, noise = 0.05) {
+function moon(n_samples, noise) {
   var points = [];
   n_samples_out = Math.floor(n_samples / 2);
   n_samples_in = n_samples - n_samples_out;
@@ -547,9 +547,8 @@ function moon(n_samples, noise = 0.05) {
 }
 
 // from sklearn
-function circles(n_samples, noise = 0.05) {
+function circles(n_samples, factor, noise) {
   var points = [];
-  var factor = 0.5;
   n_samples_out = Math.floor(n_samples / 2);
   n_samples_in = n_samples - n_samples_out;
 
@@ -857,6 +856,18 @@ var demos = [
         max: 200,
         start: 100,
       },
+      {
+        name: "Factor",
+        min: 0,
+        max: 1,
+        start: 0.5,
+      },
+      {
+        name: "Std Of Gaussian Noise",
+        min: 0,
+        max: 0.1,
+        start: 0.02,
+      },
     ],
     generator: circles,
   },
@@ -869,6 +880,12 @@ var demos = [
         min: 50,
         max: 200,
         start: 100,
+      },
+      {
+        name: "Std Of Gaussian Noise",
+        min: 0,
+        max: 0.5,
+        start: 0.1,
       },
     ],
     generator: moon,

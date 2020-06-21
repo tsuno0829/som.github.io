@@ -216,6 +216,7 @@ function makeDemoParamsSlider() {
     }
     // console.log(d3.select("#" + y).node());
     // 2つ目のtdタグには，range sliderを生成する
+    var step01list = ["StdOfGaussianNoise", "Factor"];
     x.append("td")
       .append("input")
       .attr("id", y + "-slider")
@@ -223,8 +224,8 @@ function makeDemoParamsSlider() {
       .attr(
         // この書き方はかなり無理矢理なのでもっといい方法がないか検討する必要がある
         "step",
-        String(demo.options[i].name.split(" ").join("")) == "StdOfGaussianNoise"
-          ? 0.1
+        step01list.includes(demo.options[i].name.split(" ").join(""))
+          ? 0.01
           : 1.0
       )
       .attr("min", z.min)
@@ -239,7 +240,15 @@ function makeDemoParamsSlider() {
         // スライダーの値が変更されたときに，GLOBALS.stateに値を反映
         // して，値を1つめのtdタグのinnerTextに更新する
         var value = d3.select("#" + s + "-slider").node().value;
-        GLOBALS.state.demoParams[i] = parseFloat(value);
+        // 前回のGLOBALS.state.demoParamsをすべて消す
+        GLOBALS.state.demoParams = [];
+        // 全てのdemoParamsを更新する
+        for (let j = 0; j < demo.options.length; j++) {
+          var ss =
+            "current-" + String(demo.options[j].name.split(" ").join(""));
+          var v = d3.select("#" + ss + "-slider").node().value;
+          GLOBALS.state.demoParams.push(parseFloat(v));
+        }
         d3.select("#" + s).node().innerText =
           demo.options[i].name + " " + value;
         // スライダーが変化したときに更新後のdemoを再生する
