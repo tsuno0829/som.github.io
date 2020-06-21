@@ -32,61 +32,30 @@
       Source code available on <a href=https://github.com/tsuno0829/som.github.io>github</a>.
     </div>
 
-    <form id="model_selection">
-      <input id="UKR" class=model type="radio" checked> Unsupervised Kernel Regression (UKR)
-      <input id="SOM" class=model type="radio"> Self-Organizing Map (SOM)
-    </form>
-
     <div id="data-option">
       <div id="data-menu" class="menu"></div>
-      <table id="demo-params" class="menu">
-        <tr>
-          <td><font size=4>[Demo params]</font></td>
-        </tr>
-        <tr id="demo-params0"></tr>
-        <tr id="demo-params1"></tr>
-        <tr id="demo-params2"></tr>
-        <tr id="demo-params3"></tr>
-        <tr id="demo-params4"></tr>
-        <tr>
-          <td><br></td>
-        </tr>
-        <tr>
-          <td><font size=4 id="model-params">[UKR params]</font></td>
-        </tr>
-        <!-- <tr>
-          <td>epoch <span id="current-epoch"></span></td>
-          <td><input id="epoch-slider" type="range" value="1000" min="1" max="2000" step="1"></td>
-        </tr>
-        <tr>
-          <td>latent dim <span id="current-ldim"></span></td>
-          <td><input id="ldim-slider" type="range" value="2" min="1" max="2" step="1"></td>
-        </tr>
-        <tr id=resolution-nodes style="display: none;">
-          <td>resolution of nodes <span id="current-node"></span></td>
-          <td><input id="node-slider" type="range" value="20" min="2" max="100" step="1"></td>
-        </tr>
-        <tr id="sigmax" style="display: none;">
-          <td>sigma max <span id="current-sigmax"></span></td>
-          <td><input id="sigmax-slider" type="range" value="2.2" min="0.1" max="4" step="0.1"></td>
-        </tr>
-        <tr id="sigmin" style="display: none;">
-          <td>sigma min <span id="current-sigmin"></span></td>
-          <td><input id="sigmin-slider" type="range" value="0.2" min="0.1" max="4" step="0.1"></td>
-        </tr>
-        <tr id="tau" style="display: none;">
-          <td>tau <span id="current-tau"></span></td>
-          <td><input id="tau-slider" type="range" value="1000" min="1" max="2000" step="1"></td>
-        </tr>
-        <tr id="eta">
-          <td>eta <span id="current-eta"></span></td>
-          <td><input id="eta-slider" type="range" value="1" min="0.01" max="20" step="0.01"></td>
-        </tr>
-        <tr id="mapping-resolution">
-          <td>mapping-resolution <span id="current-mapping-resolution"></span></td>
-          <td><input id="mapping-resolution-slider" type="range" value="10" min="2" max="50" step="1"></td>
-        </tr> -->
-      </table>
+      <div>
+        <form id="model_selection">
+          <input id="UKR" class=model type="radio" checked> Unsupervised Kernel Regression (UKR)
+          <br>
+          <input id="SOM" class=model type="radio"> Self-Organizing Map (SOM)
+        </form>
+        <table id="demo-params" class="menu">
+          <tr>
+            <td><font size=4>[Demo params]</font></td>
+          </tr>
+          <tr id="demo-params0"></tr>
+          <tr id="demo-params1"></tr>
+          <tr id="demo-params2"></tr>
+          <tr id="demo-params3"></tr>
+          <tr id="demo-params4"></tr>
+          <tr>
+            <td><br></td>
+          </tr>
+          <tr>
+            <td><font size=4 id="model-params">[UKR params]</font></td>
+          </tr>
+        </table>
     </div>
 
     <br>
@@ -97,6 +66,7 @@
       <button id="refresh" class="control-button" type="button" style="width: 40px;"><i class="material-icons">refresh</i></button>
       <button id="visibility_on_off" class="control-button" type="button" style="width: 40px; display: none;"><i class="material-icons">visibility_off</i></button>
       <a id="share" class="link_button" href="#"><i class="material-icons">link</i>share this view</a>
+    </div>
     </div>
 
     <style>
@@ -128,7 +98,7 @@
         float: left;
         margin: 2px;
         padding: 4px;
-        width: calc(33% - 4px);
+        width: calc(33% - 4px); /* demoを3個並べる */
         background: white;
         border: 1px solid rgba(0, 0, 0, 0.1);
         border-radius: 4px;
@@ -136,14 +106,14 @@
       }
       @media(min-width: 480px) {
         #data-menu .demo-data {
-          width: calc(25% - 8px);
+          width: calc(25% - 8px); /* demoを4個並べる */
           padding: 8px;
           margin: 4px;
         }
       }
       @media(min-width: 768px) {
         #data-menu .demo-data {
-          width: calc(16.5% - 8px);
+          width: calc(16.5% - 8px); /* demoを6個並べる */
           padding: 8px;
           margin: 4px;
         }
