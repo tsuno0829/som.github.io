@@ -806,6 +806,15 @@ window.onload = () => {
   // URLにhashがついていない場合は，用意しておいたデモを再生する
   // hashがついている場合は，そのhash通りのパラメータでデモを再生する
   setStateFromLocationHash();
+  // radio buttonの初期位置を決める
+  var models = document.getElementsByClassName("model");
+  for (let i = 0; i < models.length; i++) {
+    if (models[i].id == GLOBALS.selected_model) models[i].checked = true;
+    else models[i].checked = false;
+  }
+  // model-paramsの表示を新しいモデル名に変更する
+  document.getElementById("model-params").innerHTML =
+    "[" + GLOBALS.selected_model + " params]";
   // demo用のスライダーを作成する
   makeDemoParamsSlider();
   // model用のスライダーを作成する
