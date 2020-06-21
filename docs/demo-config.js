@@ -976,7 +976,7 @@ var demos = [
         start: 100,
       },
       {
-        name: "std of gaussian noise",
+        name: "Std Of Gaussian Noise",
         min: 0,
         max: 1,
         start: 0.3,

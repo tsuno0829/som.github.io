@@ -220,6 +220,13 @@ function makeDemoParamsSlider() {
       .append("input")
       .attr("id", y + "-slider")
       .attr("type", "range")
+      .attr(
+        // この書き方はかなり無理矢理なのでもっといい方法がないか検討する必要がある
+        "step",
+        String(demo.options[i].name.split(" ").join("")) == "StdOfGaussianNoise"
+          ? 0.1
+          : 1.0
+      )
       .attr("min", z.min)
       .attr("max", z.max)
       .attr(
