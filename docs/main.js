@@ -236,9 +236,15 @@ function makeDemoParamsSlider() {
       )
       .attr("value", firstBoot_urlHash ? GLOBALS.state.demoParams[i] : z.start)
       .on("input", () => {
-        var s = "current-" + String(demo.options[i].name.split(" ").join(""));
+        // playからpauseアイコンに切り替える
+        var play_pause = d3.select("#play_pause");
+        var icon = "pause";
+        play_pause.select("i").remove();
+        play_pause.append("i").attr("class", "material-icons");
+        play_pause.select("i").node().innerHTML = icon;
         // スライダーの値が変更されたときに，GLOBALS.stateに値を反映
         // して，値を1つめのtdタグのinnerTextに更新する
+        var s = "current-" + String(demo.options[i].name.split(" ").join(""));
         var value = d3.select("#" + s + "-slider").node().value;
         // 前回のGLOBALS.state.demoParamsをすべて消す
         GLOBALS.state.demoParams = [];
