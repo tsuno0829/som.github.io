@@ -93,35 +93,37 @@ d3.select("#visibility_on_off").on("click", () => {
 
 function updateParameters() {
   if (GLOBALS.playgroundDemo != null) {
-    console.log(GLOBALS);
+    // console.log(GLOBALS);
+    var x;
     var demo = demos[GLOBALS.selected_id];
     var demoParams = "";
     for (let i = 0; i < demo.options.length; i++) {
       demoParams += GLOBALS.state.demoParams[i] + ",";
     }
-    GLOBALS.state.demoParams = demoParams.slice(0, -1);
-    if (GLOBALS.state.selected_model == "SOM") {
-      GLOBALS.state.node_reso = document.getElementById("node-slider").value;
-      GLOBALS.state.ldim = document.getElementById("ldim-slider").value;
-      GLOBALS.state.sigmax = document.getElementById("sigmax-slider").value;
-      GLOBALS.state.sigmin = document.getElementById("sigmin-slider").value;
-      GLOBALS.state.epoch = document.getElementById("epoch-slider").value;
-      GLOBALS.state.tau = document.getElementById("tau-slider").value;
-    } else {
-      GLOBALS.state.ldim = document.getElementById("ldim-slider").value;
-      GLOBALS.state.epoch = document.getElementById("epoch-slider").value;
-      GLOBALS.state.eta = document.getElementById("eta-slider").value;
-      GLOBALS.state.mapping_reso = document.getElementById(
-        "mapping-resolution-slider"
-      ).value;
-    }
+    // console.log(GLOBALS.selected_id);
+    // console.log(GLOBALS.selected_model);
+    // console.log(demoParams);
+
+    var modelParams =
+      GLOBALS.selected_model == "UKR"
+        ? GLOBALS.state.ukrParams
+        : GLOBALS.state.somParams;
+    console.log(modelParams);
+    x = {
+      selected_model: GLOBALS.selected_model,
+      selected_id: GLOBALS.selected_id,
+      demoParams: demoParams,
+      epoch: GLOBALS.state.epoch,
+      ldim: GLOBALS.state.ldim,
+      ...modelParams,
+    };
   }
   d3.select("#share")
     .style("display", "")
-    .attr("href", "#" + generateHash());
+    .attr("href", "#" + generateHash(x));
 }
 
-function generateHash() {
+function generateHash(x) {
   function stringify(map) {
     var s = "";
     for (key in map) {
@@ -129,7 +131,7 @@ function generateHash() {
     }
     return s.substring(1);
   }
-  return stringify(GLOBALS.state);
+  return stringify(x);
 }
 
 // share-button
@@ -782,8 +784,8 @@ window.onload = () => {
       function getParam(key, fallback) {
         return params[key] === undefined ? fallback : params[key];
       }
-      GLOBALS.state.selected_model = getParam("model", "UKR");
-      GLOBALS.selected_id = parseFloat(getParam("demo_id", 0));
+      GLOBALS.selected_model = getParam("selected_model", "UKR");
+      GLOBALS.selected_id = parseFloat(getParam("selected_id", 0));
       // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
       GLOBALS.state = {
         // demoのパラメータはデータによって異なるのでdataParamsで一括にして扱う
@@ -817,7 +819,6 @@ window.onload = () => {
   d3.selectAll(".demo-data").classed("selected", (_, j) => {
     return GLOBALS.selected_id == j;
   });
-  console.log(GLOBALS);
   // demoの設定
   var demo = demos[GLOBALS.selected_id];
   // demoの説明文をdemo-descriptionに反映する
