@@ -515,7 +515,6 @@ function demoMaker(
   ldim,
   sigmax,
   sigmin,
-  // nb_epoch,
   tau,
   eta,
   mapping_resolution,
@@ -539,8 +538,11 @@ function demoMaker(
     .range([60, 30, 20, 10, 0]);
 
   var som, ukr;
-  if (GLOBALS.state.selected_model == "SOM") som = new somjs.SOM();
-  else ukr = new ukrjs.UKR();
+  if (GLOBALS.selected_model == "UKR") {
+    ukr = new ukrjs.UKR();
+  } else {
+    som = new somjs.SOM();
+  }
 
   function stepCb(step) {
     var format = d3.format(",");
@@ -562,13 +564,12 @@ function demoMaker(
     if (step >= 200 || Dim == 3) chunk = 1;
     for (var k = 0; k < chunk; k++) {
       // SOM
-      if (GLOBALS.state.selected_model == "SOM") {
+      if (GLOBALS.selected_model == "SOM") {
         sigma = calc_sigma(step, tau, sigmax, sigmin);
         Y = som.estimate_f(X, Y, Z, Zeta, sigma);
         Z = som.estimate_z(X, Y, Z, Zeta);
       } else {
         // UKR
-        // const eta = 1;
         [Y, h, H] = ukr.estimate_f(X, Y, Z);
         Z = ukr.estimate_z(X, Y, Z, h, H, eta);
       }
@@ -594,7 +595,7 @@ function demoMaker(
       Y = GLOBALS.current_Y;
     }
     // SOM
-    if (GLOBALS.state.selected_model == "SOM") {
+    if (GLOBALS.selected_model == "SOM") {
       visualize_latent_space(Z, Zeta, width, height, margin);
       // Dim=1,2,3のときだけ観測空間を表示
       if (GLOBALS.visibility == "on") {
@@ -677,7 +678,7 @@ function main(X) {
   }
 
   var Y, Zeta;
-  if (GLOBALS.state.selected_model == "SOM") {
+  if (GLOBALS.selected_model == "SOM") {
     Zeta = create_zeta(K, Zdim);
     Y = initMatrix(Zeta.length, Dim);
   } else {
@@ -731,7 +732,6 @@ window.onload = () => {
     }
     // selected_idとstate.selected_idが重複しているので要修正
     GLOBALS.selected_model = this.id;
-    GLOBALS.state.selected_model = this.id;
     // model-paramsの表示を新しいモデル名に変更する
     document.getElementById("model-params").innerHTML =
       "[" + this.id + " params]";
