@@ -59,11 +59,7 @@ d3.select("#refresh").on("click", (d, i) => {
 
     // demoを実行する
     var demo = demos[GLOBALS.selected_id];
-    var params = [parseInt(document.getElementById("data-slider").value)];
-    if (demo.options[1]) params.push(d3.select("#dataDim-slider").node().value);
-    if (demo.options[2]) params.push(demo.options[2].start);
-    if (demo.options[3]) params.push(demo.options[3].start);
-    var points = demo.generator.apply(null, params);
+    var points = demo.generator.apply(null, GLOBALS.state.demoParams);
     main(points);
   }
 });
@@ -96,40 +92,6 @@ d3.select("#visibility_on_off").on("click", () => {
     }
   }
 });
-
-// function updateParameters() {
-//   if (GLOBALS.playgroundDemo != null) {
-//     console.log(GLOBALS);
-//     GLOBALS.state.model = GLOBALS.selected_model;
-//     GLOBALS.state.demo_id = GLOBALS.selected_id;
-//     var demoParams = "";
-//     // dataParamsの数が可変のときに対応できないので要修正箇所
-//     demoParams += String(document.getElementById("data-slider").value) + ",";
-//     if (demos[GLOBALS.selected_id].options[1]) {
-//       demoParams +=
-//         String(document.getElementById("dataDim-slider").value) + ",";
-//     }
-//     GLOBALS.state.demoParams = demoParams.slice(0, -1);
-//     if (GLOBALS.selected_model == "SOM") {
-//       GLOBALS.state.node_reso = document.getElementById("node-slider").value;
-//       GLOBALS.state.ldim = document.getElementById("ldim-slider").value;
-//       GLOBALS.state.sigmax = document.getElementById("sigmax-slider").value;
-//       GLOBALS.state.sigmin = document.getElementById("sigmin-slider").value;
-//       GLOBALS.state.epoch = document.getElementById("epoch-slider").value;
-//       GLOBALS.state.tau = document.getElementById("tau-slider").value;
-//     } else {
-//       GLOBALS.state.ldim = document.getElementById("ldim-slider").value;
-//       GLOBALS.state.epoch = document.getElementById("epoch-slider").value;
-//       GLOBALS.state.eta = document.getElementById("eta-slider").value;
-//       GLOBALS.state.mapping_reso = document.getElementById(
-//         "mapping-resolution-slider"
-//       ).value;
-//     }
-//   }
-//   d3.select("#share")
-//     .style("display", "")
-//     .attr("href", "#" + generateHash());
-// }
 
 function updateParameters() {
   if (GLOBALS.playgroundDemo != null) {
@@ -292,6 +254,8 @@ var dataMenus = menuDiv
     for (let j = 0; j < demo.options.length; j++) {
       params.push(demo.options[j].start);
     }
+    // GLOBALS.state.demoParamsにも反映する
+    GLOBALS.state.demoParams = params;
 
     // demo用のスライダーを作成する
     makeDemoParamsSlider();

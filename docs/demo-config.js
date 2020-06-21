@@ -671,7 +671,7 @@ var demos = [
       },
       {
         name: "Number of arms",
-        min: 3,
+        min: 2,
         max: 20,
         start: 5,
       },
