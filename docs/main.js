@@ -227,6 +227,24 @@ function makeDemoParamsSlider() {
   }
 }
 
+function runDemo() {
+  setRunning(false);
+  // playからpauseアイコンに切り替える
+  var play_pause = d3.select("#play_pause");
+  var icon = "pause";
+  play_pause.select("i").remove();
+  play_pause.append("i").attr("class", "material-icons");
+  play_pause.select("i").node().innerHTML = icon;
+  // demoの設定を行う
+  var demo = demos[GLOBALS.selected_id];
+  var params = [];
+  for (let j = 0; j < demo.options.length; j++) {
+    params.push(GLOBALS.state.demoParams[j]);
+  }
+  var points = demo.generator.apply(null, params);
+  main(points);
+}
+
 function makeModelParamsSlider() {
   var demoParamsTag = d3.select("#demo-params");
   // selected_modelの前回の履歴を消す（いらないかも）
@@ -321,7 +339,9 @@ function makeModelParamsSlider() {
           var value = d3.select("#" + keys_ukr[i] + "-slider_").node().value;
           d3.select("#curr-" + keys_ukr[i]).node().innerText =
             keys_ukr[i] + " " + String(value);
-          // GLOBALS.state.ukrParams[keys_ukr[i]] = ;
+          GLOBALS.state.ukrParams[keys_ukr[i]] = parseFloat(value);
+          console.log(GLOBALS.state.ukrParams);
+          runDemo();
         });
     }
     // epochが上に来てほしいのでkeyでsortする
@@ -356,29 +376,21 @@ function makeModelParamsSlider() {
           var value = d3.select("#" + keys_som[i] + "-slider_").node().value;
           d3.select("#curr-" + keys_som[i]).node().innerText =
             keys_som[i] + " " + String(value);
-          console.log(value);
+          GLOBALS.state.somParams[keys_som[i]] = parseFloat(value);
+          console.log(GLOBALS.state.somParams);
+          runDemo();
         });
     }
   } else {
     // 2度目以降に呼び出されたときの処理
+    // console.log(GLOBALS.selected_model);
     if (GLOBALS.selected_model == "UKR") {
-      d3.selectAll(".UKR").attr("style", "display:;");
-      d3.selectALL(".SOM").attr("style", "display:none;");
+      d3.selectAll(".SOM").attr("style", "display:none;");
+      d3.selectAll(".UKR").attr("style", "display: ;");
     } else {
       d3.selectAll(".UKR").attr("style", "display:none;");
-      d3.selectAll(".SOM").attr("style", "display:;");
+      d3.selectAll(".SOM").attr("style", "display: ;");
     }
-    // epochが上に来てほしいのでkeyでsortする
-    // var keys_som = Object.keys(GLOBALS.state.somParams).sort();
-    // for (let i = 0; i < keys_som.length; i++) {
-    // var tr = demoParamsTag
-    //   .append("tr")
-    //   .attr("id", keys_som[i])
-    //   .attr("class", "SOM")
-    //   .attr(
-    //     "style",
-    //     GLOBALS.selected_model == "SOM" ? "display:" : "display:none;"
-    //   );
   }
 }
 
@@ -626,31 +638,26 @@ function main(X) {
       .classed("a", true);
   }
 
-  // Modelの名前が変更されていたら反映する
-  if (GLOBALS.state.selected_model == "SOM") {
-    // document.getElementById("model_params").value = "a";
-    var x = d3.select("model-params");
-  }
-
   const N = GLOBALS.state.demoParams[0];
-  // const N = parseInt(document.getElementById("data-slider").value);
-  const K = parseInt(document.getElementById("node-slider").value);
-  const ldim = parseInt(document.getElementById("ldim-slider").value);
-  const sigmax = parseFloat(document.getElementById("sigmax-slider").value);
-  const sigmin = parseFloat(document.getElementById("sigmin-slider").value);
-  // // const epoch = parseFloat(document.getElementById("epoch-slider").value);
-  const tau = parseInt(document.getElementById("tau-slider").value);
-  // const eta = parseFloat(document.getElementById("eta-slider").value);
-  const eta = GLOBALS.state.eta;
-  const mapping_resolution = parseInt(
-    document.getElementById("mapping-resolution-slider").value
-  );
+  const K = GLOBALS.state.somParams["node_reso"];
+  const ldim =
+    GLOBALS.selected_model == "UKR"
+      ? GLOBALS.state.ukrParams["ldim"]
+      : GLOBALS.state.somParams["ldim"];
+  const sigmax = GLOBALS.state.somParams["sigmax"];
+  const sigmin = GLOBALS.state.somParams["sigmin"];
+  const tau = GLOBALS.state.somParams["tau"];
+  const eta = GLOBALS.state.ukrParams["eta"];
+  const mapping_resolution = GLOBALS.state.ukrParams["mapping_reso"];
 
   Dim = X[0].coords.length;
   Zdim = ldim;
 
   let Z = initMatrix(X.length, Zdim);
-  for (let n = 0; n < X.length; n++) Z[n].color = X[n].color; // XとZが指すcolorを統一する
+  for (let n = 0; n < X.length; n++) {
+    // XとZが指すcolorを統一する
+    Z[n].color = X[n].color;
+  }
 
   var Y, Zeta;
   if (GLOBALS.state.selected_model == "SOM") {
@@ -718,21 +725,22 @@ window.onload = () => {
     GLOBALS.state[slider_key] = e.target.value;
     c.innerText = e.target.value;
     if (GLOBALS.playgroundDemo != null) {
-      setRunning(false);
-      // playからpauseアイコンに切り替える
-      var play_pause = d3.select("#play_pause");
-      var icon = "pause";
-      play_pause.select("i").remove();
-      play_pause.append("i").attr("class", "material-icons");
-      play_pause.select("i").node().innerHTML = icon;
-      // demoの設定を行う
-      var demo = demos[GLOBALS.selected_id];
-      var params = [];
-      for (let j = 0; j < demo.options.length; j++) {
-        params.push(GLOBALS.state.demoParams[j]);
-      }
-      var points = demo.generator.apply(null, params);
-      main(points);
+      // setRunning(false);
+      // // playからpauseアイコンに切り替える
+      // var play_pause = d3.select("#play_pause");
+      // var icon = "pause";
+      // play_pause.select("i").remove();
+      // play_pause.append("i").attr("class", "material-icons");
+      // play_pause.select("i").node().innerHTML = icon;
+      // // demoの設定を行う
+      // var demo = demos[GLOBALS.selected_id];
+      // var params = [];
+      // for (let j = 0; j < demo.options.length; j++) {
+      //   params.push(GLOBALS.state.demoParams[j]);
+      // }
+      // var points = demo.generator.apply(null, params);
+      // main(points);
+      runDemo();
     }
   };
 
