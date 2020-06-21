@@ -21,7 +21,8 @@ d3.select("#play_pause").on("click", () => {
   var play_pause = d3.select("#play_pause");
 
   // step >= stepLimitのとき，何もしない
-  var step = parseInt(d3.select("#step").node().innerHTML);
+  // 見やすくするためにstepが1,000のように点が含まれているので前処理で取り除く
+  var step = parseInt(d3.select("#step").node().innerText.split(",").join(""));
   var stepLimit = parseInt(GLOBALS.stepLimit);
   if (step >= stepLimit) return;
 
