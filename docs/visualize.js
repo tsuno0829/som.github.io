@@ -140,8 +140,7 @@ function visualize_latent_space(Z, Zeta, width, height, margin) {
     .attr("y", 35)
     .attr("text-anchor", "middle")
     .attr("font-size", "10pt")
-    .attr("font-weight", "bold")
-    .text("X");
+    .attr("font-weight", "bold");
 
   svg_f
     .append("g")
@@ -154,8 +153,7 @@ function visualize_latent_space(Z, Zeta, width, height, margin) {
     .attr("transform", "rotate(-90)")
     .attr("text-anchor", "middle")
     .attr("font-weight", "bold")
-    .attr("font-size", "10pt")
-    .text("Y");
+    .attr("font-size", "10pt");
 
   // svg_f.append("g")
   //     .selectAll("circle")
@@ -233,8 +231,7 @@ function visualize_observation_space(X, Y, width, height, margin, IsWireframe) {
     .attr("y", 35)
     .attr("text-anchor", "middle")
     .attr("font-size", "10pt")
-    .attr("font-weight", "bold")
-    .text("X");
+    .attr("font-weight", "bold");
 
   svg_f
     .append("g")
@@ -247,8 +244,7 @@ function visualize_observation_space(X, Y, width, height, margin, IsWireframe) {
     .attr("transform", "rotate(-90)")
     .attr("text-anchor", "middle")
     .attr("font-weight", "bold")
-    .attr("font-size", "10pt")
-    .text("Y");
+    .attr("font-size", "10pt");
 
   svg_f
     .append("g")
