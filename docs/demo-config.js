@@ -156,14 +156,14 @@ function randomCircleData(numPoints) {
 }
 
 // Clusters arranged in a circle.
-function randomCircleClusterData(numPoints) {
+function randomCircleClusterData(numPoints, noise) {
   var points = [];
   for (var i = 0; i < numPoints; i++) {
     var t = (2 * Math.PI * i) / numPoints; //Math.random();
     var color = angleColor(t);
     for (var j = 0; j < 20; j++) {
-      var x = Math.cos(t) + 0.01 * normal();
-      var y = Math.sin(t) + 0.01 * normal();
+      var x = Math.cos(t) + d3.randomNormal(0, noise ** 2)();
+      var y = Math.sin(t) + d3.randomNormal(0, noise ** 2)();
       points.push(new Point([x, y], color));
     }
   }
@@ -430,13 +430,13 @@ function sinData(N, noise) {
   return makePoints(points);
 }
 
-function kuraData(N) {
+function kuraData(N, noise) {
   let points = [];
   for (let i = 0; i < N; i++) {
     let z1 = Math.random() * 2 - 1;
     let z2 = Math.random() * 2 - 1;
     let z3 = z1 * z1 - z2 * z2;
-    points.push([z1, z2, z3]);
+    points.push([z1, z2, z3 + d3.randomNormal(0, noise ** 2)()]);
   }
   return makePoints(points);
 }
@@ -821,14 +821,20 @@ var demos = [
     generator: randomCircleData,
   },
   {
-    name: "andomCircleClusterData",
-    description: "andomCircleClusterData",
+    name: "randomCircleClusterData",
+    description: "randomCircleClusterData",
     options: [
       {
         name: "Number of Points",
         min: 2,
         max: 20,
         start: 10,
+      },
+      {
+        name: "Std Of Gaussian Noise",
+        min: 0,
+        max: 0.5,
+        start: 0.1,
       },
     ],
     generator: randomCircleClusterData,
@@ -1153,8 +1159,14 @@ var demos = [
       {
         name: "Number of Points",
         min: 10,
-        max: 1000,
-        start: 400,
+        max: 400,
+        start: 200,
+      },
+      {
+        name: "Std Of Gaussian Noise",
+        min: 0,
+        max: 0.5,
+        start: 0.1,
       },
     ],
     generator: kuraData,
