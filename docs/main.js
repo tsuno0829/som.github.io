@@ -227,6 +227,161 @@ function makeDemoParamsSlider() {
   }
 }
 
+function makeModelParamsSlider() {
+  var demoParamsTag = d3.select("#demo-params");
+  // selected_modelの前回の履歴を消す（いらないかも）
+  //
+  // var model = GLOBALS.selected_model;
+  // 起動時のみ，modelParams用のsliderを生成する
+  if (GLOBALS.playgroundDemo == null) {
+    // ukr sliderの初期設定用の連想配列
+    ukr_slider = {
+      epoch: {
+        min: 1,
+        max: 2000,
+        step: 1,
+      },
+      ldim: {
+        min: 1,
+        max: 2,
+        step: 1,
+      },
+      eta: {
+        min: 0.01,
+        max: 50,
+        step: 0.01,
+      },
+      mapping_reso: {
+        min: 2,
+        max: 50,
+        step: 1,
+      },
+    };
+    // som sliderの初期設定用の連想配列
+    som_slider = {
+      epoch: {
+        min: 1,
+        max: 2000,
+        step: 1,
+      },
+      ldim: {
+        min: 1,
+        max: 2,
+        step: 1,
+      },
+      node_reso: {
+        min: 1,
+        max: 50,
+        step: 1,
+      },
+      sigmax: {
+        min: 0.01,
+        max: 4,
+        step: 0.01,
+      },
+      sigmin: {
+        min: 0.01,
+        max: 4,
+        step: 0.01,
+      },
+      tau: {
+        min: 2,
+        max: 2000,
+        step: 1,
+      },
+    };
+    // epochが上に来てほしいのでkeyでsortする
+    var keys_ukr = Object.keys(GLOBALS.state.ukrParams).sort();
+    for (let i = 0; i < keys_ukr.length; i++) {
+      var tr = demoParamsTag
+        .append("tr")
+        .attr("id", keys_ukr[i])
+        .attr("class", "UKR")
+        .attr(
+          "style",
+          GLOBALS.selected_model == "UKR" ? "display:" : "display:none;"
+        );
+      // 2つ目の<td>は数字の表示用
+      tr
+        .append("td")
+        .append("span")
+        .attr("id", "curr-" + keys_ukr[i])
+        .node().innerText =
+        keys_ukr[i] + " " + GLOBALS.state.ukrParams[keys_ukr[i]];
+      // 2つ目の<td>はrange slider用
+      tr.append("td")
+        .append("input")
+        .attr("id", keys_ukr[i] + "-slider_")
+        .attr("type", "range")
+        .attr("min", ukr_slider[keys_ukr[i]].min)
+        .attr("max", ukr_slider[keys_ukr[i]].max)
+        .attr("step", ukr_slider[keys_ukr[i]].step)
+        .attr("value", GLOBALS.state.ukrParams[keys_ukr[i]])
+        .on("change", () => {
+          var value = d3.select("#" + keys_ukr[i] + "-slider_").node().value;
+          d3.select("#curr-" + keys_ukr[i]).node().innerText =
+            keys_ukr[i] + " " + String(value);
+          // GLOBALS.state.ukrParams[keys_ukr[i]] = ;
+        });
+    }
+    // epochが上に来てほしいのでkeyでsortする
+    var keys_som = Object.keys(GLOBALS.state.somParams).sort();
+    // console.log(GLOBALS.state.somParams);
+    for (let i = 0; i < keys_som.length; i++) {
+      var tr = demoParamsTag
+        .append("tr")
+        .attr("id", keys_som[i])
+        .attr("class", "SOM")
+        .attr(
+          "style",
+          GLOBALS.selected_model == "SOM" ? "display:" : "display:none;"
+        );
+      // １つ目の<td>は数字の表示用
+      tr
+        .append("td")
+        .append("span")
+        .attr("id", "curr-" + keys_som[i])
+        .node().innerText =
+        keys_som[i] + " " + GLOBALS.state.somParams[keys_som[i]];
+      // 2つ目の<td>はrange slider用
+      tr.append("td")
+        .append("input")
+        .attr("id", keys_som[i] + "-slider_")
+        .attr("type", "range")
+        .attr("min", som_slider[keys_som[i]].min)
+        .attr("max", som_slider[keys_som[i]].max)
+        .attr("step", som_slider[keys_som[i]].step)
+        .attr("value", GLOBALS.state.somParams[keys_som[i]])
+        .on("change", () => {
+          var value = d3.select("#" + keys_som[i] + "-slider_").node().value;
+          d3.select("#curr-" + keys_som[i]).node().innerText =
+            keys_som[i] + " " + String(value);
+          console.log(value);
+        });
+    }
+  } else {
+    // 2度目以降に呼び出されたときの処理
+    if (GLOBALS.selected_model == "UKR") {
+      d3.selectAll(".UKR").attr("style", "display:;");
+      d3.selectALL(".SOM").attr("style", "display:none;");
+    } else {
+      d3.selectAll(".UKR").attr("style", "display:none;");
+      d3.selectAll(".SOM").attr("style", "display:;");
+    }
+    // epochが上に来てほしいのでkeyでsortする
+    // var keys_som = Object.keys(GLOBALS.state.somParams).sort();
+    // for (let i = 0; i < keys_som.length; i++) {
+    // var tr = demoParamsTag
+    //   .append("tr")
+    //   .attr("id", keys_som[i])
+    //   .attr("class", "SOM")
+    //   .attr(
+    //     "style",
+    //     GLOBALS.selected_model == "SOM" ? "display:" : "display:none;"
+    //   );
+  }
+}
+
 // Create menu of possible demos.
 var menuDiv = d3.select("#data-menu");
 var dataMenus = menuDiv
@@ -613,6 +768,8 @@ window.onload = () => {
       if (models[i].id == this.id) models[i].checked = true;
       else models[i].checked = false;
     }
+    // selected_idとstate.selected_idが重複しているので要修正
+    GLOBALS.selected_model = this.id;
     GLOBALS.state.selected_model = this.id;
     // model-paramsの表示を新しいモデル名に変更する
     document.getElementById("model-params").innerHTML =
@@ -633,6 +790,8 @@ window.onload = () => {
       document.getElementById("eta").style.display = "";
       document.getElementById("mapping-resolution").style.display = "";
     }
+    // UKRとSOMのスライダーを切り替える
+    makeModelParamsSlider();
     // playからpauseアイコンに切り替える
     var play_pause = d3.select("#play_pause");
     var icon = "pause";
@@ -702,6 +861,26 @@ window.onload = () => {
           tau: parseFloat(getParam("tau", 900)),
         };
       }
+      // modelSlider用に保存する
+      GLOBALS.state.ukrParams = {
+        // モデルのパラメータ
+        ldim: parseFloat(getParam("ldim", 2)),
+        epoch: parseFloat(getParam("epoch", 1000)),
+        // UKRのパラメータ
+        eta: parseFloat(getParam("eta", 2)),
+        mapping_reso: parseFloat(getParam("mapping_reso", 10)),
+      };
+      // modelSlider用に保存する
+      GLOBALS.state.somParams = {
+        // モデルのパラメータ
+        ldim: parseFloat(getParam("ldim", 2)),
+        epoch: parseFloat(getParam("epoch", 1000)),
+        // SOMのパラメータ
+        node_reso: parseFloat(getParam("node_reso", 20)),
+        sigmax: parseFloat(getParam("sigmax", 2.2)),
+        sigmin: parseFloat(getParam("sigmin", 0.2)),
+        tau: parseFloat(getParam("tau", 900)),
+      };
       // 要修正箇所
       GLOBALS.stepLimit = GLOBALS.state.epoch;
       // console.log(GLOBALS);
@@ -713,6 +892,8 @@ window.onload = () => {
   setStateFromLocationHash();
   // demo用のスライダーを作成する
   makeDemoParamsSlider();
+  // model用のスライダーを作成する
+  makeModelParamsSlider();
   // demos[GLOBALS.selected_id]をselectedに変更する
   d3.selectAll(".demo-data").classed("selected", (_, j) => {
     return GLOBALS.selected_id == j;
