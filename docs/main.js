@@ -93,22 +93,17 @@ d3.select("#visibility_on_off").on("click", () => {
 
 function updateParameters() {
   if (GLOBALS.playgroundDemo != null) {
-    // console.log(GLOBALS);
     var x;
     var demo = demos[GLOBALS.selected_id];
     var demoParams = "";
     for (let i = 0; i < demo.options.length; i++) {
       demoParams += GLOBALS.state.demoParams[i] + ",";
     }
-    // console.log(GLOBALS.selected_id);
-    // console.log(GLOBALS.selected_model);
-    // console.log(demoParams);
 
     var modelParams =
       GLOBALS.selected_model == "UKR"
         ? GLOBALS.state.ukrParams
         : GLOBALS.state.somParams;
-    console.log(modelParams);
     x = {
       selected_model: GLOBALS.selected_model,
       selected_id: GLOBALS.selected_id,
