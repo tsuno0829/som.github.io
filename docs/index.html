@@ -1,22 +1,4 @@
 <html>
-<!--
-
-██╗    ██╗███████╗██╗      ██████╗ ██████╗ ███╗   ███╗███████╗    ████████╗ ██████╗
-██║    ██║██╔════╝██║     ██╔════╝██╔═══██╗████╗ ████║██╔════╝    ╚══██╔══╝██╔═══██╗
-██║ █╗ ██║█████╗  ██║     ██║     ██║   ██║██╔████╔██║█████╗         ██║   ██║   ██║
-██║███╗██║██╔══╝  ██║     ██║     ██║   ██║██║╚██╔╝██║██╔══╝         ██║   ██║   ██║
-╚███╔███╔╝███████╗███████╗╚██████╗╚██████╔╝██║ ╚═╝ ██║███████╗       ██║   ╚██████╔╝
- ╚══╝╚══╝ ╚══════╝╚══════╝ ╚═════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝       ╚═╝    ╚═════╝
-
-███████╗ ██████╗ ███╗   ███╗     █████╗ ███╗   ██╗██████╗     ██╗   ██╗██╗  ██╗██████╗     ██╗    ██╗ ██████╗ ██████╗ ██╗     ██████╗     ██╗
-██╔════╝██╔═══██╗████╗ ████║    ██╔══██╗████╗  ██║██╔══██╗    ██║   ██║██║ ██╔╝██╔══██╗    ██║    ██║██╔═══██╗██╔══██╗██║     ██╔══██╗    ██║
-███████╗██║   ██║██╔████╔██║    ███████║██╔██╗ ██║██║  ██║    ██║   ██║█████╔╝ ██████╔╝    ██║ █╗ ██║██║   ██║██████╔╝██║     ██║  ██║    ██║
-╚════██║██║   ██║██║╚██╔╝██║    ██╔══██║██║╚██╗██║██║  ██║    ██║   ██║██╔═██╗ ██╔══██╗    ██║███╗██║██║   ██║██╔══██╗██║     ██║  ██║    ╚═╝
-███████║╚██████╔╝██║ ╚═╝ ██║    ██║  ██║██║ ╚████║██████╔╝    ╚██████╔╝██║  ██╗██║  ██║    ╚███╔███╔╝╚██████╔╝██║  ██║███████╗██████╔╝    ██╗
-╚══════╝ ╚═════╝ ╚═╝     ╚═╝    ╚═╝  ╚═╝╚═╝  ╚═══╝╚═════╝      ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝     ╚══╝╚══╝  ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═════╝     ╚═╝
-
--->
-
   <head>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <script src="https://d3js.org/d3.v5.min.js"></script>
@@ -28,176 +10,192 @@
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   </head>
   <body>
-    <div>
-      Source code available on <a href=https://github.com/tsuno0829/som.github.io>github</a>.
-    </div>
-
-    <div id="data-option">
-      <div id="data-menu" class="menu"></div>
-      <div>
-        <form id="model_selection">
-          <input id="UKR" class=model type="radio" checked> Unsupervised Kernel Regression (UKR)
+    <div id="play-ground">
+      <div id="figure">
+        <div class="no-select">
+          <font size=4>
+            <pre style="display: inline;"> Step</pre>
+          </font> <span id="step"></span>
+        </div>
+        <div class=a id="svg_latent">latent space</div>
+        <div class=a id="svg_observation"></div>
+      </div>
+      <div id="data-option">
+        <div>
+          Source code available on <a href=https://github.com/tsuno0829/som.github.io>github</a>.
+        </div>
+        <br>
+        <div id="data-menu"></div>
+        <div>
+          <form id="model_selection">
+            <input id="UKR" class=model type="radio" checked> Unsupervised Kernel Regression (UKR)
+            <br>
+            <input id="SOM" class=model type="radio"> Self-Organizing Map (SOM)
+          </form>
+          <table id="demo-params" class="menu">
+            <tr>
+              <td><font size=4>[Demo params]</font></td>
+            </tr>
+            <tr id="demo-params0"></tr>
+            <tr id="demo-params1"></tr>
+            <tr id="demo-params2"></tr>
+            <tr id="demo-params3"></tr>
+            <tr id="demo-params4"></tr>
+            <tr>
+              <td><br></td>
+            </tr>
+            <tr>
+              <td><font size=4 id="model-params">[UKR params]</font></td>
+            </tr>
+          </table>
           <br>
-          <input id="SOM" class=model type="radio"> Self-Organizing Map (SOM)
-        </form>
-        <table id="demo-params" class="menu">
-          <tr>
-            <td><font size=4>[Demo params]</font></td>
-          </tr>
-          <tr id="demo-params0"></tr>
-          <tr id="demo-params1"></tr>
-          <tr id="demo-params2"></tr>
-          <tr id="demo-params3"></tr>
-          <tr id="demo-params4"></tr>
-          <tr>
-            <td><br></td>
-          </tr>
-          <tr>
-            <td><font size=4 id="model-params">[UKR params]</font></td>
-          </tr>
-        </table>
+          <div id="demo-description"></div>
+          <br>
+          <div>
+            <button id="play_pause" class="control-button" type="button" style="width: 40px;"><i
+                class="material-icons">play_arrow</i></button>
+            <button id="refresh" class="control-button" type="button" style="width: 40px;"><i
+                class="material-icons">refresh</i></button>
+            <button id="visibility_on_off" class="control-button" type="button" style="width: 40px; display: none;"><i
+                class="material-icons">visibility_off</i></button>
+            <a id="share" class="link_button" href="#"><i class="material-icons">link</i>share this view</a>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <br>
-    <div id="demo-description"></div>
-    <br>
-    <div>
-      <button id="play_pause" class="control-button" type="button" style="width: 40px;"><i class="material-icons">play_arrow</i></button>
-      <button id="refresh" class="control-button" type="button" style="width: 40px;"><i class="material-icons">refresh</i></button>
-      <button id="visibility_on_off" class="control-button" type="button" style="width: 40px; display: none;"><i class="material-icons">visibility_off</i></button>
-      <a id="share" class="link_button" href="#"><i class="material-icons">link</i>share this view</a>
-    </div>
-    </div>
+<style>
+  #play-ground {
+    display: flex;
+    justify-content: center;
+  }
+  /* Data Menu */
+  #data-menu {
+    width: 100%;
+    max-width: 400px;
+    /* float: left; */
+    margin-bottom: 24px;
+    overflow: hidden;
+    margin-left: 5%;
+  }
 
-    <style>
-      .control-button:hover {
-        cursor: pointer;
-      }
-    </style>
+  #data-menu .demo-data {
+    cursor: pointer;
+    position: relative;
+    font-size: 10px;
+    line-height: 1.2em;
+    box-sizing: border-box;
+    float: left;
+    margin: 2px;
+    padding: 4px;
+    width: calc(33% - 4px);
+    /* demoを3個並べる */
+    background: white;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    box-shadow: 0 0 3px rgba(0, 0, 0, 0.08);
+  }
 
-    <div class="no-select">
-      <br>
-      <font size=4><pre style="display: inline;"> Step</pre></font> <span id="step"></span>
-    </div>
+  @media(min-width: 480px) {
+    #data-menu .demo-data {
+      width: calc(25% - 8px);
+      /* demoを4個並べる */
+      padding: 8px;
+      margin: 4px;
+    }
+  }
 
-    <style>
-      /* Data Menu */
-      #data-menu {
-        width: 40%;
-        float: left;
-        margin-bottom: 24px;
-        overflow: hidden;
-        margin-left: 5%;
-      }
-      #data-menu .demo-data {
-        cursor: pointer;
-        position: relative;
-        font-size: 10px;
-        line-height: 1.2em;
-        box-sizing: border-box;
-        float: left;
-        margin: 2px;
-        padding: 4px;
-        width: calc(33% - 4px); /* demoを3個並べる */
-        background: white;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-        border-radius: 4px;
-        box-shadow: 0 0 3px rgba(0, 0, 0, 0.08);
-      }
-      @media(min-width: 480px) {
-        #data-menu .demo-data {
-          width: calc(25% - 8px); /* demoを4個並べる */
-          padding: 8px;
-          margin: 4px;
-        }
-      }
-      @media(min-width: 768px) {
-        #data-menu .demo-data {
-          width: calc(16.5% - 8px); /* demoを6個並べる */
-          padding: 8px;
-          margin: 4px;
-        }
-      }
-    #data-menu .demo-data:hover {
+  @media(min-width: 768px) {
+    #data-menu .demo-data {
+      width: calc(16.5% - 8px);
+      /* demoを6個並べる */
+      padding: 8px;
+      margin: 4px;
+    }
+  }
+
+  #data-menu .demo-data:hover {
     border: 1px solid rgba(0, 0, 0, 0.2);
 
-    }
-    #data-menu .demo-data.selected::after {
-      content: "";
-      border: 2px solid rgba(70, 130, 180, 0.8);
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      box-sizing: border-box;
-      border-radius: 4px;
-    }
-    #data-menu .demo-data span {
-      display: none;
-    }
-    #data-menu .demo-data:hover canvas {
-      opacity: 1;
-    }
-    #data-menu .demo-data canvas {
-      width: 100%;
-      opacity: 0.3;
-    }
-    #data-menu .demo-data.selected canvas {
-      opacity: 1;
-    }
+  }
 
-    .menu {
-      display: inline-block;
-      width: 400px;
-      vertical-align: top;
-      padding: 5px;
-    }
-    @media(min-width: 480px) {
-        .menu {
-          display: inline-block;
-          width: 400px;
-          vertical-align: top;
-          padding: 5px;
-        }
-      }
-    .a {
-      display: inline-block;
-      width: 400px;
-      height: 400px;
-      vertical-align:top;
-      letter-spacing: -1em; /* 文字間を詰める */
-      white-space: nowrap; /* 自動で折り返ししない */
-      user-select: none; /*選択されるとかっこ悪いので選択できないようにする*/
-    }
-    #svg_latent.a {
-      padding-top: 20px;
-      letter-spacing: normal; /* 文字間を元に戻す */
-      white-space: normal; /* 自動で折り返し(元に戻す) */
-      user-select: none;
-    }
-    #svg_observation.a {
-      letter-spacing: normal; /* 文字間を元に戻す */
-      white-space: normal; /* 自動で折り返し(元に戻す) */
-    }
-    #svg_latent.a::after {
-      content: aaa;
-    }
-    .a {
-      text-align: center;
-    }
-    .no-select {
-      user-select: none;
-    }
+  #data-menu .demo-data.selected::after {
+    content: "";
+    border: 2px solid rgba(70, 130, 180, 0.8);
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    box-sizing: border-box;
+    border-radius: 4px;
+  }
 
-  </style>
+  #data-menu .demo-data span {
+    display: none;
+  }
 
+  #data-menu .demo-data:hover canvas {
+    opacity: 1;
+  }
 
-    <div id="figure">
-      <div class=a id="svg_latent">latent space</div>
-      <div class=a id="svg_observation"></div>
-    </div>
+  #data-menu .demo-data canvas {
+    width: 100%;
+    opacity: 0.3;
+  }
 
-    <script type="text/javascript" src="main.js"></script>
+  #data-menu .demo-data.selected canvas {
+    opacity: 1;
+  }
+
+  #figure {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .a {
+    display: inline-block;
+    width: 400px;
+    height: 400px;
+    vertical-align: top;
+    letter-spacing: -1em;
+    /* 文字間を詰める */
+    white-space: nowrap;
+    /* 自動で折り返ししない */
+    user-select: none;
+    /*選択されるとかっこ悪いので選択できないようにする*/
+  }
+
+  #svg_latent.a {
+    letter-spacing: normal;
+    /* 文字間を元に戻す */
+    white-space: normal;
+    /* 自動で折り返し(元に戻す) */
+    user-select: none;
+  }
+
+  #svg_observation.a {
+    letter-spacing: normal;
+    /* 文字間を元に戻す */
+    white-space: normal;
+    /* 自動で折り返し(元に戻す) */
+  }
+
+  #svg_latent.a::after {
+    content: aaa;
+  }
+
+  .a {
+    text-align: center;
+  }
+
+  .no-select {
+    user-select: none;
+  }
+  .control-button:hover {
+    cursor: pointer;
+  }
+</style>
+  <script type="text/javascript" src="main.js"></script>
   </body>
 </html>
