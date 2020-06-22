@@ -11,6 +11,58 @@
   </head>
   <body>
     <div id="play-ground">
+      <div id="data-option">
+          <br>
+          <div id="data-menu"></div>
+          <div id="demo-description"></div>
+          <br>
+          <div>
+            Source code available on <a href=https://github.com/tsuno0829/som.github.io>github</a>.
+          </div>
+      </div>
+
+      <div id="desc-params">
+        <br>
+        <br>
+        <form id="model-selection">
+          <input id="UKR" class=model type="radio" checked> Unsupervised Kernel Regression (UKR)
+          <br>
+          <input id="SOM" class=model type="radio"> Self-Organizing Map (SOM)
+        </form>
+        <br>
+        <div id="play-share">
+          <button id="play_pause" class="control-button" type="button" style="width: 40px;"><i
+              class="material-icons">play_arrow</i></button>
+          <button id="refresh" class="control-button" type="button" style="width: 40px;"><i
+              class="material-icons">refresh</i></button>
+          <button id="visibility_on_off" class="control-button" type="button" style="width: 40px; display: none;"><i
+              class="material-icons">visibility_off</i></button>
+        </div>
+        <a id="share" class="link_button" href="#"><i class="material-icons">link</i>share this view</a>
+        <br>
+        <table id="demo-params">
+          <tr>
+            <td>
+              <font size=4>[Demo params]</font>
+            </td>
+          </tr>
+          <tr id="demo-params0"></tr>
+          <tr id="demo-params1"></tr>
+          <tr id="demo-params2"></tr>
+          <tr id="demo-params3"></tr>
+          <tr id="demo-params4"></tr>
+          <tr>
+            <td><br></td>
+          </tr>
+          <tr>
+            <td>
+              <font size=4 id="model-params">[UKR params]</font>
+            </td>
+          </tr>
+        </table>
+        <br>
+        <br>
+      </div>
       <div id="figure">
         <div class="no-select">
           <font size=4>
@@ -20,48 +72,6 @@
         <div class=a id="svg_latent">latent space</div>
         <div class=a id="svg_observation"></div>
       </div>
-      <div id="data-option">
-          <div>
-            Source code available on <a href=https://github.com/tsuno0829/som.github.io>github</a>.
-          </div>
-          <br>
-          <form id="model_selection">
-            <input id="UKR" class=model type="radio" checked> Unsupervised Kernel Regression (UKR)
-            <br>
-            <input id="SOM" class=model type="radio"> Self-Organizing Map (SOM)
-          </form>
-
-          <div id="data-menu"></div>
-          <div id="demo-description"></div>
-          <br>
-          <div>
-            <button id="play_pause" class="control-button" type="button" style="width: 40px;"><i
-                class="material-icons">play_arrow</i></button>
-            <button id="refresh" class="control-button" type="button" style="width: 40px;"><i
-                class="material-icons">refresh</i></button>
-            <button id="visibility_on_off" class="control-button" type="button" style="width: 40px; display: none;"><i
-                class="material-icons">visibility_off</i></button>
-            <a id="share" class="link_button" href="#"><i class="material-icons">link</i>share this view</a>
-          </div>
-          <table id="demo-params" class="menu">
-            <tr>
-              <td><font size=4>[Demo params]</font></td>
-            </tr>
-            <tr id="demo-params0"></tr>
-            <tr id="demo-params1"></tr>
-            <tr id="demo-params2"></tr>
-            <tr id="demo-params3"></tr>
-            <tr id="demo-params4"></tr>
-            <tr>
-              <td><br></td>
-            </tr>
-            <tr>
-              <td><font size=4 id="model-params">[UKR params]</font></td>
-            </tr>
-          </table>
-          <br>
-          <br>
-      </div>
     </div>
 
 <style>
@@ -69,14 +79,22 @@
     display: flex;
     justify-content: center;
   }
+  #data-option {
+    width: 33%;
+    overflow:hidden;
+    margin-top: 0px;
+    text-align: center;
+  }
   /* Data Menu */
   #data-menu {
     width: 100%;
     max-width: 400px;
     /* float: left; */
     margin-bottom: 24px;
+    /* margin-left: 20%; */
     overflow: hidden;
-    margin-left: 5%;
+    margin: 0 auto;
+    /* margin-left: 5%; */
   }
 
   #data-menu .demo-data {
@@ -151,16 +169,39 @@
   #figure {
     display: flex;
     flex-direction: column;
+    width:33%;
+    /* text-align: center; */
+    padding: 0;
+    margin:0 auto;
+    text-align:center;
   }
 
   #demo-description {
     width: 100%;
   }
 
+  #desc-params {
+    width: 33%;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  #model-selection {
+    margin: 0 auto;
+  }
+
+  #demo-params {
+    margin: 0 auto;
+  }
+
+  #play-share {
+    margin: 0 auto;
+  }
+
   .a {
-    display: inline-block;
-    width: 450px;
-    height: 400px;
+    /* display: inline-block; */
+    width: 33%;
+    /* height: 400px; */
     vertical-align: top;
     letter-spacing: -1em;
     /* 文字間を詰める */

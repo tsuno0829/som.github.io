@@ -685,8 +685,8 @@ function main(X) {
     Y = initMatrix(X.length, Dim);
   }
 
-  var width = 380;
-  var height = 380;
+  var width = 330;
+  var height = 330;
   var margin = { top: 30, bottom: 60, right: 30, left: 60 };
 
   // Dimが3以下のとき，観測データは表示せずにvisibility iconのみ表示する．
