@@ -21,11 +21,10 @@
         <div class=a id="svg_observation"></div>
       </div>
       <div id="data-option">
-        <div>
-          Source code available on <a href=https://github.com/tsuno0829/som.github.io>github</a>.
-        </div>
-        <br>
-        <div>
+          <div>
+            Source code available on <a href=https://github.com/tsuno0829/som.github.io>github</a>.
+          </div>
+          <br>
           <form id="model_selection">
             <input id="UKR" class=model type="radio" checked> Unsupervised Kernel Regression (UKR)
             <br>
@@ -33,7 +32,17 @@
           </form>
 
           <div id="data-menu"></div>
-
+          <div id="demo-description"></div>
+          <br>
+          <div>
+            <button id="play_pause" class="control-button" type="button" style="width: 40px;"><i
+                class="material-icons">play_arrow</i></button>
+            <button id="refresh" class="control-button" type="button" style="width: 40px;"><i
+                class="material-icons">refresh</i></button>
+            <button id="visibility_on_off" class="control-button" type="button" style="width: 40px; display: none;"><i
+                class="material-icons">visibility_off</i></button>
+            <a id="share" class="link_button" href="#"><i class="material-icons">link</i>share this view</a>
+          </div>
           <table id="demo-params" class="menu">
             <tr>
               <td><font size=4>[Demo params]</font></td>
@@ -51,18 +60,7 @@
             </tr>
           </table>
           <br>
-          <div id="demo-description"></div>
           <br>
-          <div>
-            <button id="play_pause" class="control-button" type="button" style="width: 40px;"><i
-                class="material-icons">play_arrow</i></button>
-            <button id="refresh" class="control-button" type="button" style="width: 40px;"><i
-                class="material-icons">refresh</i></button>
-            <button id="visibility_on_off" class="control-button" type="button" style="width: 40px; display: none;"><i
-                class="material-icons">visibility_off</i></button>
-            <a id="share" class="link_button" href="#"><i class="material-icons">link</i>share this view</a>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -155,9 +153,13 @@
     flex-direction: column;
   }
 
+  #demo-description {
+    width: 100%;
+  }
+
   .a {
     display: inline-block;
-    width: 400px;
+    width: 450px;
     height: 400px;
     vertical-align: top;
     letter-spacing: -1em;
