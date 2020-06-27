@@ -13,6 +13,10 @@ var GLOBALS = {
   visibility: "off",
   current_Z: null,
   current_Y: null,
+  figure: {
+    width: 300,
+    height: 300,
+  },
 };
 
 d3.select("#play_pause").on("click", () => {
@@ -518,8 +522,6 @@ function demoMaker(
   tau,
   eta,
   mapping_resolution,
-  width,
-  height,
   margin,
   stepCb
 ) {
@@ -559,6 +561,9 @@ function demoMaker(
 
   function iterate() {
     if (paused) return;
+
+    // 画面が変更されたときにfigureサイズを変更するために用意
+    figureSizeUpdate();
 
     // control speed at which we iterate
     if (step >= 200 || Dim == 3) chunk = 1;
@@ -605,7 +610,13 @@ function demoMaker(
       }
     } else {
       // UKR
-      visualize_latent_space(Z, Zeta, width, height, margin);
+      visualize_latent_space(
+        (Z = Z),
+        (Zeta = Zeta),
+        (width = GLOBALS.figure.width),
+        (height = GLOBALS.figure.height),
+        (margin = margin)
+      );
       if (Dim < 4 && GLOBALS.visibility == "on") {
         var newY = ukr.generate_new_mapping(X, Z, mapping_resolution);
         // Dim=1,2,3のときだけ観測空間を表示
@@ -685,8 +696,6 @@ function main(X) {
     Y = initMatrix(X.length, Dim);
   }
 
-  var width = 330;
-  var height = 330;
   var margin = { top: 30, bottom: 60, right: 30, left: 60 };
 
   // Dimが3以下のとき，観測データは表示せずにvisibility iconのみ表示する．
@@ -716,10 +725,21 @@ function main(X) {
     tau,
     eta,
     mapping_resolution,
-    width,
-    height,
     margin
   );
+}
+
+function figureSizeUpdate() {
+  // var size_ = document.getElementById("playground").style;
+  var figure = document.getElementById("figure");
+  var w = figure.clientWidth;
+  var h = figure.clientHeight;
+  // GLOBALS.figure.width = Math.min(w, h);
+  // GLOBALS.figure.height = Math.min(w, h);
+  GLOBALS.figure.width = 400;
+  GLOBALS.figure.height = 400;
+  // console.log(GLOBALS.figure);
+  // console.log(size_.grid);
 }
 
 window.onload = () => {
@@ -831,5 +851,11 @@ window.onload = () => {
   for (let i = 0; i < demo.options.length; i++)
     params.push(GLOBALS.state.demoParams[i]);
   var points = demo.generator.apply(null, params);
-  main(points);
+  // main(points);
+  figureSizeUpdate();
+};
+
+window.onresize = () => {
+  figureSizeUpdate();
+  // console.log(document.getElementById("figure").clientWidth);
 };
